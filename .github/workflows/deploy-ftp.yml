@@ -1,0 +1,47 @@
+# 自動產生課程網站並用 FTP 上傳到 weclass.tw/courses/
+# 每天台灣時間凌晨 3 點從試算表讀最新課程重新產生並上傳，也可以在 Actions 頁面按「Run workflow」立即更新。
+# 設定（Settings › Secrets and variables › Actions › Secrets）：
+#   DATA_URL      試算表部署的網頁應用程式網址（/exec 結尾）
+#   FTP_SERVER    主機 FTP 位址，例如 ftp.weclass.tw
+#   FTP_USERNAME  FTP 帳號
+#   FTP_PASSWORD  FTP 密碼
+#   FTP_DIR       網站根目錄下的 courses 資料夾，結尾要有 /，例如 public_html/courses/
+name: Build and upload to weclass.tw
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 19 * * *'
+concurrency:
+  group: ftp-deploy
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      FTP_SERVER: ${{ secrets.FTP_SERVER }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install playwright==1.47.0 && python -m playwright install --with-deps chromium
+      - name: Build
+        env:
+          DATA_URL: ${{ secrets.DATA_URL }}
+        run: |
+          if [ -n "$DATA_URL" ]; then EXTRA="--data-url $DATA_URL --live-data"; fi
+          python build.py --origin https://weclass.tw --base /courses/ $EXTRA
+      - name: Skip upload (FTP not set yet)
+        if: env.FTP_SERVER == ''
+        run: echo "還沒設定 FTP_SERVER 等 Secrets，這次只產生網站、不上傳。"
+      - name: Upload
+        if: env.FTP_SERVER != ''
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/courses/
+          server-dir: ${{ secrets.FTP_DIR }}
