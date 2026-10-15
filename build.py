@@ -30,6 +30,7 @@ ap.add_argument('--origin', default='https://weclass.tw', help='網站正式網�
 ap.add_argument('--base', default='/courses/', help='課程站在網域下的路徑，前後都要有 /')
 ap.add_argument('--out', default='dist', help='輸出資料夾')
 ap.add_argument('--live-data', action='store_true', help='頁面打開後再向試算表讀最新資料（需搭配 --data-url）')
+ap.add_argument('--noindex', action='store_true', help='預覽用：請搜尋引擎不要收錄（給客戶看的暫時網址用）')
 args = ap.parse_args()
 BASE = '/' + args.base.strip('/') + '/' if args.base.strip('/') else '/'
 ORIGIN = args.origin.rstrip('/')
@@ -176,7 +177,7 @@ def jsonld(*objs):
 
 
 def head(title, desc, rel, image, *ld):
-    return (f'<title>{esc(title)}</title>\n<meta name="description" content="{esc(desc)}">\n<link rel="canonical" href="{url(rel)}">\n'
+    return (('<meta name="robots" content="noindex, nofollow">\n' if args.noindex else '') + f'<title>{esc(title)}</title>\n<meta name="description" content="{esc(desc)}">\n<link rel="canonical" href="{url(rel)}">\n'
             f'<meta property="og:type" content="website"><meta property="og:site_name" content="WeClass 維課教育">\n'
             f'<meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}">\n'
             f'<meta property="og:url" content="{url(rel)}"><meta property="og:image" content="{esc(image)}"><meta property="og:locale" content="zh_TW">\n'
@@ -227,7 +228,7 @@ for rel, p in routes:
 today = date.today().isoformat()
 (SITE / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
                                   ''.join(f'  <url><loc>{url(rel)}</loc><lastmod>{today}</lastmod></url>\n' for rel, _ in routes) + '</urlset>\n', 'utf-8')
-robots = f'User-agent: *\nAllow: /\n\nSitemap: {url("sitemap.xml")}\n'
+robots = 'User-agent: *\nDisallow: /\n' if args.noindex else f'User-agent: *\nAllow: /\n\nSitemap: {url("sitemap.xml")}\n'
 (SITE / 'robots.txt').write_text(robots, 'utf-8')
 if BASE != '/':
     (OUT / 'robots.txt').write_text(robots, 'utf-8')   # 若課程站獨立部署（例如子網域），根目錄也放一份

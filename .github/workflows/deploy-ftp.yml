@@ -6,12 +6,13 @@
 #   FTP_PASSWORD  FTP 密碼
 #   FTP_DIR       網站根目錄下的 courses 資料夾，結尾要有 /，例如 public_html/courses/
 name: Build and upload to weclass.tw
+# 目前先用 GitHub Pages（build.yml）；之後改放 weclass.tw/courses/ 時，把下面三行的 # 拿掉並停用 build.yml。
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-  schedule:
-    - cron: '0 19 * * *'
+  # push:
+  #   branches: [main]
+  # schedule:
+  #   - cron: '0 19 * * *'
 concurrency:
   group: ftp-deploy
   cancel-in-progress: true
