@@ -76,6 +76,8 @@ def _nav_drop():
 body = body.replace('<!--NAVDROP-->', _nav_drop())   # 下拉選單直接寫進每一頁，搜尋引擎也看得到每個課程的連結
 (SITE / 'assets' / 'site.css').write_text(css, 'utf-8')
 (SITE / 'assets' / 'site.js').write_text(js, 'utf-8')
+import hashlib
+VER = hashlib.md5((css + js).encode('utf-8')).hexdigest()[:8]   # 內容變了檔名參數就變，瀏覽器不會用到舊的快取
 
 FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
          '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Poppins:wght@700;900&display=swap" rel="stylesheet">')
@@ -89,13 +91,13 @@ def page(head, app_html=''):
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 {head}
 {FONTS}
-<link rel="stylesheet" href="{A}site.css">
+<link rel="stylesheet" href="{A}site.css?v={VER}">
 <link rel="icon" href="{A}logo.svg" type="image/svg+xml">
 <script>window.WECLASS_BASE = {json.dumps(BASE)};</script>
 </head>
 <body>
 {body.replace('<main id="app"></main>', '<main id="app">' + app_html + '</main>')}
-<script src="{A}site.js"></script>
+<script src="{A}site.js?v={VER}"></script>
 </body>
 </html>
 '''
