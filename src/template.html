@@ -597,6 +597,21 @@ button.wt[aria-pressed="true"] { background: var(--wd); border-color: var(--wd);
 .qa-item[open] summary::after { transform: rotate(45deg); background: var(--mint); }
 .qa-item .ans { padding: 0 22px 20px; letter-spacing: 0.05em; line-height: 1.85; }
 @media (max-width: 900px) { .faq .wrap { padding-block: 70px 90px; } .qa-item summary { font-size: 15.5px; padding: 15px 16px; } .qa-item .ans { padding: 0 16px 16px; font-size: 14.5px; } }
+.navdrop { position: relative; }
+.navdrop .caret { font-size: 11px; margin-left: 2px; display: inline-block; transition: transform .2s; }
+.navdrop:hover .caret, .navdrop:focus-within .caret { transform: rotate(180deg); }
+.navdrop-panel { position: absolute; z-index: 50; top: calc(100% + 12px); right: -40px; width: 600px; background: var(--white); border-radius: 22px; box-shadow: 0 20px 40px -12px rgba(28, 77, 89, .35); padding: 22px 22px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 26px; opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity .18s, transform .18s, visibility .18s; }
+.navdrop-panel::before { content: ""; position: absolute; left: 0; right: 0; top: -14px; height: 14px; }
+.navdrop:hover .navdrop-panel, .navdrop:focus-within .navdrop-panel { opacity: 1; visibility: visible; transform: none; }
+.nd-h { margin: 0 10px 6px; font-weight: 900; font-size: 14px; letter-spacing: 0.08em; color: var(--teal); display: flex; align-items: baseline; gap: 8px; }
+.nd-h small { font-weight: 700; font-size: 12px; color: var(--grey-text); letter-spacing: 0.04em; }
+.nd-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.nav .navdrop-panel a { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 10px; border-radius: 12px; font-size: 15px; letter-spacing: 0.04em; }
+.nav .navdrop-panel a small { font-weight: 700; font-size: 12px; color: var(--grey-text); white-space: nowrap; letter-spacing: 0.02em; }
+.nav .navdrop-panel a:hover { background: var(--mint-pale); }
+.nav .navdrop-panel a[aria-current] { background: var(--mint-pale); box-shadow: inset 3px 0 0 var(--teal); }
+.nav .navdrop-panel .nd-all { grid-column: 1 / -1; justify-content: center; margin-top: 10px; border-top: 2px dashed #EBD9C2; border-radius: 0; padding-top: 14px; color: var(--teal); }
+.nav .navdrop-panel .nd-all:hover { background: none; color: var(--orange); }
 </style>
 
 <header class="site-head">
@@ -604,7 +619,10 @@ button.wt[aria-pressed="true"] { background: var(--wd); border-color: var(--wd);
     <a class="logo" href="https://weclass.tw/" aria-label="回 WeClass 維課教育官網"></a>
     <nav class="nav" aria-label="主選單">
       <a href="#" id="nav-goal">依學習目標找單元</a>
-      <a href="#all" id="nav-all">全部課程方案</a>
+      <div class="navdrop">
+        <a href="#all" id="nav-all" aria-haspopup="true">全部課程方案 <span class="caret" aria-hidden="true">▾</span></a>
+        <div class="navdrop-panel" id="navdrop" aria-label="所有課程方案"><!--NAVDROP--></div>
+      </div>
       <a href="https://weclass.tw/" class="official">回官網 <span aria-hidden="true">↗</span></a>
     </nav>
     <button class="burger" id="burger" aria-label="開啟選單" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
@@ -1212,6 +1230,19 @@ function ctaBand({ pager = '' } = {}) {
 /* ════════════════════════════════════════════════════════════════
    7. 路由：# → 總覽、#find → 總覽並捲到找課、#p1 → 方案頁、#p1.3 → 方案頁＋第 3 單元
    ════════════════════════════════════════════════════════════════ */
+/* 電腦版導覽列「全部課程方案」的下拉選單：分初階、進階列出每個方案，任何一頁都能直接換課程 */
+function navDropHtml() {
+  const col = (type, note) => `<div class="nd-col"><p class="nd-h">${type}課程<small>${note}</small></p><ul>${db.filter(p => p.type === type).map(p => `<li><a href="#${p.id}" data-pid="${p.id}"><span>${esc(p.title)}</span><small>${esc(p.grades)}</small></a></li>`).join('')}</ul></div>`;
+  return col('初階', '單元實作') + col('進階', '3 天專案') + '<a class="nd-all" href="#all">看全部課程方案 →</a>';
+}
+function renderNavDrop() {
+  const el = document.getElementById('navdrop'); if (!el) return;
+  el.innerHTML = navDropHtml();
+  const cur = (location.hash.match(/^#(p\d+)/) || [])[1] || (BASE ? (db.find(p => decodeURIComponent(location.pathname).includes('/' + slugOf(p) + '/')) || {}).id : '');
+  el.querySelectorAll('[data-pid]').forEach(a => a.toggleAttribute('aria-current', a.dataset.pid === cur));
+}
+window.addEventListener('hashchange', renderNavDrop);
+
 function setNav(which) {
   ['goal', 'all'].forEach(k => { const el = document.getElementById('nav-' + k); if (k === which) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current'); });
 }
@@ -1255,6 +1286,7 @@ function route() {
   else renderGoal();
 }
 window.addEventListener('hashchange', route);
+renderNavDrop();
 if (BASE) document.addEventListener('click', e => {
   const a = e.target.closest('a[href^="#"]'); if (!a || e.defaultPrevented) return;
   const to = hrefMap(a.getAttribute('href')); if (to) { e.preventDefault(); location.href = to; }
@@ -1266,7 +1298,7 @@ const DATA_URL = '';
 if (DATA_URL) fetch(DATA_URL).then(r => r.json()).then(j => {
   if (!j || !Array.isArray(j.courses) || !j.courses.length) return;
   db.splice(0, db.length, ...j.courses);
-  buildTags(); totalUnits = db.reduce((a, p) => a + p.units.length, 0);
+  buildTags(); totalUnits = db.reduce((a, p) => a + p.units.length, 0); renderNavDrop();
   route();
 }).catch(() => {});
 </script>

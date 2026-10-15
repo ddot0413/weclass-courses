@@ -68,6 +68,12 @@ assert '{{' not in t, '範本還有沒替換的欄位'
 css = '\n'.join(re.findall(r'<style[^>]*>(.*?)</style>', t, re.S))
 js = re.search(r'<script>(.*?)</script>', t, re.S).group(1)
 body = t[t.index('</style>', t.index('<style>\n')) + len('</style>'):t.index('<script>')].strip()
+def _nav_drop():
+    def col(kind, note):
+        items = ''.join(f'<li><a href="#{p["id"]}" data-pid="{p["id"]}"><span>{html.escape(p["title"])}</span><small>{html.escape(p["grades"])}</small></a></li>' for p in courses if p['type'] == kind)
+        return f'<div class="nd-col"><p class="nd-h">{kind}課程<small>{note}</small></p><ul>{items}</ul></div>'
+    return col('初階', '單元實作') + col('進階', '3 天專案') + '<a class="nd-all" href="#all">看全部課程方案 →</a>'
+body = body.replace('<!--NAVDROP-->', _nav_drop())   # 下拉選單直接寫進每一頁，搜尋引擎也看得到每個課程的連結
 (SITE / 'assets' / 'site.css').write_text(css, 'utf-8')
 (SITE / 'assets' / 'site.js').write_text(js, 'utf-8')
 
