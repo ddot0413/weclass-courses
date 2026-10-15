@@ -1,0 +1,1272 @@
+<title>WeClass 課綱單元課程包</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
+<!--
+  WeClass 課綱單元課程包 v3.1（只做官網 Find Your Course 第三張卡：Learn by Goal）
+  從官網外連進入的課程站：課程總覽＋依學習目標找課（入口）、11 個課程方案頁。
+  視覺依 Figma《維課教育｜2026網頁設計》與《WeClass Brand Guidelines Book V01》。
+  官網：https://weclass.tw/（左上角 Logo 與「回官網」）
+  網址：#（課綱單元課程包：依學習目標找單元）、#all（全部課程方案）、#p1～#p11（方案頁）、#p1.3（方案頁並打開第 3 單元）
+-->
+<style id="design-tokens">
+/* Layout: Figma 02 課程介紹 / 08 課程彈窗 —— 奶油底首屏、斜切皺紙色帶分段、傾斜白卡、課程彈窗 */
+:root {
+  color-scheme: light;
+  /* 品牌色（Figma 變數組「WeClass / 品牌色彩」） */
+  --teal: #1D4C58;        /* teal/600 */
+  --ink: #1C4D59;         /* 文字 */
+  --mint: #87CCC8;        /* mint/500，導覽選中 */
+  --mint-light: #B1DBCF;  /* mint/200，相框 */
+  --mint-pale: #E1F6F4;
+  --orange: #F08419;      /* orange/600，按鈕 */
+  --peach: #FFDBA9;       /* 重點底色、星芒 */
+  --yellow: #FFE2A3;      /* 便條卡 */
+  --cream: #FDEFDF;       /* 頁面底色 */
+  --grey-text: #636363;   /* 卡片說明文字（Figma #757575 加深以符合對比） */
+  --white: #FFFFFF;
+  /* 字體（Figma 文字樣式） */
+  --f-zh: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --f-en: "Poppins", "Noto Sans TC", sans-serif;
+  --shadow-card: 0 13px 20px 6px rgba(0, 0, 0, 0.12);
+  /* 照片多邊形外框（Figma「圖片 / 課程理念介紹」的形狀） */
+  --frame: polygon(20.1% 0%, 0% 18.3%, 0% 73.2%, 3.9% 89.4%, 42.7% 100%, 91.8% 91.5%, 100% 75.4%, 97.5% 18.3%, 93.7% 4%);
+}
+</style>
+<style id="brand-assets">
+/* 品牌素材（全部內嵌）：Logo、手寫標題、星芒筆刷、皺紙紋理、角色、課程照片 */
+:root {
+  {{ASSET_VARS}}
+}
+</style>
+<style>
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+body { margin: 0; background: var(--cream); color: var(--ink); font-family: var(--f-zh); font-weight: 500; font-size: 16px; line-height: 1.6; }
+img { max-width: 100%; display: block; }
+button { font-family: inherit; cursor: pointer; color: inherit; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; border-radius: 8px; }
+.wrap { max-width: 1200px; margin: 0 auto; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ── 頁首 ── */
+.site-head { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40; background: var(--cream); }
+.site-head .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 104px; }
+.logo { width: 200px; height: 58px; background: var(--logo) left center / contain no-repeat; flex: none; }
+/* 導覽列：依 Figma 02 課程介紹 Desktop——粗體深綠字、加寬字距、選中為薄荷綠膠囊 */
+.nav { display: flex; gap: 10px; align-items: center; }
+.nav a { text-decoration: none; font-weight: 700; font-size: 16px; letter-spacing: 0.14em; color: var(--teal); padding: 7px 16px; border-radius: 999px; white-space: nowrap; transition: background .2s; }
+.nav a:hover { background: var(--mint-pale); }
+.nav a[aria-current="page"] { background: var(--mint); }
+.nav a.official span { font-family: var(--f-en); font-size: 13px; margin-left: 2px; }
+
+/* ── 手機漢堡選單 ── */
+.burger { display: none; width: 46px; height: 46px; border: 0; border-radius: 14px; background: var(--teal); padding: 0; flex: none; position: relative; }
+.burger span { position: absolute; left: 13px; width: 20px; height: 2.5px; border-radius: 2px; background: var(--white); transition: transform .25s, opacity .2s, top .25s; }
+.burger span:nth-child(1) { top: 15px; } .burger span:nth-child(2) { top: 22px; } .burger span:nth-child(3) { top: 29px; }
+.burger[aria-expanded="true"] span:nth-child(1) { top: 22px; transform: rotate(45deg); }
+.burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.burger[aria-expanded="true"] span:nth-child(3) { top: 22px; transform: rotate(-45deg); }
+.mnav { position: absolute; left: 0; right: 0; top: 100%; background: var(--cream); box-shadow: 0 18px 24px -12px rgba(0, 0, 0, .18); max-height: calc(100dvh - 66px - env(safe-area-inset-top, 0px)); overflow-y: auto;
+  padding: 6px max(20px, env(safe-area-inset-right, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px)); border-top: 2px dashed #EBD9C2; }
+.mnav .main { display: grid; gap: 6px; margin: 10px 0 14px; }
+.mnav .main a { display: flex; justify-content: space-between; align-items: center; text-decoration: none; font-weight: 900; font-size: 18px; letter-spacing: 0.06em; padding: 12px 16px; border-radius: 14px; background: var(--white); }
+.mnav .main a[aria-current="page"] { background: var(--mint); }
+.mnav .main a.official { background: var(--teal); color: var(--white); }
+.mnav h3 { font-weight: 900; font-size: 14px; letter-spacing: 0.08em; color: var(--teal); margin: 14px 4px 8px; display: flex; gap: 8px; align-items: baseline; }
+.mnav h3 small { font-weight: 700; font-size: 12px; color: var(--ink); opacity: .75; }
+.mnav ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.mnav ul a { display: block; text-decoration: none; font-weight: 700; font-size: 14.5px; letter-spacing: 0.04em; padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, .65); line-height: 1.35; }
+.mnav ul a[aria-current="page"] { background: var(--teal); color: var(--white); }
+
+/* ── 共用：標題組、膠囊、按鈕 ── */
+.tgroup .en { font-family: var(--f-en); font-weight: 900; font-size: clamp(38px, 5vw, 56px); line-height: 1; color: var(--teal); margin: 0 0 14px; letter-spacing: -0.01em; }
+.tgroup h2 { font-weight: 900; font-size: clamp(24px, 2.6vw, 30px); line-height: 1.3; margin: 0 0 16px; color: var(--teal); }
+.tgroup p.d { font-size: 16px; letter-spacing: 0.1em; line-height: 1.75; margin: 0; max-width: 32em; }
+.on-teal .tgroup .en { color: var(--white); }
+.on-teal .tgroup h2 { color: var(--mint); }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; font-weight: 700; font-size: 15px; letter-spacing: 0.08em; padding: 5px 16px; }
+.pill.teal { background: var(--teal); color: var(--white); }
+.pill.white { background: var(--white); color: var(--ink); }
+.pill.mint { background: var(--mint); color: var(--ink); }
+.btn { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 999px; font-weight: 700; font-size: 17px; letter-spacing: 0.06em; padding: 13px 28px; text-decoration: none; transition: transform .2s, background .2s; }
+.btn:hover { transform: translateY(-2px); }
+.btn.orange { background: var(--orange); color: var(--ink); box-shadow: 0 8px 18px -8px rgba(240, 132, 25, .8); }
+.btn.line { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--teal); }
+.on-teal .btn.line { color: var(--white); box-shadow: inset 0 0 0 2px var(--white); }
+
+/* ── 皺紙色帶 ── */
+.band { position: relative; z-index: 3; }
+.band.mint { background: var(--mint) var(--tx-mint) center / 768px auto; clip-path: polygon(0 34px, 100% 0, 100% 100%, 0 100%); margin-top: -34px; }
+.band.peach { background: var(--peach) var(--tx-peach) center / 768px auto; clip-path: polygon(0 70px, 100% 0, 100% calc(100% - 50px), 0 100%); margin-top: -70px; }
+.band.teal { background: var(--teal) var(--tx-teal) center / 768px auto; clip-path: polygon(0 0, 100% 56px, 100% 100%, 0 100%); color: var(--white); }
+.band, .hero { overflow: hidden; }
+/* 色帶相接：深綠區塊往上疊，避免露出米色楔形縫 */
+.band + .band.teal { margin-top: -80px; clip-path: polygon(0 30px, 100% 0, 100% 100%, 0 100%); }
+.band + .band.teal .wrap { padding-top: 130px; }
+.band.peach + .band.teal .wrap { padding-top: 140px; }
+
+/* ── 首屏（v2.1：縮小高度與插圖） ── */
+.hero { position: relative; }
+.hero .wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); align-items: center; min-height: 380px; }
+.star { position: absolute; background: center / contain no-repeat; pointer-events: none; }
+.star.s1 { width: 300px; aspect-ratio: 691 / 472; left: -30px; top: 16px; background-image: var(--star1); }
+.star.s2 { width: 340px; aspect-ratio: 762 / 520; right: -40px; top: 50px; background-image: var(--star2); }
+.hero-copy { position: relative; z-index: 2; padding: 26px 0 70px; }
+.lettering { width: min(250px, 64vw); aspect-ratio: 408 / 176; background: left center / contain no-repeat; margin-bottom: 12px; }
+.lettering.learn { background-image: var(--letter-learn); }
+.lettering.create { background-image: var(--letter-create); aspect-ratio: 410 / 165; }
+.hero h1 { font-weight: 900; font-size: clamp(28px, 3.4vw, 42px); line-height: 1.25; margin: 10px 0; color: var(--teal); }
+.hero-copy p.d { letter-spacing: 0.08em; line-height: 1.8; margin: 0 0 20px; max-width: 34em; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-girl { position: absolute; right: 2%; bottom: -66px; width: min(480px, 38vw); z-index: 1; }
+.hero-cast { position: relative; z-index: 1; width: 100%; max-width: 320px; aspect-ratio: 900 / 560; background: var(--cast-group) center / contain no-repeat; justify-self: end; margin-bottom: 30px; }
+.hero-framed { position: relative; z-index: 1; justify-self: end; width: 100%; max-width: 440px; margin-bottom: 50px; }
+.crumb { font-size: 14px; letter-spacing: 0.08em; margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.crumb a { text-decoration: none; border-bottom: 1px solid currentColor; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 4px; }
+.stats .pill { font-size: 14px; padding: 4px 14px; }
+.hl { background: linear-gradient(transparent 58%, var(--peach) 58%); font-weight: 700; }
+
+/* 多邊形相框 */
+.framed { position: relative; transform: rotate(1.5deg); aspect-ratio: 461 / 287; }
+.framed::before { content: ""; position: absolute; inset: -7px; background: var(--white); clip-path: var(--frame); }
+.framed img { position: relative; width: 100%; height: 100%; object-fit: cover; clip-path: var(--frame); }
+
+/* ── 課程列表＋找課（總覽） ── */
+.courses .wrap { padding-block: 84px 90px; }
+.courses { scroll-margin-top: 30px; }
+.courses-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 18px 24px; margin-bottom: 22px; }
+.courses-head .tgroup .en { font-size: clamp(34px, 4vw, 46px); margin-bottom: 8px; }
+.courses-head .tgroup h2 { margin-bottom: 0; }
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.filter-btn { display: inline-flex; align-items: center; gap: 8px; border: 0; background: var(--teal); color: var(--white); border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 14px; letter-spacing: 0.06em; }
+.filter-btn .cnt { display: inline-grid; place-items: center; min-width: 20px; height: 20px; border-radius: 10px; background: var(--orange); color: var(--ink); font-family: var(--f-en); font-size: 12px; padding: 0 5px; }
+.filter-btn .arr { transition: transform .2s; }
+.filter-btn[aria-expanded="true"] .arr { transform: rotate(180deg); }
+.tag-panel { background: var(--white); border-radius: 18px; box-shadow: var(--shadow-card); padding: 18px 20px 16px; margin-bottom: 20px; display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 12px 22px; align-items: start; }
+.tag-panel .side { display: grid; gap: 10px; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.tab { border: 0; background: var(--cream); border-radius: 12px; padding: 9px 6px; font-weight: 700; font-size: 14px; letter-spacing: 0.04em; white-space: nowrap; text-align: left; padding-left: 12px; }
+.tab[aria-selected="true"] { background: var(--teal); color: var(--white); }
+.tab .cnt { display: inline-grid; place-items: center; min-width: 18px; height: 18px; border-radius: 9px; font-family: var(--f-en); font-size: 11px; background: var(--orange); color: var(--ink); margin-left: 4px; padding: 0 4px; }
+.search { display: flex; align-items: center; gap: 8px; border: 2px solid var(--mint-light); border-radius: 999px; padding: 6px 14px; }
+.search input { border: 0; outline: 0; font: inherit; font-size: 15px; flex: 1; min-width: 0; background: transparent; color: var(--ink); letter-spacing: 0.04em; }
+.search input::placeholder { color: #6E8388; }
+.tag-list { display: flex; flex-wrap: wrap; gap: 7px; max-height: 168px; overflow-y: auto; padding: 2px; scrollbar-width: thin; align-content: flex-start; }
+.tag { border: 1.5px solid #EBD9C2; background: var(--white); border-radius: 999px; padding: 5px 12px; font-size: 14px; font-weight: 500; letter-spacing: 0.04em; transition: background .15s; }
+.tag:hover { background: var(--cream); }
+.tag[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: var(--white); }
+.tag .n { font-family: var(--f-en); font-size: 11px; opacity: .65; margin-left: 4px; }
+.empty-hint { font-size: 14px; color: #5E7378; padding: 4px 2px; margin: 0; }
+.seg { display: inline-flex; background: rgba(255, 255, 255, .7); padding: 4px; border-radius: 999px; gap: 2px; }
+.seg button { border: 0; background: transparent; border-radius: 999px; padding: 7px 14px; font-weight: 700; font-size: 14px; letter-spacing: 0.04em; }
+.seg button[aria-pressed="true"] { background: var(--white); box-shadow: 0 2px 6px rgba(0, 0, 0, .08); }
+.summary { font-weight: 700; letter-spacing: 0.06em; font-size: 15px; margin: 0; }
+.summary b { font-family: var(--f-en); font-size: 20px; color: var(--teal); margin: 0 2px; }
+.picked { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 18px; }
+.picked .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--teal); color: var(--white); border: 0; border-radius: 999px; padding: 5px 8px 5px 13px; font-size: 14px; letter-spacing: 0.04em; }
+.picked .chip i { font-style: normal; font-size: 11px; opacity: .75; }
+.picked .chip span.x { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: rgba(255, 255, 255, .22); font-size: 12px; }
+.picked .clear { border: 0; background: transparent; text-decoration: underline; font-size: 14px; font-weight: 700; padding: 4px 6px; }
+
+/* 方案卡：大照片＋精簡文字，一排 4 張 */
+.pkg-group + .pkg-group { margin-top: 44px; }
+.pkg-group h3.gt { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-weight: 900; font-size: 22px; margin: 0 0 20px; color: var(--teal); }
+.pkg-group h3.gt small { font-weight: 700; font-size: 14px; color: var(--ink); letter-spacing: 0.06em; }
+.pkgs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 30px 24px; }
+.pkg { position: relative; background: var(--white); border-radius: 18px; box-shadow: 0 10px 18px 2px rgba(0, 0, 0, .1); padding: 12px 12px 16px; display: flex; flex-direction: column; transition: transform .25s ease, box-shadow .25s; text-decoration: none; }
+.pkg:nth-child(odd) { transform: rotate(-1deg); }
+.pkg:nth-child(even) { transform: rotate(1deg); }
+.pkg:hover { transform: rotate(0) translateY(-5px); box-shadow: 0 18px 26px 4px rgba(0, 0, 0, .13); }
+.photo { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 4 / 3; background: var(--mint-light); }
+.photo img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.pkg:hover .photo img { transform: scale(1.04); }
+.photo .lv { position: absolute; left: 10px; bottom: 10px; background: var(--teal); color: var(--white); font-weight: 700; font-size: 12.5px; letter-spacing: 0.06em; border-radius: 8px; padding: 3px 10px; }
+.pkg .body { padding: 14px 6px 0; display: flex; flex-direction: column; flex: 1; }
+.pkg h4 { font-weight: 900; font-size: 19px; line-height: 1.35; color: var(--teal); margin: 0 0 6px; }
+.pkg p.d { color: var(--grey-text); letter-spacing: 0.05em; line-height: 1.6; margin: 0 0 12px; font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.pkg .meta { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: auto; }
+.time { font-weight: 700; font-size: 13px; color: var(--ink); background: var(--mint-pale); border-radius: 999px; padding: 4px 11px; }
+.go { text-decoration: none; background: var(--orange); color: var(--ink); border-radius: 999px; font-weight: 700; font-size: 14px; padding: 6px 15px; }
+.match { background: var(--cream); border-radius: 12px; padding: 9px 10px 10px; margin: 0 0 12px; }
+.match .mh { font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; margin: 0 0 6px; }
+.match .mh b { font-family: var(--f-en); color: var(--teal); }
+.match ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 5px; }
+.match a { display: inline-block; background: var(--white); border-radius: 999px; padding: 2px 10px; font-size: 13px; text-decoration: none; letter-spacing: 0.03em; }
+.match a:hover { background: var(--mint); }
+.badge { position: absolute; top: -10px; right: 14px; z-index: 2; background: var(--orange); color: var(--ink); font-weight: 700; font-size: 12.5px; border-radius: 9px; padding: 4px 10px; transform: rotate(3deg); letter-spacing: 0.06em; }
+.no-result { background: var(--white); border-radius: 18px; padding: 34px 30px; text-align: center; box-shadow: var(--shadow-card); }
+.no-result .char { width: 100px; height: 100px; margin: 0 auto 10px; background: var(--char-max) center / contain no-repeat; }
+
+/* ── 方案頁：簡介、單元卡、便條卡 ── */
+.intro .wrap { display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); gap: 56px; align-items: center; padding-block: 90px 80px; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.units .wrap, .outcomes .wrap { padding-block: 120px 120px; position: relative; }
+.sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 40px; }
+.ozzi { width: 120px; aspect-ratio: 378 / 375; background: var(--ozzi-mag) center / contain no-repeat; flex: none; margin-right: 20px; }
+.blob { position: absolute; width: 120px; z-index: 0; pointer-events: none; }
+.blob path { fill: var(--mint); }
+.cards { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 28px; }
+.card { background: var(--white); border-radius: 18px; box-shadow: 0 10px 18px 2px rgba(0, 0, 0, .1); padding: 14px 14px 20px; display: flex; flex-direction: column; transition: transform .25s ease, box-shadow .25s; }
+.card:nth-child(3n+1) { transform: rotate(-1.5deg); }
+.card:nth-child(3n+2) { transform: rotate(0.8deg) translateY(-6px); }
+.card:nth-child(3n) { transform: rotate(1.6deg) translateY(8px); }
+.card:hover { transform: rotate(0) translateY(-5px); }
+.card .photo .lv { font-family: var(--f-en); font-weight: 900; font-size: 15px; padding: 4px 12px; transform: rotate(-3deg); }
+.card .body { padding: 14px 6px 0; display: flex; flex-direction: column; flex: 1; }
+.card h3 { font-weight: 900; font-size: 21px; line-height: 1.35; color: var(--teal); margin: 0 0 6px; }
+.card p.d { color: var(--grey-text); letter-spacing: 0.06em; line-height: 1.65; margin: 0 0 14px; font-size: 14.5px; }
+.card .meta { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: auto; }
+.card .more { background: var(--orange); color: var(--ink); border: 0; border-radius: 999px; font-weight: 700; font-size: 14px; padding: 7px 18px; }
+.notes-sec .wrap { padding-block: 90px 100px; }
+.notes-sec .tgroup { margin-bottom: 44px; }
+.notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+.notes.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.note { position: relative; background: var(--white); border-radius: 10px; padding: 34px 30px 30px; }
+.note.y { background: var(--yellow); }
+.note::before { content: ""; position: absolute; top: -10px; right: 50px; width: 84px; height: 22px; background: rgba(135, 204, 200, .85); transform: rotate(2.5deg); border-radius: 2px; }
+.note .tiny { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: var(--teal); margin: 0 0 8px; font-family: var(--f-en); }
+.note h3 { font-weight: 900; font-size: 24px; margin: 0 0 16px; color: var(--teal); display: flex; align-items: center; gap: 10px; }
+.note h3 .n { font-family: var(--f-en); font-weight: 700; font-size: 14px; color: var(--ink); background: var(--mint-pale); border-radius: 999px; padding: 2px 10px; }
+.note ul.list { margin: 0; padding-left: 1.1em; letter-spacing: 0.06em; line-height: 1.75; font-weight: 700; }
+.note ul.list li::marker { color: var(--orange); }
+.note ul.check { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; letter-spacing: 0.05em; line-height: 1.6; font-weight: 700; font-size: 15px; }
+.note ul.check li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; }
+.note ul.check li::before { content: "✓"; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--teal); color: var(--white); font-size: 12px; margin-top: 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip2 { font-size: 14px; letter-spacing: 0.05em; background: var(--cream); border-radius: 999px; padding: 5px 13px; }
+.note.y .chip2 { background: rgba(255, 255, 255, .7); }
+.chip2 .u { font-family: var(--f-en); font-weight: 700; font-size: 12px; color: var(--teal); margin-left: 4px; }
+.req-ozzi { position: absolute; right: 18px; top: -58px; width: 110px; height: 98px; background: var(--char-ozzi) center / contain no-repeat; }
+
+/* 方案切換、引導區、頁尾 */
+.cta .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 470px); gap: 40px; align-items: center; padding-block: 120px 80px; }
+.band.teal.cta { clip-path: polygon(0 26px, 100% 0, 100% 100%, 0 100%); }
+.cta .big { font-weight: 900; font-size: clamp(22px, 2.4vw, 30px); line-height: 1.4; margin: 30px 0 18px; }
+.cta p.body { letter-spacing: 0.06em; line-height: 1.9; margin: 0 0 30px; color: #F2F8F7; max-width: 34em; }
+.cta .btn.orange { font-size: 16px; padding: 14px 30px; gap: 12px; }
+.cta .cast { aspect-ratio: 900 / 560; background: var(--cast-group) center / contain no-repeat; }
+.pager-strip .wrap { padding-block: 10px 70px; }
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.pager a { display: block; text-decoration: none; background: var(--white); border-radius: 16px; padding: 14px 20px; box-shadow: 0 8px 16px -6px rgba(0, 0, 0, .12); transition: transform .2s; }
+.pager a:hover { transform: translateY(-3px); }
+.pager small { display: block; font-family: var(--f-en); font-weight: 700; color: var(--teal); font-size: 13px; }
+.pager strong { font-weight: 900; font-size: 18px; letter-spacing: 0.04em; color: var(--teal); }
+.pager a.next { text-align: right; }
+/* 頁尾：依 Figma（FOLLOW US＋社群、聯絡資訊） */
+.foot { background: #29495A; color: #8FC6C1; }
+.foot .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 28px; padding-block: 90px 80px; }
+.follow { display: flex; align-items: center; gap: 16px; }
+.fu { background: var(--white); color: var(--teal); font-family: var(--f-en); font-weight: 700; font-size: 15px; letter-spacing: 0.02em; border-radius: 999px; padding: 5px 24px; }
+.soc { width: 40px; height: 40px; border-radius: 9px; background: #8FC6C1; display: grid; place-items: center; transition: transform .2s, background .2s; }
+.soc:hover { transform: translateY(-2px); background: var(--mint-light); }
+.soc svg { width: 22px; height: 22px; fill: none; stroke: #29495A; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.copy { margin: 14px 0 0; font-weight: 700; font-size: 15px; letter-spacing: 0.06em; }
+.foot dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 0; font-weight: 700; font-size: 15px; letter-spacing: 0.1em; line-height: 1.3; }
+.foot dt { font-family: var(--f-en); padding-right: 8px; border-right: 1.5px solid currentColor; margin: 2px 0; }
+.foot dd { margin: 2px 0; padding-left: 8px; }
+.foot dd a { text-decoration: none; text-transform: uppercase; }
+
+/* ── 單元彈窗（Figma 08 課程彈窗） ── */
+.modal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: rgba(22, 36, 40, .62); }
+.panel { position: relative; background: var(--white); border-radius: 40px; width: min(1100px, 100%); max-height: 100%; overflow-y: auto; padding: 58px 72px 60px; }
+.close { position: absolute; top: 30px; right: 34px; width: 44px; height: 44px; border: 0; background: transparent; font-size: 34px; line-height: 1; color: #111; }
+.watt { position: absolute; top: 70px; right: 90px; width: 150px; height: 176px; background: var(--char-watt) center / contain no-repeat; pointer-events: none; }
+.panel .lead { font-weight: 700; letter-spacing: 0.1em; margin: 0 0 22px; max-width: 34em; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 10px 12px; align-items: baseline; max-width: 680px; }
+.kv .pill { font-size: 14px; padding: 3px 14px; justify-self: start; }
+.kv span:not(.pill) { font-weight: 700; letter-spacing: 0.08em; font-size: 15px; }
+.m-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 48px; margin-top: 44px; align-items: start; }
+.m-photo { position: relative; padding: 10px 26px 30px 6px; }
+.m-photo .ph { border: 8px solid var(--mint-light); border-radius: 22px; overflow: hidden; transform: rotate(-5deg); aspect-ratio: 4 / 3; }
+.m-photo .ph img { width: 100%; height: 100%; object-fit: cover; }
+.m-photo .tag2 { position: absolute; right: 0; bottom: 18px; transform: rotate(-4deg); background: var(--teal); color: var(--white); font-family: var(--f-en); font-weight: 900; font-size: 28px; line-height: 1; padding: 12px 22px; border-radius: 14px; }
+.m-worlds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 28px; }
+.m-worlds .pill { margin-bottom: 10px; font-size: 14px; padding: 3px 14px; }
+.m-worlds p { margin: 0; font-weight: 700; letter-spacing: 0.08em; line-height: 1.7; font-size: 15px; }
+.m-worlds p.none { color: #7F8E91; font-weight: 500; }
+.m-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 36px; border-top: 2px dashed #EBD9C2; padding-top: 22px; }
+.m-nav button { border: 0; background: var(--cream); border-radius: 999px; padding: 9px 18px; font-weight: 700; font-size: 14px; letter-spacing: 0.06em; }
+.m-nav button:disabled { opacity: .35; cursor: default; }
+
+/* ── 手機 ── */
+@media (min-width: 901px) and (max-width: 1100px) { .pkgs { grid-template-columns: repeat(3, minmax(0, 1fr)); } .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 900px) {
+  .site-head .wrap { height: 66px; }
+  .logo { width: 52px; height: 50px; background-size: auto 100%; }
+  .nav { display: none; }
+  .burger { display: block; }
+  .hero .wrap, .intro .wrap, .cta .wrap, .m-grid { grid-template-columns: 1fr; gap: 28px; }
+  .cta .wrap { padding-block: 100px 60px; }
+  .cta .btn.orange { font-size: 14px; padding: 12px 20px; letter-spacing: 0.02em; }
+  .cta .cast { max-width: 360px; width: 100%; justify-self: center; }
+  .foot .wrap { flex-direction: column; padding-block: 56px 50px; }
+  .foot dl { font-size: 13px; }
+  .hero .wrap { min-height: 0; }
+  .hero-copy { padding: 18px 0 0; }
+  .hero-girl { position: relative; right: auto; bottom: auto; width: 74%; max-width: 340px; margin: -6px 0 -30px auto; }
+  .hero-cast { display: none; }
+  .hero .wrap > .hero-copy { padding-bottom: 8px; }
+  .intro .framed { display: none; }   /* 手機版首屏已有照片，簡介區不再重複 */
+  .hero-framed { margin: 0 auto 60px; max-width: 360px; }
+  .star.s1 { width: 220px; } .star.s2 { top: auto; bottom: 20px; width: 240px; }
+  .intro .wrap { padding-block: 80px 70px; }
+  .units .wrap, .outcomes .wrap { padding-block: 110px 100px; }
+  .courses .wrap { padding-block: 70px 70px; }
+  .sec-head { flex-direction: column; align-items: flex-start; }
+  .ozzi { width: 90px; margin: -60px 0 0; align-self: flex-end; }
+  .tag-panel { grid-template-columns: 1fr; }
+  .tabs { grid-template-columns: repeat(4, 1fr); }
+  .tab { text-align: center; padding: 8px 2px; font-size: 13px; }
+  .pkgs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 12px; }
+  .pkg { padding: 8px 8px 12px; border-radius: 14px; }
+  .pkg .body { padding: 10px 4px 0; }
+  .pkg h4 { font-size: 16px; }
+  .pkg p.d { font-size: 13px; }
+  .pkg .meta { flex-direction: column; align-items: stretch; gap: 6px; }
+  .pkg .meta .time, .pkg .meta .go { text-align: center; }
+  .photo .lv { font-size: 11px; left: 6px; bottom: 6px; padding: 2px 7px; }
+  .cards, .notes, .notes.three { grid-template-columns: 1fr; gap: 28px; }
+  .card:nth-child(n) { transform: rotate(-1deg); }
+  .card:nth-child(2n) { transform: rotate(1deg); }
+  .panel { padding: 56px 22px 34px; border-radius: 28px; }
+  .watt { width: 80px; height: 94px; top: 52px; right: 18px; }
+  .close { top: 10px; right: 12px; }
+  .m-worlds { grid-template-columns: 1fr; }
+  .pager { grid-template-columns: 1fr; }
+}
+/* ════ v3 選課指南 ════ */
+/* 三種方案切換列 */
+.modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0 0 40px; }
+.modes a { display: flex; align-items: center; gap: 12px; text-decoration: none; background: rgba(255, 255, 255, .55); border-radius: 18px; padding: 10px 16px 10px 10px; font-weight: 900; font-size: 17px; letter-spacing: 0.06em; color: var(--teal); transition: background .2s, transform .2s; }
+.modes a:hover { background: var(--white); transform: translateY(-2px); }
+.modes a[aria-current="page"] { background: var(--white); box-shadow: 0 8px 16px -6px rgba(0, 0, 0, .18), inset 0 0 0 3px var(--orange); }
+.modes img { width: 52px; height: 52px; object-fit: contain; flex: none; }
+.modes small { display: block; font-family: var(--f-en); font-weight: 700; font-size: 12px; letter-spacing: 0.02em; color: var(--teal); line-height: 1.2; }
+/* 小首屏 */
+.hero.small .wrap { min-height: 380px; grid-template-columns: minmax(0, 1fr) auto; }
+.hero.small .hero-copy { padding: 30px 0 76px; }
+.en-big { font-family: var(--f-en); font-weight: 900; font-size: clamp(34px, 4.4vw, 52px); line-height: 1; color: var(--teal); margin: 4px 0 0; letter-spacing: -0.01em; }
+.hero.small h1 { margin-top: 8px; }
+.mode-icon { position: relative; z-index: 1; width: 290px; height: 290px; border-radius: 50%; display: grid; place-items: center; margin: 0 20px 96px 0; transform: rotate(-4deg); }
+.mode-icon img { width: 60%; height: 60%; object-fit: contain; }
+/* 指南三卡（Figma Find Your Course） */
+.guide .wrap { padding-block: 130px 120px; }
+.guide-cards, .rel-cards { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 32px; }
+.gcard, .rcard { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; text-decoration: none; background: var(--white); border-radius: 26px; box-shadow: var(--shadow-card); padding: 34px 28px 30px; transition: transform .25s ease, box-shadow .25s; }
+.gcard:nth-child(3), .rcard:nth-child(1) { transform: rotate(-1.6deg); }
+.gcard:nth-child(4), .rcard:nth-child(2) { transform: rotate(1deg) translateY(-8px); }
+.gcard:nth-child(5), .rcard:nth-child(3) { transform: rotate(1.8deg) translateY(6px); }
+.gcard:hover, .rcard:hover { transform: rotate(0) translateY(-6px); box-shadow: 0 20px 28px 6px rgba(0, 0, 0, .14); }
+.gdisc { width: 182px; height: 182px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 20px; }
+.gdisc img { width: 60%; height: 60%; object-fit: contain; }
+.gen { font-family: var(--f-en); font-weight: 900; font-size: 22px; color: var(--teal); line-height: 1.2; }
+.gname { font-weight: 900; font-size: 26px; color: var(--teal); margin: 4px 0 12px; letter-spacing: 0.04em; }
+.gdesc { color: var(--grey-text); letter-spacing: 0.08em; line-height: 1.75; font-size: 15px; margin-bottom: 22px; max-width: 17em; }
+.gdesc b { color: var(--teal); font-family: var(--f-en); }
+.gcard .go, .rcard .go { margin-top: auto; padding: 9px 26px; font-size: 15px; }
+/* 分齡 */
+.stages { display: grid; gap: 34px; }
+.stage { display: grid; grid-template-columns: minmax(0, 280px) minmax(0, 1fr); gap: 28px 36px; align-items: start; background: rgba(255, 255, 255, .45); border-radius: 26px; padding: 28px; scroll-margin-top: 110px; }
+.stage-side { position: sticky; top: 110px; }
+.age { display: inline-block; background: var(--teal); color: var(--white); font-family: var(--f-en); font-weight: 900; font-size: 30px; line-height: 1; padding: 12px 22px; border-radius: 14px; transform: rotate(-3deg); }
+.stage.s1 .age { background: var(--orange); color: var(--ink); }
+.stage.s2 .age { background: var(--ink); }
+.grade { font-weight: 900; font-size: 17px; letter-spacing: 0.06em; color: var(--teal); margin: 18px 0 8px; }
+.sdesc { font-size: 14.5px; letter-spacing: 0.06em; line-height: 1.8; margin: 0; }
+.pkgs.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.note-line { font-size: 14px; letter-spacing: 0.06em; margin: 22px 4px 0; opacity: .85; }
+/* 單元結果 */
+.units-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px 20px; }
+.ucard { display: flex; flex-direction: column; text-decoration: none; background: var(--white); border-radius: 16px; padding: 10px 10px 14px; box-shadow: 0 8px 16px 0 rgba(0, 0, 0, .09); transition: transform .2s, box-shadow .2s; }
+.ucard:hover { transform: translateY(-4px); box-shadow: 0 16px 24px 2px rgba(0, 0, 0, .12); }
+.ucard .photo { aspect-ratio: 16 / 10; }
+.ub { display: flex; flex-direction: column; gap: 6px; padding: 12px 4px 0; flex: 1; }
+.upkg { font-size: 12.5px; font-weight: 700; letter-spacing: 0.05em; color: #8A5B12; }
+.ub strong { font-weight: 900; font-size: 17px; line-height: 1.35; color: var(--teal); }
+.hits { display: flex; flex-wrap: wrap; gap: 4px; }
+.hits i { font-style: normal; background: var(--teal); color: var(--white); font-size: 12.5px; border-radius: 999px; padding: 2px 9px; letter-spacing: 0.03em; }
+.udesc { color: var(--grey-text); font-size: 13.5px; letter-spacing: 0.04em; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.utime { margin-top: auto; align-self: flex-start; font-weight: 700; font-size: 12.5px; background: var(--mint-pale); border-radius: 999px; padding: 3px 10px; }
+/* ── 角色代言卡 v2：精緻化＋小動態 ── */
+.chars { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px 22px; margin-top: 10px; }
+.cc { --wc: #87CCC8; --wp: #E1F3F1; --wd: #1D4C58; position: relative; background: var(--white); border-radius: 26px; box-shadow: 0 12px 22px -4px rgba(28, 77, 89, .16); display: flex; flex-direction: column; overflow: hidden; transition: transform .35s cubic-bezier(.3, 1.4, .5, 1), box-shadow .3s; }
+.cc.sci { --wc: #87CCC8; --wp: #E3F4F2; --wd: #1D6A6B; --i: 0; }
+.cc.eng { --wc: #F08419; --wp: #FDEBD6; --wd: #A04F00; --i: 1; }
+.cc.tech { --wc: #4E93A3; --wp: #DCEBEF; --wd: #1C4D59; --i: 2; }
+.cc.art { --wc: #F2B230; --wp: #FCF0D3; --wd: #8A5A00; --i: 3; }
+.cc:hover { transform: translateY(-6px); box-shadow: 0 22px 30px -6px rgba(28, 77, 89, .22); }
+.cc .stagebox { position: relative; height: 196px; background: var(--wp); display: grid; place-items: end center; padding-bottom: 18px; }
+.cc .stagebox::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 26px; background: var(--white); clip-path: polygon(0 60%, 100% 0, 100% 100%, 0 100%); }
+.cc .spot { position: absolute; left: 50%; top: 22px; width: 150px; height: 146px; margin-left: -75px; color: var(--wc); opacity: .32; animation: spin 40s linear infinite; }
+.cc .spot path { fill: currentColor; }
+.cc .floor { position: absolute; bottom: 30px; left: 50%; width: 92px; height: 12px; margin-left: -46px; border-radius: 50%; background: rgba(28, 77, 89, .18); animation: shadow 3.4s ease-in-out infinite; animation-delay: calc(var(--i) * -0.8s); }
+.cc .pic { position: relative; z-index: 2; width: 132px; height: 140px; margin-bottom: 18px; background: center bottom / contain no-repeat; transform-origin: 50% 100%; animation: bob 3.4s ease-in-out infinite; animation-delay: calc(var(--i) * -0.8s); }
+.cc.eng .pic { animation-name: sway; } .cc.art .pic { animation-name: sway; animation-duration: 4s; }
+.cc:hover .pic { animation: hop .6s cubic-bezier(.3, 1.6, .5, 1) 1, bob 3.4s ease-in-out .6s infinite; }
+.cc.active .pic { animation: cheer .9s ease-in-out infinite; }
+.cc .spark { position: absolute; z-index: 1; width: 16px; height: 16px; background: var(--wc); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); animation: twinkle 2.6s ease-in-out infinite; }
+.cc .spark.s1 { left: 22%; top: 34px; } .cc .spark.s2 { right: 20%; top: 70px; width: 11px; height: 11px; animation-delay: -1.3s; }
+.cc .spark.s3 { left: 30%; bottom: 52px; width: 9px; height: 9px; animation-delay: -.6s; }
+.cc .bubble { position: absolute; z-index: 3; top: 14px; left: 50%; translate: -50% 0; max-width: 88%; background: var(--white); color: var(--wd); font-weight: 900; font-size: 13.5px; letter-spacing: 0.04em; line-height: 1.35; text-align: center; padding: 7px 13px; border-radius: 14px; box-shadow: 0 6px 14px -4px rgba(0, 0, 0, .2); opacity: 0; transform: translateY(8px) scale(.8); transition: opacity .2s, transform .3s cubic-bezier(.3, 1.6, .5, 1); pointer-events: none; white-space: nowrap; }
+.cc .bubble::after { content: ""; position: absolute; left: 50%; bottom: -7px; margin-left: -7px; border: 7px solid transparent; border-bottom: 0; border-top-color: var(--white); }
+.cc.active .bubble { opacity: 1; transform: none; }
+.cc .cbody { position: relative; padding: 4px 20px 22px; display: flex; flex-direction: column; flex: 1; text-align: center; }
+.cc .wen { font-family: var(--f-en); font-weight: 900; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal); margin: 0; }
+.cc h3 { font-weight: 900; font-size: 22px; line-height: 1.3; color: var(--teal); margin: 2px 0 8px; }
+.cc .who { align-self: center; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; margin: 0 0 16px; padding: 3px 12px 3px 4px; border-radius: 999px; background: var(--wp); color: var(--wd); }
+.cc .who b { font-family: var(--f-en); font-weight: 900; background: var(--wc); color: var(--white); border-radius: 999px; padding: 0 9px; font-size: 12.5px; }
+.cc.eng .who b, .cc.art .who b { color: var(--ink); }
+.cc .tags { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
+.wt { border: 1.5px solid color-mix(in srgb, var(--wc) 55%, white); background: var(--white); color: var(--ink); border-radius: 999px; padding: 4px 12px; font-size: 13.5px; font-weight: 500; letter-spacing: 0.03em; line-height: 1.4; transition: background .15s, border-color .15s, transform .25s cubic-bezier(.3, 1.6, .5, 1), color .15s; }
+button.wt:hover { background: var(--wp); border-color: var(--wc); transform: translateY(-2px); }
+button.wt[aria-pressed="true"] { background: var(--wd); border-color: var(--wd); color: var(--white); transform: scale(1.06); }
+.wt.none { border-style: dashed; color: #7F8E91; }
+.cc .cnt { margin: auto 0 0; padding-top: 16px; font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; color: #7A8C90; }
+.cc .cnt b { font-family: var(--f-en); color: var(--teal); font-size: 15px; margin-right: 2px; }
+.hint { text-align: center; font-weight: 700; letter-spacing: 0.06em; font-size: 15px; margin: 28px auto 0; min-height: 1.6em; display: table; background: var(--white); border-radius: 999px; padding: 8px 22px; box-shadow: 0 6px 14px -6px rgba(0, 0, 0, .15); }
+.hint a { color: #A5560D; margin-left: 6px; }
+.cards.dim .card.hit { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1); }
+/* 其他角色也動起來 */
+.ozzi, .req-ozzi, .no-result .char { animation: bob 3.6s ease-in-out infinite; transform-origin: 50% 100%; }
+.hero-cast, .cta .cast { animation: float 5s ease-in-out infinite; }
+.star.s1 { animation: drift 9s ease-in-out infinite; } .star.s2 { animation: drift 11s ease-in-out -4s infinite reverse; }
+.gcard .gdisc img, .rcard .gdisc img, .modes img, .mode-icon img { transition: transform .4s cubic-bezier(.3, 1.6, .5, 1); }
+.gcard:hover .gdisc img, .rcard:hover .gdisc img, .modes a:hover img { transform: rotate(-8deg) scale(1.08); }
+.mode-icon img { animation: bob 3.6s ease-in-out infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg) translateY(-4px); } }
+@keyframes hop { 0% { transform: translateY(0) scale(1, 1); } 25% { transform: translateY(2px) scale(1.08, .9); } 55% { transform: translateY(-20px) scale(.95, 1.06) rotate(-4deg); } 80% { transform: translateY(0) scale(1.05, .95); } 100% { transform: none; } }
+@keyframes cheer { 0%, 100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-12px) rotate(-6deg); } 50% { transform: translateY(0) rotate(0); } 75% { transform: translateY(-12px) rotate(6deg); } }
+@keyframes shadow { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.82); opacity: .7; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes twinkle { 0%, 100% { transform: scale(.4) rotate(0); opacity: .3; } 50% { transform: scale(1) rotate(45deg); opacity: 1; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes drift { 0%, 100% { transform: rotate(0) scale(1); } 50% { transform: rotate(6deg) scale(1.04); } }
+@keyframes pop { 0% { scale: .94; } 60% { scale: 1.04; } 100% { scale: 1; } }
+.cards .card { transition: transform .25s ease, box-shadow .25s, opacity .25s; }
+.cards.dim .card { opacity: .3; }
+.cards.dim .card.hit { opacity: 1; box-shadow: 0 0 0 4px var(--orange), 0 14px 22px 2px rgba(0, 0, 0, .14); }
+/* 相關組合包 */
+.related .wrap { padding-block: 130px 120px; }
+.related .sec-head { margin-bottom: 34px; }
+.rcard .gdisc { width: 120px; height: 120px; margin-bottom: 14px; }
+.rcard .gname { font-size: 22px; }
+.rcard .gen { font-size: 17px; }
+.related h3.gt, .courses > .wrap > h3.gt { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-weight: 900; font-size: 22px; margin: 0 0 20px; color: var(--teal); }
+.related h3.gt small { font-weight: 700; font-size: 14px; color: var(--ink); letter-spacing: 0.06em; }
+.share { align-self: flex-start; background: var(--peach); color: #7A4A0A; font-weight: 700; font-size: 12.5px; border-radius: 8px; padding: 2px 9px; margin-bottom: 8px; letter-spacing: 0.04em; }
+@media (min-width: 901px) and (max-width: 1100px) { .units-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .chars { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stage { grid-template-columns: 1fr; } .stage-side { position: static; } }
+@media (max-width: 900px) {
+  .modes { gap: 6px; margin-bottom: 26px; }
+  .modes a { flex-direction: column; text-align: center; gap: 4px; padding: 10px 4px; font-size: 13px; letter-spacing: 0.02em; border-radius: 14px; }
+  .modes small { display: none; }
+  .modes img { width: 40px; height: 40px; }
+  .hero.small .wrap { grid-template-columns: 1fr; min-height: 0; }
+  .hero.small .hero-copy { padding: 22px 0 60px; padding-right: 116px; }
+  .mode-icon { position: absolute; right: 12px; top: 40px; width: 120px; height: 120px; margin: 0; }
+  .guide .wrap, .related .wrap { padding-block: 110px 90px; }
+  .guide-cards, .rel-cards { grid-template-columns: 1fr; gap: 22px; }
+  .gcard { flex-direction: row; flex-wrap: wrap; text-align: left; align-items: center; padding: 20px; gap: 0 16px; }
+  .gcard .gdisc { width: 92px; height: 92px; margin: 0; flex: none; }
+  .gcard .gen, .gcard .gname { flex: 1 1 calc(100% - 120px); }
+  .gcard .gen { font-size: 16px; align-self: flex-end; }
+  .gcard .gname { font-size: 20px; margin: 0; }
+  .gcard .gdesc { flex-basis: 100%; margin: 12px 0 14px; max-width: none; font-size: 14px; }
+  .gcard .go { margin: 0; }
+  .gcard { display: grid; grid-template-columns: 92px 1fr; grid-template-areas: "d e" "d n" "t t" "g g"; }
+  .gcard .gdisc { grid-area: d; } .gcard .gen { grid-area: e; } .gcard .gname { grid-area: n; align-self: start; } .gcard .gdesc { grid-area: t; } .gcard .go { grid-area: g; justify-self: start; }
+  .rcard { padding: 22px 18px; }
+  .stage { grid-template-columns: 1fr; padding: 20px 14px; gap: 18px; }
+  .stage-side { position: static; }
+  .age { font-size: 24px; }
+  .pkgs.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .units-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 10px; }
+  .ucard { padding: 7px 7px 11px; border-radius: 13px; }
+  .ub strong { font-size: 15px; }
+  .chars { grid-template-columns: 1fr 1fr; gap: 14px 12px; }
+  .cc { border-radius: 20px; }
+  .cc .stagebox { height: 150px; padding-bottom: 12px; }
+  .cc .spot { width: 112px; height: 109px; margin-left: -56px; top: 16px; }
+  .cc .pic { width: 96px; height: 104px; margin-bottom: 14px; }
+  .cc .floor { width: 70px; margin-left: -35px; bottom: 24px; }
+  .cc .bubble { font-size: 12px; white-space: normal; width: max-content; max-width: 92%; }
+  .cc .cbody { padding: 2px 10px 16px; }
+  .cc h3 { font-size: 17px; }
+  .cc .who { font-size: 11.5px; }
+  .wt { font-size: 12.5px; padding: 3px 9px; }
+  .hint { display: block; border-radius: 16px; font-size: 14px; }
+}
+@media (max-width: 900px) {
+  .rcard { display: grid; grid-template-columns: 72px 1fr; grid-template-areas: "d e" "d n" "t t" "g g"; gap: 0 14px; text-align: left; padding: 18px; }
+  .rcard .gdisc { grid-area: d; width: 72px; height: 72px; margin: 0; } .rcard .gen { grid-area: e; align-self: end; font-size: 15px; } .rcard .gname { grid-area: n; margin: 0; font-size: 19px; }
+  .rcard .gdesc { grid-area: t; margin: 10px 0 12px; max-width: none; font-size: 14px; } .rcard .go { grid-area: g; justify-self: start; margin: 0; }
+}
+
+/* ── 平板（iPad 直向 601~900px）：卡片並排，不再一張撐滿整排 ── */
+@media (min-width: 601px) and (max-width: 900px) {
+  .guide-cards, .rel-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .gcard, .rcard { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: center; text-align: center; padding: 22px 14px 20px; border-radius: 22px; }
+  .gcard > *, .rcard > * { flex: none; align-self: center; }
+  .gcard .gdisc, .rcard .gdisc { width: 104px; height: 104px; margin: 0 0 12px; }
+  .gcard .gen, .rcard .gen { font-size: 14px; align-self: auto; }
+  .gcard .gname, .rcard .gname { font-size: 18px; margin: 2px 0 8px; }
+  .gcard .gdesc, .rcard .gdesc { font-size: 13px; letter-spacing: 0.04em; margin: 0 0 14px; max-width: none; }
+  .gcard .go, .rcard .go { margin-top: auto; justify-self: auto; font-size: 14px; padding: 7px 18px; }
+  .pkgs.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .units-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .modes small { display: block; font-size: 11px; }
+  .modes a { flex-direction: row; text-align: left; padding: 10px 12px 10px 8px; font-size: 14px; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+/* ── 單元＋四大世界合一：左側角色標籤面板（黏住）＋右側單元卡 ── */
+.band.units { overflow: clip; }
+.wtab.sci, .wpane.sci, .ut.sci, .peek.sci { --wc: #87CCC8; --wp: #E3F4F2; --wd: #1D6A6B; }
+.wtab.eng, .wpane.eng, .ut.eng, .peek.eng { --wc: #F08419; --wp: #FDEBD6; --wd: #A04F00; }
+.wtab.tech, .wpane.tech, .ut.tech, .peek.tech { --wc: #4E93A3; --wp: #DCEBEF; --wd: #1C4D59; }
+.wtab.art, .wpane.art, .ut.art, .peek.art { --wc: #F2B230; --wp: #FCF0D3; --wd: #8A5A00; }
+.explore { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 350px) minmax(0, 1fr); gap: 34px; align-items: start; }
+.wpanel { position: sticky; top: 122px; z-index: 5; background: var(--white); border-radius: 26px; padding: 18px 18px 16px; box-shadow: var(--shadow-card); }
+.wp-title { margin: 0 4px 10px; font-weight: 900; font-size: 15px; letter-spacing: 0.08em; color: var(--teal); }
+.wtabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.wtab { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0 4px; border-radius: 16px; }
+.wtab .av { width: 66px; height: 66px; border-radius: 50%; background: var(--wp) var(--char) center 80% / 74% auto no-repeat; box-shadow: inset 0 0 0 3px transparent; transition: transform .35s cubic-bezier(.3, 1.6, .5, 1), box-shadow .2s; transform-origin: 50% 100%; }
+.wtab:hover .av { transform: translateY(-4px) rotate(-5deg); }
+.wtab[aria-selected="true"] .av { box-shadow: inset 0 0 0 3px var(--wc); animation: bob 2.6s ease-in-out infinite; }
+.wtab .wl { font-weight: 900; font-size: 13px; letter-spacing: 0.04em; color: #7A8C90; }
+.wtab[aria-selected="true"] .wl { color: var(--wd); }
+.wpane { position: relative; margin-top: 12px; background: var(--wp); border-radius: 18px; padding: 14px 14px 16px; }
+.wpane::before { content: ""; position: absolute; top: -9px; left: var(--tx); margin-left: -10px; border: 10px solid transparent; border-top: 0; border-bottom-color: var(--wp); }
+.wpane.sci { --tx: 12.5%; } .wpane.eng { --tx: 37.5%; } .wpane.tech { --tx: 62.5%; } .wpane.art { --tx: 87.5%; }
+.wpane .say { margin: 0 0 10px; font-weight: 700; font-size: 14px; letter-spacing: 0.04em; color: var(--wd); }
+.wpane .say b { font-family: var(--f-en); font-weight: 900; color: var(--teal); }
+.wpane .tags { display: flex; flex-wrap: wrap; gap: 7px; }
+.wpanel .hint { display: block; background: none; box-shadow: none; padding: 0; margin: 12px 4px 0; text-align: left; font-size: 13.5px; min-height: 0; color: var(--ink); }
+.wpanel .hint button { border: 0; background: var(--cream); border-radius: 999px; font-weight: 700; font-size: 12.5px; padding: 3px 11px; margin-left: 6px; }
+.ucards { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 30px 26px; }
+.ucards .card { position: relative; }
+.ucards .card:nth-child(n) { transform: rotate(-1deg); } .ucards .card:nth-child(2n) { transform: rotate(1.2deg) translateY(10px); }
+.ucards .card:hover { transform: translateY(-4px); }
+.peek { position: absolute; z-index: 3; right: -14px; top: -34px; width: 74px; height: 74px; background: var(--char) center bottom / contain no-repeat; transform: scale(0) rotate(-20deg); transform-origin: 50% 100%; transition: transform .45s cubic-bezier(.3, 1.6, .5, 1); pointer-events: none; }
+.peek::after { content: "有教到！"; position: absolute; right: 58px; top: 4px; white-space: nowrap; background: var(--wd); color: var(--white); font-weight: 900; font-size: 12px; letter-spacing: 0.04em; padding: 3px 9px; border-radius: 10px 10px 2px 10px; }
+.cards.dim .card.hit .peek { transform: scale(1) rotate(8deg); }
+.card .more { display: inline-flex; align-items: center; gap: 6px; }
+.card .more .chev { display: inline-block; transition: transform .25s; font-size: 11px; }
+.card .more[aria-expanded="true"] { background: var(--teal); color: var(--white); }
+.card .more[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.udetail { margin-top: 14px; padding-top: 14px; border-top: 2px dashed #EBD9C2; animation: drop .3s ease; }
+.udetail dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 10px; margin: 0 0 12px; font-size: 14px; }
+.udetail dt { background: var(--teal); color: var(--white); border-radius: 999px; padding: 1px 10px; font-size: 12.5px; font-weight: 700; align-self: start; white-space: nowrap; }
+.udetail dd { margin: 0; font-weight: 700; letter-spacing: 0.04em; line-height: 1.6; }
+.uw { display: flex; flex-wrap: wrap; gap: 5px; }
+.ut { font-size: 12.5px; border-radius: 999px; padding: 2px 9px; background: var(--wp); color: var(--wd); font-weight: 700; transition: background .2s, color .2s; }
+.ut.on { background: var(--wd); color: var(--white); }
+.card.flash { animation: pop .6s cubic-bezier(.3, 1.6, .5, 1); box-shadow: 0 0 0 4px var(--orange), 0 14px 22px 2px rgba(0, 0, 0, .14); }
+@keyframes drop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (min-width: 901px) and (max-width: 1100px) { .explore { grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 24px; } .ucards { grid-template-columns: 1fr; } .wtab .av { width: 56px; height: 56px; } }
+@media (max-width: 900px) {
+  .explore { grid-template-columns: 1fr; gap: 26px; }
+  .wpanel { top: 72px; padding: 10px 10px 10px; border-radius: 20px; }
+  .wp-title { display: none; }
+  .wtab { gap: 2px; padding: 2px; }
+  .wtab .av { width: 40px; height: 40px; flex: none; }
+  .wtab .wl { font-size: 11px; white-space: nowrap; letter-spacing: 0; }
+  .wpane { margin-top: 8px; padding: 9px 10px 10px; }
+  .wpane .say { font-size: 12.5px; margin-bottom: 7px; }
+  .wpane .tags { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .wpane .tags .wt { flex: none; }
+  .wpanel .hint { font-size: 12.5px; margin-top: 8px; }
+  .ucards { grid-template-columns: 1fr; gap: 26px; }
+  .ucards .card:nth-child(2n) { transform: rotate(1deg); }
+  .peek { width: 60px; height: 60px; top: -26px; right: -6px; }
+}
+@media (min-width: 601px) and (max-width: 900px) { .ucards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.faq .wrap { padding-block: 90px 110px; }
+.faq .tgroup { margin-bottom: 30px; }
+.qa { display: grid; gap: 12px; max-width: 880px; }
+.qa-item { background: var(--white); border-radius: 18px; box-shadow: 0 8px 18px -10px rgba(28, 77, 89, .25); }
+.qa-item summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 22px; font-weight: 900; font-size: 17px; letter-spacing: 0.04em; color: var(--teal); }
+.qa-item summary::-webkit-details-marker { display: none; }
+.qa-item summary::after { content: "+"; flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--mint-pale); font-family: var(--f-en); font-size: 18px; transition: transform .25s; }
+.qa-item[open] summary::after { transform: rotate(45deg); background: var(--mint); }
+.qa-item .ans { padding: 0 22px 20px; letter-spacing: 0.05em; line-height: 1.85; }
+@media (max-width: 900px) { .faq .wrap { padding-block: 70px 90px; } .qa-item summary { font-size: 15.5px; padding: 15px 16px; } .qa-item .ans { padding: 0 16px 16px; font-size: 14.5px; } }
+</style>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="logo" href="https://weclass.tw/" aria-label="回 WeClass 維課教育官網"></a>
+    <nav class="nav" aria-label="主選單">
+      <a href="#" id="nav-goal">依學習目標找單元</a>
+      <a href="#all" id="nav-all">全部課程方案</a>
+      <a href="https://weclass.tw/" class="official">回官網 <span aria-hidden="true">↗</span></a>
+    </nav>
+    <button class="burger" id="burger" aria-label="開啟選單" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
+  </div>
+  <nav class="mnav" id="mnav" aria-label="手機選單" hidden></nav>
+</header>
+
+<main id="app"></main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div>
+      <div class="follow"><span class="fu">FOLLOW US</span>
+        <a class="soc" data-link="instagram" href="https://weclass.tw/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".6" fill="#29495A"/></svg></a>
+        <a class="soc" data-link="facebook" href="https://weclass.tw/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M14.8 8h-1.6a1.9 1.9 0 0 0-1.9 1.9V20M9.5 12.5h5"/></svg></a>
+        <a class="soc" data-link="youtube" href="https://weclass.tw/" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M10.2 8.8v6.4l5.2-3.2z"/></svg></a>
+      </div>
+      <p class="copy">© 2026 WeClass Co., Ltd.</p>
+    </div>
+    <dl>
+      <dt>E</dt><dd><a href="mailto:weclass.tw@gmail.com">weclass.tw@gmail.com</a></dd>
+      <dt>P</dt><dd><a href="tel:+88635611887">03-5611887</a></dd>
+      <dt>A</dt><dd>新竹市北區中華路三段 9 號 6 樓之 4</dd>
+    </dl>
+  </div>
+</footer>
+
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   1. 課程資料（與 v1.1 的 db 完全相同，課程文案由 WeClass 提供）
+   ════════════════════════════════════════════════════════════════ */
+{{DB}}
+
+/* ════════════════════════════════════════════════════════════════
+   2. 設定：照片對應、四大世界
+   照片目前是 Figma 稿裡的代表照片；有各方案／單元的實拍照時，改 PKG_PHOTO 或在 db 的 img 欄位填網址即可。
+   ════════════════════════════════════════════════════════════════ */
+const PHOTOS = {{PHOTOS}};
+const HERO_GIRL = '{{HERO_GIRL}}';
+const PKG_PHOTO = { p1: '3dpen', p2: 'cutting', p3: 'play', p4: 'robots', p5: 'wiring', p6: 'chem', p7: 'laugh', p8: 'class', p9: 'wiring', p10: 'robots', p11: 'play' };
+const WORLDS = [
+  { key: 'sci', name: '科學/化學', full: '科學/化學世界', en: 'Science & Chemistry' },
+  { key: 'eng', name: '工程', full: '工程世界', en: 'Engineering' },
+  { key: 'tech', name: '科技', full: '科技世界', en: 'Technology' },
+  { key: 'art', name: '藝術', full: '藝術世界', en: 'Art' }
+];
+const BLOB = '{{BLOB}}';
+
+function unitPhoto(u, i) {
+  if (u.img) return u.img;
+  const rules = [
+    [/3D列印/, ['3dpen']], [/化學|溶液|鮭魚卵|寶石|墨水|水晶|電解|鞭炮|清潔/, ['chem']],
+    [/機器人|車|龍舟|纜車|投籃|機構|連桿|爪|機械|緩降|發射/, ['robots', 'play']], [/程式|Arduino/, ['class']],
+    [/電|LED|馬達|燈|聲音|開關|扇|感測/, ['wiring']], [/卡片|畫|藝術|色彩|剪|鑰匙圈|扭扭筆|造型|設計/, ['cutting']],
+    [/迷宮|遊樂|陀螺|足球|搖獎|釣魚|相撲|蟲蟲|球|銀行|金庫|存錢|飲料|壽司/, ['play', 'laugh', 'class']]
+  ];
+  const hit = rules.find(([re]) => re.test(u.title));
+  const pool = hit ? hit[1] : ['class', 'laugh'];
+  return PHOTOS[pool[i % pool.length]];
+}
+const pkgPhoto = p => p.intro_image || PHOTOS[PKG_PHOTO[p.id] || 'class'];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const pad = n => String(n).padStart(2, '0');
+/* 靜態網站版（SEO）：每個方案有自己的網址，例如 /courses/steam-little-inventor/；預覽版仍用 #p1 */
+const BASE = window.WECLASS_BASE || '';
+const SLUGS = { p1: 'steam-little-inventor', p2: 'steam-creative-lab', p3: 'steam-playground', p4: 'robot-sports-day', p5: 'desktop-tech', p6: 'japanese-sushi-shop', p7: 'little-banker', p8: 'land-sea-air-vehicles', p9: 'smart-night-light', p10: 'sweeping-robot', p11: 'crazy-basketball-machine' };
+const setTitle = s => { if (!BASE) document.title = s; };   // 靜態網站版保留每頁預先寫好的標題
+const slugOf = p => p.slug || SLUGS[p.id] || p.id;
+const pathFor = id => { const p = db.find(x => x.id === id); return BASE + (p ? slugOf(p) + '/' : ''); };
+function hrefMap(h) {
+  if (h === '#') return BASE;
+  if (h === '#all') return BASE + 'all/';
+  const m = String(h).match(/^#(p\d+)(?:\.(\d+))?$/);
+  return m ? pathFor(m[1]) + (m[2] ? '#u' + m[2] : '') : null;
+}
+const minutes = p => p.units.reduce((a, u) => a + (parseInt(u.duration, 10) || 0), 0);
+
+/* ════════════════════════════════════════════════════════════════
+   3. 篩選（規則與 v1.1 相同）
+   - 勾選的標籤只要有任一個符合就列出單元
+   - 比對範圍限同一分類：同一個標籤出現在兩個分類時（如「四連桿機構」）各自獨立
+   ════════════════════════════════════════════════════════════════ */
+const TAGS = {};   // { sci: [{tag, n}], ... } n = 出現在幾個單元
+function buildTags() {
+  WORLDS.forEach(w => {
+    const m = new Map();
+    db.forEach(p => p.units.forEach(u => u[w.key].forEach(t => m.set(t, (m.get(t) || 0) + 1))));
+    TAGS[w.key] = [...m].map(([tag, n]) => ({ tag, n })).sort((a, b) => a.tag.localeCompare(b.tag, 'zh-Hant'));
+  });
+}
+buildTags();
+const state = { selected: new Set(), tab: 'sci', query: '', from: 'theme', jumpStage: '' };   // selected 內容為 "sci|熱塑性塑膠"
+function matchUnits() {
+  const sel = [...state.selected].map(k => { const [cat, ...rest] = k.split('|'); return { cat, tag: rest.join('|') }; });
+  const out = new Map();   // pkgId -> [unitIndex]
+  if (!sel.length) return out;
+  db.forEach(p => p.units.forEach((u, i) => {
+    if (sel.some(s => u[s.cat].includes(s.tag))) { if (!out.has(p.id)) out.set(p.id, []); out.get(p.id).push(i); }
+  }));
+  return out;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   4. 選課指南：三種選課方案（對應官網 Find Your Course 三張卡）
+   #theme 小小職人主題包 / #stage 系統分齡課程包 / #goal 課綱單元課程包
+   ════════════════════════════════════════════════════════════════ */
+const app = document.getElementById('app');
+let totalUnits = db.reduce((a, p) => a + p.units.length, 0);
+const MODES = [
+  { id: 'theme', en: 'Explore by Theme', name: '小小職人主題包', desc: '以趣味主題串聯課程，在動手創作中探索科學、藝術與工程', icon: 'ic-theme', disc: 'rgba(241,141,0,.26)' },
+  { id: 'stage', en: 'Grow by Stage', name: '系統分齡課程包', desc: '依年齡與發展階段挑選適齡課程，從基礎到進階更貼近孩子的狀態', icon: 'ic-stage', disc: '#E7EEEE' },
+  { id: 'goal', en: 'Learn by Goal', name: '課綱單元課程包', desc: '對應 108 課綱與學習目標，讓學習變成看得見、做得到的體驗', icon: 'ic-goal', disc: 'var(--mint-pale)' }
+];
+// 分齡：依 Figma 課程彈窗（Age 6~8／9~11／11+）與方案的適合年級對應
+const STAGES = [
+  { id: 'a6', age: 'Age 6~8', grade: '約 1~2 年級', desc: '小肌肉發展期，著重實作技巧與工具使用，從基本文具到安全操作熱熔膠槍、膠帶與尺規，帶孩子從平面邁向立體作品，盡情展現想像力。', grades: ['1~3年級', '1~6年級'] },
+  { id: 'a9', age: 'Age 9~11', grade: '約 3~5 年級', desc: '提升實作技巧與科學素養，導入電子銲接與化學實驗設備。任務融入物理、化學、機械、電學原理，讓孩子應用原理改造作品，並養成實驗記錄的習慣。', grades: ['1~6年級', '3~6年級'] },
+  { id: 'a11', age: 'Age 11+', grade: '9~15 歲', desc: '導入 Arduino 機器人程式與 3D 列印的大型專案，掌握數位建模與開源程式，體驗「從零創造」，培養科技創造的關鍵能力。', grades: ['9~15歲'] }
+];
+const stagesOf = p => STAGES.filter(s => s.grades.includes(p.grades));
+const assetUrl = name => (getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).match(/url\(["']?(.*?)["']?\)/) || [])[1] || '';
+
+function modeSwitch(cur) {
+  return `<nav class="modes" aria-label="三種選課方案">${MODES.map(m => `<a href="#${m.id}"${m.id === cur ? ' aria-current="page"' : ''}><img src="${assetUrl(m.icon)}" alt=""><span><small>${m.en}</small>${m.name}</span></a>`).join('')}</nav>`;
+}
+function smallHero(m, extra = '') {
+  return `<section class="hero small" aria-labelledby="mh-title">
+    <span class="star s1" aria-hidden="true"></span>
+    <div class="wrap">
+      <div class="hero-copy">
+        <p class="crumb"><a href="https://weclass.tw/" target="_blank" rel="noopener">WeClass 官網</a><span aria-hidden="true">›</span><span>${m.name}</span></p>
+        <p class="en-big" aria-hidden="true">${m.en}</p>
+        <h1 id="mh-title">${m.name}</h1>
+        <p class="d">${m.desc}${extra}</p>
+      </div>
+      <div class="mode-icon" style="background:${m.disc}"><img src="${assetUrl(m.icon)}" alt=""></div>
+    </div>
+  </section>`;
+}
+
+function renderGuide() {
+  setTitle('WeClass 選課指南');
+  setNav('guide');
+  app.innerHTML = `
+  <section class="hero" aria-labelledby="g-title">
+    <span class="star s1" aria-hidden="true"></span><span class="star s2" aria-hidden="true"></span>
+    <div class="wrap">
+      <div class="hero-copy">
+        <div class="lettering create" role="img" aria-label="Create together"></div>
+        <h1 id="g-title">STEAM 課程方案</h1>
+        <p class="d">WeClass 維課教育為台灣 STEAM 實作與創客教育先驅品牌，致力於 <span class="hl">6–12 歲跨領域專題式課程</span>研發，提供從實作教材、材料採購到師資培訓的完整創客課程方案。</p>
+        <div class="stats"><span class="pill white">${db.length} 個課程方案</span><span class="pill white">${totalUnits} 個實作單元</span><span class="pill white">3 種選課方式</span></div>
+      </div>
+      <div class="hero-cast" role="img" aria-label="WeClass 品牌角色"></div>
+    </div>
+  </section>
+  <section class="band peach guide" aria-labelledby="fy-title">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="tgroup"><p class="en" aria-hidden="true">Find Your Course</p><h2 id="fy-title">校長選課指南，三種選課方案！</h2></div>
+        <span class="ozzi" aria-hidden="true"></span>
+      </div>
+      <div class="guide-cards">
+        <svg class="blob" style="left:-40px;bottom:-30px" viewBox="0 0 179 174" aria-hidden="true"><path d="${BLOB}"/></svg>
+        <svg class="blob" style="right:-30px;top:-40px;width:140px" viewBox="0 0 179 174" aria-hidden="true"><path d="${BLOB}"/></svg>
+        ${MODES.map(m => `<a class="gcard" href="#${m.id}">
+          <span class="gdisc" style="background:${m.disc}"><img src="${assetUrl(m.icon)}" alt=""></span>
+          <span class="gen">${m.en}</span><span class="gname">${m.name}</span><span class="gdesc">${m.desc}</span>
+          <span class="go">查看方案</span></a>`).join('')}
+      </div>
+    </div>
+  </section>
+  ${ctaBand({ title: '需要課程規劃建議？', body: '如需規劃學校課程、安親班學期課程、營隊或教材授權，歡迎與 WeClass 聯繫，我們會依孩子的年齡與目標推薦適合的方案。', btn: { href: 'https://weclass.tw/', text: '回 WeClass 官網' } })}`;
+  window.scrollTo(0, 0);
+}
+
+function renderTheme() {
+  setTitle('全部課程方案｜WeClass 課綱單元課程包');
+  setNav('all');
+  const m = { en: 'All Packs', name: '全部課程方案', desc: `${db.length} 個 STEAM 課程方案、${totalUnits} 個實作單元，每個單元都對應 108 課綱的四大學習世界`, icon: 'ic-goal', disc: 'var(--mint-pale)' };
+  app.innerHTML = `${smallHero(m)}
+  <section class="band mint courses" aria-label="主題課程方案">
+    <div class="wrap">
+      ${['初階', '進階'].map(type => `<div class="pkg-group"><h3 class="gt">${type}主題<small>${type === '初階' ? '1~6 年級・每個主題 4~6 個單元' : '9~15 歲・3 天 XPBL 大型專案'}</small></h3>
+        <div class="pkgs">${db.filter(p => p.type === type).map((p, i) => pkgCard(p, i, null)).join('')}</div></div>`).join('')}
+    </div>
+  </section>
+  ${ctaBand({ title: '想依學習目標挑單元？', body: '點選想培養的知識與技能，直接找出對應的實作單元。', btn: { href: '#', text: '依學習目標找單元' } })}`;
+  window.scrollTo(0, 0);
+}
+
+function renderStage() {
+  setTitle('系統分齡課程包｜WeClass 選課指南');
+  setNav('stage'); state.from = 'stage';
+  const m = MODES[1];
+  app.innerHTML = `${smallHero(m)}
+  <section class="band mint courses" aria-label="分齡課程方案">
+    <div class="wrap">
+      ${modeSwitch('stage')}
+      <div class="stages">${STAGES.map((s, si) => { const list = db.filter(p => s.grades.includes(p.grades)); return `
+        <article class="stage s${si}" id="${s.id}">
+          <div class="stage-side">
+            <span class="age">${s.age}</span>
+            <p class="grade">${s.grade}・${list.length} 個方案</p>
+            <p class="sdesc">${s.desc}</p>
+          </div>
+          <div class="pkgs three">${list.map((p, i) => pkgCard(p, i, null)).join('')}</div>
+        </article>`; }).join('')}
+      </div>
+      <p class="note-line">「1~6 年級」的方案在 Age 6~8 與 Age 9~11 都會列出。</p>
+    </div>
+  </section>
+  ${ctaBand({ title: '想依學習目標挑單元？', body: '課綱單元課程包可以依四大世界的學習標籤，直接找出對應的實作單元。', btn: { href: '#goal', text: '看課綱單元課程包' } })}`;
+  window.scrollTo(0, 0);
+}
+
+function renderGoal() {
+  setTitle('WeClass 課綱單元課程包');
+  setNav('goal'); state.from = 'goal';
+  const m = MODES[2];
+  app.innerHTML = `${smallHero(m)}
+  <section class="band mint courses" aria-label="依學習目標找單元">
+    <div class="wrap">
+      <div class="tag-panel" id="tag-panel">
+        <div class="side">
+          <div class="tabs" role="tablist" aria-label="四大學習世界" id="tabs"></div>
+          <label class="search"><span aria-hidden="true">⌕</span><span class="sr">搜尋標籤</span><input id="q" type="search" placeholder="搜尋標籤，例如：磁力" autocomplete="off"></label>
+          <p class="empty-hint">點選想培養的知識與技能，下方即時列出符合的單元；同一分類內任一標籤符合即列出。</p>
+        </div>
+        <div class="tag-list" id="tag-list" role="tabpanel"></div>
+      </div>
+      <div class="picked" id="picked" hidden></div>
+      <p class="summary" id="summary" aria-live="polite" style="margin-bottom:18px"></p>
+      <div class="units-grid" id="results"></div>
+    </div>
+  </section>
+  ${faqSection(homeFaq())}
+  ${ctaBand({ title: '想看完整主題？', body: '每個單元都屬於一個課程方案，點單元可以看學習重點，也可以瀏覽全部 11 個課程方案。', btn: { href: '#all', text: '看全部課程方案' } })}`;
+  bindGoal(); updateGoal(); window.scrollTo(0, 0);
+}
+
+function bindGoal() {
+  document.getElementById('tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) { state.tab = b.dataset.k; updateGoal(); } });
+  const q = document.getElementById('q'); q.value = state.query;
+  q.addEventListener('input', () => { state.query = q.value.trim(); updateGoal(); });
+  document.getElementById('tag-list').addEventListener('click', e => { const b = e.target.closest('.tag'); if (!b) return; const k = b.dataset.k; state.selected.has(k) ? state.selected.delete(k) : state.selected.add(k); updateGoal(); });
+  document.getElementById('picked').addEventListener('click', e => {
+    if (e.target.closest('.clear')) { state.selected.clear(); updateGoal(); return; }
+    const c = e.target.closest('.chip'); if (c) { state.selected.delete(c.dataset.k); updateGoal(); }
+  });
+}
+function updateGoal() {
+  document.getElementById('tabs').innerHTML = WORLDS.map(w => { const n = [...state.selected].filter(k => k.startsWith(w.key + '|')).length; return `<button class="tab" role="tab" data-k="${w.key}" aria-selected="${state.tab === w.key}">${w.full}${n ? `<span class="cnt">${n}</span>` : ''}</button>`; }).join('');
+  const q = state.query;
+  const lists = q ? WORLDS.map(w => ({ w, items: TAGS[w.key].filter(t => t.tag.includes(q)) })) : [{ w: WORLDS.find(w => w.key === state.tab), items: TAGS[state.tab] }];
+  document.getElementById('tag-list').innerHTML = lists.filter(l => l.items.length).map(l => (q ? `<p class="empty-hint" style="width:100%;font-weight:700">${l.w.full}</p>` : '') + l.items.map(t => { const k = `${l.w.key}|${t.tag}`; return `<button class="tag" data-k="${esc(k)}" aria-pressed="${state.selected.has(k)}">${esc(t.tag)}<span class="n">${t.n}</span></button>`; }).join('')).join('') || `<p class="empty-hint">找不到「${esc(q)}」，換個關鍵字試試。</p>`;
+  const picked = document.getElementById('picked'); picked.hidden = !state.selected.size;
+  picked.innerHTML = state.selected.size ? [...state.selected].map(k => { const [cat, ...r] = k.split('|'); const w = WORLDS.find(x => x.key === cat); return `<button class="chip" data-k="${esc(k)}" aria-label="移除 ${esc(r.join('|'))}">${esc(r.join('|'))}<i>${w.name}</i><span class="x" aria-hidden="true">×</span></button>`; }).join('') + `<button class="clear">清除全部</button>` : '';
+  const matched = matchUnits(); const filtering = state.selected.size > 0;
+  const sel = [...state.selected].map(k => { const [cat, ...r] = k.split('|'); return { cat, tag: r.join('|') }; });
+  const items = [];
+  db.forEach(p => p.units.forEach((u, i) => { if (!filtering || (matched.get(p.id) || []).includes(i)) items.push({ p, u, i }); }));
+  const pk = new Set(items.map(x => x.p.id)).size;
+  document.getElementById('summary').innerHTML = filtering ? `符合<b>${items.length}</b>個單元，來自<b>${pk}</b>個方案` : `全部<b>${items.length}</b>個單元，選擇學習目標來縮小範圍`;
+  document.getElementById('results').innerHTML = items.length ? items.map(({ p, u, i }) => {
+    const hitTags = sel.filter(s => u[s.cat].includes(s.tag)).map(s => s.tag);
+    return `<a class="ucard" href="#${p.id}.${i + 1}">
+      <span class="photo"><img src="${unitPhoto(u, i)}" alt="" loading="lazy"><span class="lv">${p.type === '進階' ? 'Project' : `Unit ${pad(i + 1)}`}</span></span>
+      <span class="ub"><span class="upkg">${esc(p.title)}・${esc(p.grades)}</span><strong>${esc(u.title)}</strong>
+      ${hitTags.length ? `<span class="hits">${hitTags.map(t => `<i>${esc(t)}</i>`).join('')}</span>` : `<span class="udesc">${esc(u.desc)}</span>`}
+      <span class="utime">${esc(u.duration)}</span></span></a>`;
+  }).join('') : `<div class="no-result"><div class="char" aria-hidden="true"></div><p style="font-weight:700;letter-spacing:.06em;margin:0">目前的條件沒有符合的單元。</p></div>`;
+}
+
+function pkgCard(p, i, hits) {
+  const meta = p.type === '初階' ? `<span class="time">${p.units.length} 個單元</span>` : `<span class="time">3 天專案</span>`;
+  return `<article class="pkg">
+    <a class="photo" href="#${p.id}" tabindex="-1" aria-hidden="true"><img src="${pkgPhoto(p)}" alt="" loading="lazy"><span class="lv">${p.type}・${esc(p.grades)}</span></a>
+    <div class="body"><h4>${esc(p.title)}</h4><p class="d">${esc(p.desc)}</p>
+      <div class="meta">${meta}<a class="go" href="#${p.id}">看課程 →</a></div></div>
+  </article>`;
+}
+
+/* 方案頁用：四大世界角色代言卡（點標籤亮出相關單元）、相關組合包 */
+const WORLD_CHAR = { sci: { c: 'char-watt', who: 'Watt・實驗家' }, eng: { c: 'char-ozzi', who: 'Ozzi・糾察隊' }, tech: { c: 'char-max', who: 'Max・大聲公' }, art: { c: 'char-liz', who: 'Liz・創作家' } };
+const WORLD_EN = { sci: 'Science', eng: 'Engineering', tech: 'Technology', art: 'Art' };
+function worldChars(p, interactive) {
+  return `<div class="chars">${WORLDS.map(w => {
+    const seen = new Map(); p.units.forEach((u, ui) => u[w.key].forEach(t => { if (!seen.has(t)) seen.set(t, []); seen.get(t).push(ui); }));
+    const tags = [...seen].map(([t, us]) => interactive ? `<button class="wt" data-units="${us.join(',')}" aria-pressed="false">${esc(t)}</button>` : `<span class="wt">${esc(t)}</span>`).join('') || '<span class="wt none">本方案未涵蓋</span>';
+    const [name, role] = WORLD_CHAR[w.key].who.split('・');
+    return `<article class="cc ${w.key}">
+      <div class="stagebox"><svg class="spot" viewBox="0 0 179 174" aria-hidden="true"><path d="${BLOB}"/></svg>
+        <span class="spark s1" aria-hidden="true"></span><span class="spark s2" aria-hidden="true"></span><span class="spark s3" aria-hidden="true"></span>
+        ${interactive ? '<span class="bubble" aria-hidden="true"></span>' : ''}<span class="floor" aria-hidden="true"></span>
+        <div class="pic" style="background-image:var(--${WORLD_CHAR[w.key].c})" role="img" aria-label="${WORLD_CHAR[w.key].who}"></div></div>
+      <div class="cbody"><p class="wen">${WORLD_EN[w.key]}</p><h3>${w.full}</h3><p class="who"><b>${name}</b>${role}</p>
+        <div class="tags">${tags}</div><p class="cnt"><b>${seen.size}</b>個學習標籤</p></div></article>`;
+  }).join('')}</div>${interactive ? '<p class="hint" id="wt-hint" aria-live="polite">點任一個標籤，角色會告訴你哪幾個單元有教到它。</p>' : ''}`;
+}
+function bindWorldChars(p) {
+  const box = app.querySelector('.chars'); if (!box) return;
+  const reset = '點任一個標籤，角色會告訴你哪幾個單元有教到它。';
+  box.addEventListener('click', e => {
+    const b = e.target.closest('button.wt'); if (!b) return;
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    box.querySelectorAll('button.wt').forEach(x => x.setAttribute('aria-pressed', 'false'));
+    box.querySelectorAll('.cc').forEach(c => c.classList.remove('active'));
+    const cards = app.querySelector('.cards'); cards.classList.toggle('dim', on);
+    cards.querySelectorAll('.card').forEach(c => c.classList.remove('hit'));
+    const hint = document.getElementById('wt-hint');
+    if (!on) { hint.textContent = reset; return; }
+    b.setAttribute('aria-pressed', 'true');
+    const cc = b.closest('.cc'); cc.classList.add('active');
+    const us = b.dataset.units.split(',').map(Number);
+    us.forEach(i => cards.children[i] && cards.children[i].classList.add('hit'));
+    const list = us.map(i => `第 ${i + 1} 單元`).join('、');
+    cc.querySelector('.bubble').textContent = `${list}有教！`;
+    hint.innerHTML = `「${esc(b.textContent)}」出現在 ${list}。<a href="#units" onclick="document.getElementById('units').scrollIntoView();return false;">看單元 ↑</a>`;
+  });
+}
+const WORLD_SAY = { sci: '這些是我負責的科學知識！', eng: '工程技能看這裡！', tech: '科技原理交給我！', art: '一起來創作吧！' };
+function explorePanel(p) {
+  const tagsOf = w => { const seen = new Map(); p.units.forEach((u, ui) => u[w.key].forEach(t => { if (!seen.has(t)) seen.set(t, []); seen.get(t).push(ui); })); return seen; };
+  const first = (WORLDS.find(w => tagsOf(w).size) || WORLDS[0]).key;
+  return `<aside class="wpanel" aria-label="四大學習世界標籤">
+    <p class="wp-title">四大學習世界・點角色看標籤</p>
+    <div class="wtabs" role="tablist">${WORLDS.map(w => `<button class="wtab ${w.key}" role="tab" data-w="${w.key}" aria-selected="${w.key === first}" aria-controls="wp-${w.key}" style="--char:var(--${WORLD_CHAR[w.key].c})"><span class="av" aria-hidden="true"></span><span class="wl">${w.name}</span></button>`).join('')}</div>
+    ${WORLDS.map(w => { const seen = tagsOf(w); const [name] = WORLD_CHAR[w.key].who.split('・');
+      return `<div class="wpane ${w.key}" id="wp-${w.key}" role="tabpanel" ${w.key === first ? '' : 'hidden'}><p class="say"><b>${name}</b>：${seen.size ? WORLD_SAY[w.key] : '這個方案沒有我的標籤喔！'}</p>
+        <div class="tags">${[...seen].map(([t, us]) => `<button class="wt" data-k="${esc(w.key + '|' + t)}" data-units="${us.join(',')}" aria-pressed="false">${esc(t)}</button>`).join('')}</div></div>`; }).join('')}
+    <p class="hint" id="wt-hint" aria-live="polite">點一個標籤，看看哪幾個單元有教到。</p>
+  </aside>`;
+}
+function bindExplore(p) {
+  const panel = app.querySelector('.wpanel'); if (!panel) return;
+  const cards = app.querySelector('.ucards'), hint = document.getElementById('wt-hint');
+  const reset = () => {
+    panel.querySelectorAll('button.wt').forEach(x => x.setAttribute('aria-pressed', 'false'));
+    cards.classList.remove('dim'); cards.querySelectorAll('.card').forEach(c => c.classList.remove('hit'));
+    cards.querySelectorAll('.ut.on').forEach(x => x.classList.remove('on'));
+    hint.textContent = '點一個標籤，看看哪幾個單元有教到。';
+  };
+  panel.addEventListener('click', e => {
+    const tab = e.target.closest('.wtab');
+    if (tab) {
+      panel.querySelectorAll('.wtab').forEach(x => x.setAttribute('aria-selected', x === tab));
+      panel.querySelectorAll('.wpane').forEach(x => x.hidden = x.id !== 'wp-' + tab.dataset.w);
+      return;
+    }
+    if (e.target.closest('.clear-tag')) { reset(); return; }
+    const b = e.target.closest('button.wt'); if (!b) return;
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    reset(); if (!on) return;
+    b.setAttribute('aria-pressed', 'true');
+    const w = b.dataset.k.split('|')[0], us = b.dataset.units.split(',').map(Number);
+    cards.classList.add('dim');
+    us.forEach(i => { const c = cards.children[i]; if (!c) return; c.classList.add('hit'); const pk = c.querySelector('.peek'); pk.className = 'peek ' + w; pk.style.setProperty('--char', `var(--${WORLD_CHAR[w].c})`); });
+    cards.querySelectorAll('.ut').forEach(x => x.classList.toggle('on', x.dataset.k === b.dataset.k));
+    hint.innerHTML = `「${esc(b.textContent)}」在 ${us.map(i => `第 ${i + 1} 單元`).join('、')}<button class="clear-tag">取消</button>`;
+    // 讓第一個被認領的單元出現在面板旁（桌機）或面板下方（手機／平板），兩者同時看得到
+    const c0 = cards.children[us[0]], r = c0.getBoundingClientRect(), pr = panel.getBoundingClientRect();
+    const stacked = pr.right > cards.getBoundingClientRect().left + 10;
+    const minTop = stacked ? pr.bottom + 34 : 130;
+    if (r.top < minTop || r.top > innerHeight - 160) window.scrollBy({ top: r.top - minTop, behavior: 'smooth' });
+  });
+  cards.addEventListener('click', e => {
+    const b = e.target.closest('.more'); if (!b) return;
+    const open = b.getAttribute('aria-expanded') !== 'true';
+    b.setAttribute('aria-expanded', open); document.getElementById(b.getAttribute('aria-controls')).hidden = !open;
+  });
+}
+function openInline(p, i) {
+  if (p.type === '進階') { const el = document.getElementById('project'); if (el) el.scrollIntoView({ block: 'center', behavior: 'instant' }); return; }
+  const c = app.querySelector('.ucards').children[i]; if (!c) return;
+  const b = c.querySelector('.more'); b.setAttribute('aria-expanded', 'true'); document.getElementById(b.getAttribute('aria-controls')).hidden = false;
+  c.scrollIntoView({ block: 'center', behavior: 'instant' });
+  c.classList.add('flash'); setTimeout(() => c.classList.remove('flash'), 1600);
+}
+function similarPkgs(p, n = 3) {
+  const key = x => new Set(x.units.flatMap(u => WORLDS.flatMap(w => u[w.key].map(t => w.key + '|' + t))));
+  const mine = key(p);
+  return db.filter(x => x !== p).map(x => { const k = key(x); let s = 0; k.forEach(t => mine.has(t) && s++); return { x, s }; })
+    .sort((a, b) => b.s - a.s || (a.x.type === p.type ? -1 : 1)).slice(0, n);
+}
+function relatedPacks(p) {
+  const top = WORLDS.flatMap(w => [...new Set(p.units.flatMap(u => u[w.key]))].slice(0, 1).map(t => w.key + '|' + t));
+  const sims = similarPkgs(p);
+  return `<section class="band peach related" aria-labelledby="rl-title">
+    <div class="wrap">
+      <div class="sec-head"><div class="tgroup"><p class="en" aria-hidden="true">Related Packs</p><h2 id="rl-title">相關組合包</h2><p class="d">和「${esc(p.title)}」學習標籤最接近的三個課程方案，適合搭配成一學期的課程。</p></div>
+        <a class="btn orange" href="#" data-tags="${esc(top.join(';'))}">用本方案的學習目標找單元 →</a></div>
+      <div class="pkgs three">${sims.map(({ x, s }, i) => pkgCard(x, i, null).replace('<div class="body">', s ? `<div class="body"><span class="share">${s} 個共同學習標籤</span>` : '<div class="body">')).join('')}</div>
+    </div>
+  </section>`;
+}
+function bindRelated() {
+  app.querySelectorAll('[data-tags]').forEach(a => a.addEventListener('click', () => { state.selected = new Set(a.dataset.tags.split(';').filter(Boolean)); state.query = ''; }));
+  app.querySelectorAll('.rcard[data-stage]').forEach(a => a.addEventListener('click', () => { state.jumpStage = a.dataset.stage; }));
+}
+
+/* ════════════════════════════════════════════════════════════════
+   5. 畫面：課程方案頁
+   ════════════════════════════════════════════════════════════════ */
+/* 常見問題：畫面上看得到，靜態網站版也會轉成 FAQPage 結構化資料給搜尋引擎 */
+function faqSection(items) {
+  return `<section class="faq" aria-labelledby="faq-title"><div class="wrap">
+    <div class="tgroup"><p class="en" aria-hidden="true">FAQ</p><h2 id="faq-title">常見問題</h2></div>
+    <div class="qa">${items.map(([q, a]) => `<details class="qa-item"><summary>${esc(q)}</summary><div class="ans">${a}</div></details>`).join('')}</div>
+  </div></section>`;
+}
+const uniq = a => [...new Set(a)];
+function packageFaq(p) {
+  const items = [[`「${p.title}」適合幾歲的孩子？`, `適合 ${esc(p.grades)} 的孩子，屬於 WeClass 的${p.type}課程方案。`]];
+  if (p.type === '進階') {
+    items.push(['課程怎麼安排、需要多少時間？', `這是 3 天的跨日大型專案（XPBL）。${(p.schedule || []).map(d => `${esc(d.day)}：${d.items.map(esc).join('、')}`).join('；')}。`]);
+  } else {
+    const m = minutes(p);
+    items.push(['一共有幾個單元、需要多少時間？', `共 ${p.units.length} 個實作單元，合計 ${m} 分鐘（相當於 ${Math.round(m / 90)} 堂 90 分鐘的課）：${p.units.map(u => `${esc(u.title)}（${esc(u.duration)}）`).join('、')}。`]);
+  }
+  const t = k => uniq(p.units.flatMap(u => u[k])).map(esc).join('、') || '—';
+  items.push(['孩子會學到哪些知識與技能？', `依四大學習世界整理：科學／化學：${t('sci')}；工程：${t('eng')}；科技：${t('tech')}；藝術：${t('art')}。`]);
+  if ((p.requirements || []).length) items.push(['上課需要準備什麼？', p.requirements.map(esc).join('；') + '。']);
+  items.push(['學校或安親班想開這門課，要怎麼洽詢？', 'WeClass 提供常態課程、課後社團與冬夏令營的規劃。加入 WeClass 官方 LINE，教育顧問會與您聯繫並提供機構合作方案。']);
+  return items;
+}
+function homeFaq() {
+  const grades = uniq(db.map(p => p.grades));
+  return [
+    ['什麼是課綱單元課程包？', '課綱單元課程包對應 108 課綱與四大學習世界（科學／化學、工程、科技、藝術），可以依想培養的知識與技能，直接找出對應的實作單元。'],
+    ['怎麼依學習目標找課？', '在上方選擇學習世界，點選想培養的知識或技能標籤，下方會即時列出有教到的單元；同一分類內任一標籤符合就會列出。'],
+    ['目前有哪些課程方案？', `目前有 ${db.length} 個課程方案、${totalUnits} 個實作單元：${db.map(p => `${esc(p.title)}（${esc(p.grades)}）`).join('、')}。`],
+    ['課程適合哪些年齡？', `依方案不同，適合 ${grades.map(esc).join('、')} 的孩子；初階方案以單元實作為主，進階方案是 3 天的大型專案。`]
+  ];
+}
+
+function renderPackage(p, openUnitNo) {
+  setTitle(`${p.title}｜WeClass STEAM 課程方案`);
+  setNav('');
+  const idx = db.indexOf(p), prev = db[(idx - 1 + db.length) % db.length], next = db[(idx + 1) % db.length];
+  const fm = MODES.find(m => m.id === state.from) || MODES[0];
+  const crumb = `<p class="crumb"><a href="#">課綱單元課程包</a><span aria-hidden="true">›</span><a href="#all">全部課程方案</a></p>`;
+  const pager = `<nav class="pager" aria-label="其他課程方案"><a href="#${prev.id}"><small>← Previous</small><strong>${esc(prev.title)}</strong></a><a class="next" href="#${next.id}"><small>Next →</small><strong>${esc(next.title)}</strong></a></nav>`;
+  app.innerHTML = p.type === '進階' ? advancedPage(p, crumb, pager) : juniorPage(p, crumb, pager);
+  bindWorldChars(p); bindExplore(p); bindRelated();
+  window.scrollTo(0, 0);
+  if (openUnitNo && p.units[openUnitNo - 1]) requestAnimationFrame(() => openInline(p, openUnitNo - 1));
+}
+
+function worldNotes(p, labelUnits) {
+  return WORLDS.map((w, wi) => {
+    const seen = new Map();
+    p.units.forEach((u, ui) => u[w.key].forEach(t => { if (!seen.has(t)) seen.set(t, []); seen.get(t).push(ui + 1); }));
+    const chips = [...seen].map(([t, us]) => `<span class="chip2">${esc(t)}${labelUnits ? `<span class="u">${us.map(pad).join('·')}</span>` : ''}</span>`).join('') || '<span class="chip2">—</span>';
+    return `<article class="note ${wi === 1 || wi === 2 ? 'y' : ''}"><p class="tiny">${w.en}</p><h3>${w.full}<span class="n">${seen.size}</span></h3><div class="chips">${chips}</div></article>`;
+  }).join('');
+}
+
+function juniorPage(p, crumb, pager) {
+  return `
+  <section class="hero" aria-labelledby="pk-title">
+    <span class="star s1" aria-hidden="true"></span><span class="star s2" aria-hidden="true"></span>
+    <div class="wrap">
+      <div class="hero-copy">
+        ${crumb}
+        <div class="lettering learn" role="img" aria-label="Learn by making!"></div>
+        <span class="pill teal">初階課程方案・${esc(p.grades)}</span>
+        <h1 id="pk-title">${esc(p.title)}</h1>
+        <p class="d">${esc(p.desc)}</p>
+        <div class="hero-cta"><a class="btn orange" href="#units" onclick="document.getElementById('units').scrollIntoView();return false;">看 ${p.units.length} 個實作單元 <span aria-hidden="true">↓</span></a></div>
+      </div>
+      <div class="hero-framed"><div class="framed"><img src="${pkgPhoto(p)}" alt="${esc(p.title)} 課堂照片"></div></div>
+    </div>
+  </section>
+  <section class="band mint intro" aria-labelledby="in-title">
+    <div class="wrap">
+      <div class="framed"><img src="${unitPhoto(p.units[1] || p.units[0], 1)}" alt="${esc(p.title)} 實作照片"></div>
+      <div class="tgroup">
+        <p class="en" aria-hidden="true">Course Intro</p>
+        <h2 id="in-title">課程簡介</h2>
+        <p class="d">${esc(p.desc)}</p>
+        <div class="facts"><span class="pill white">適合對象：${esc(p.grades)}</span><span class="pill white">${p.units.length} 個實作單元</span><span class="pill white">共 ${minutes(p)} 分鐘</span></div>
+      </div>
+    </div>
+  </section>
+  <section class="band peach units" id="units" aria-labelledby="un-title">
+    <div class="wrap">
+      <svg class="blob" style="left:-30px;bottom:120px" viewBox="0 0 179 174" aria-hidden="true"><path d="${BLOB}"/></svg>
+      <svg class="blob" style="right:-20px;top:330px;width:140px" viewBox="0 0 179 174" aria-hidden="true"><path d="${BLOB}"/></svg>
+      <div class="sec-head">
+        <div class="tgroup"><p class="en" aria-hidden="true">Explore Units</p><h2 id="un-title">本方案課程單元</h2><p class="d">請四位角色幫忙！點角色看他負責的學習標籤，再點標籤，有教到的單元會被角色認領。</p></div>
+        <span class="ozzi" aria-hidden="true"></span>
+      </div>
+      <div class="explore">
+        ${explorePanel(p)}
+        <div class="cards ucards">${p.units.map((u, i) => `
+          <article class="card" id="${u.id}" data-i="${i}">
+            <span class="peek" aria-hidden="true"></span>
+            <div class="photo"><img src="${unitPhoto(u, i)}" alt="" loading="lazy"><span class="lv">Unit ${pad(i + 1)}</span></div>
+            <div class="body">
+              <h3>${esc(u.title)}</h3>
+              <p class="d">${esc(u.desc)}</p>
+              <div class="meta"><span class="time">${esc(u.duration)}</span><button class="more" aria-expanded="false" aria-controls="ud-${i}">學習重點 <span class="chev" aria-hidden="true">▼</span></button></div>
+              <div class="udetail" id="ud-${i}" hidden>
+                <dl><dt>科學知識</dt><dd>${esc(u.sci_desc)}</dd><dt>技能訓練</dt><dd>${esc(u.skill_desc)}</dd></dl>
+                <div class="uw">${WORLDS.flatMap(w => u[w.key].map(t => `<span class="ut ${w.key}" data-k="${esc(w.key + '|' + t)}">${esc(t)}</span>`)).join('')}</div>
+              </div>
+            </div>
+          </article>`).join('')}
+        </div>
+      </div>
+    </div>
+  </section>
+  ${faqSection(packageFaq(p))}
+  ${relatedPacks(p)}
+  ${ctaBand({ title: '還想看其他方案？', body: '回到課綱單元課程包依學習目標找單元，或切換到上一個、下一個課程方案。', btn: { href: '#', text: '回課綱單元課程包' }, pager })}`;
+}
+
+function advancedPage(p, crumb, pager) {
+  const u = p.units[0];
+  return `
+  <section class="hero" aria-labelledby="pk-title">
+    <span class="star s1" aria-hidden="true"></span><span class="star s2" aria-hidden="true"></span>
+    <div class="wrap">
+      <div class="hero-copy">
+        ${crumb}
+        <div class="lettering learn" role="img" aria-label="Learn by making!"></div>
+        <span class="pill teal">進階專案式學習 (XPBL)・${esc(p.grades)}</span>
+        <h1 id="pk-title">${esc(p.title)}</h1>
+        <p class="d">${esc(p.desc)}</p>
+        <div class="hero-cta"><a class="btn orange" href="#project" onclick="document.getElementById('project').scrollIntoView({block:'center'});return false;">看專案學習重點 <span aria-hidden="true">↓</span></a></div>
+      </div>
+      <div class="hero-framed"><div class="framed"><img src="${pkgPhoto(p)}" alt="${esc(p.title)} 課堂照片"></div></div>
+    </div>
+  </section>
+  <section class="band mint outcomes" aria-labelledby="oc-title">
+    <div class="wrap">
+      <svg class="blob" style="right:-20px;top:140px;width:150px" viewBox="0 0 179 174" aria-hidden="true"><path d="${BLOB}" style="fill:var(--mint-light)"/></svg>
+      <div class="sec-head"><div class="tgroup"><p class="en" aria-hidden="true">What Kids Learn</p><h2 id="oc-title">孩子們會學到什麼呢？</h2></div></div>
+      <div class="cards">${p.outcomes.map((o, i) => `
+        <article class="card">
+          <div class="photo"><img src="${unitPhoto({ title: o.title }, i)}" alt="" loading="lazy"><span class="lv">Skill ${pad(i + 1)}</span></div>
+          <div class="body"><h3>${esc(o.title)}</h3><p class="d">${esc(o.desc)}</p></div>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+  <section class="band peach notes-sec" aria-labelledby="sc-title" style="margin-top:-70px">
+    <div class="wrap" style="padding-block:120px 110px">
+      <div class="tgroup"><p class="en" aria-hidden="true">Schedule</p><h2 id="sc-title">詳細課程表</h2><p class="d">三天的大型專案，從設計、組裝到程式撰寫與成果發表。</p></div>
+      <div class="notes three">${p.schedule.map((d, i) => `
+        <article class="note ${i === 1 ? 'y' : ''}"><p class="tiny">Day ${i + 1}</p><h3>${esc(d.day)}</h3><ul class="list">${d.items.map(t => `<li>${esc(t)}</li>`).join('')}</ul></article>`).join('')}
+      </div>
+    </div>
+  </section>
+  <section class="notes-sec" aria-labelledby="rq-title">
+    <div class="wrap">
+      <div class="notes">
+        <article class="note y" style="grid-row:span 2">
+          <span class="req-ozzi" aria-hidden="true"></span>
+          <p class="tiny">Requirements</p><h3 id="rq-title">課程需求</h3>
+          <ul class="check">${p.requirements.map(r => `<li>${esc(r)}</li>`).join('')}</ul>
+        </article>
+        <article class="note" id="project" style="scroll-margin-top:120px">
+          <p class="tiny">Project</p><h3>${esc(u.title)}<span class="n">${esc(u.duration)}</span></h3>
+          <p style="margin:0 0 16px;letter-spacing:.08em;font-weight:700">${esc(u.desc)}</p>
+          <div class="kv"><span class="pill teal">科學知識</span><span>${esc(u.sci_desc)}</span><span class="pill teal">技能訓練</span><span>${esc(u.skill_desc)}</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+  <section class="notes-sec" aria-labelledby="wd-title" style="padding-top:0">
+    <div class="wrap" style="padding-top:0">
+      <div class="tgroup"><p class="en" aria-hidden="true">Four Worlds</p><h2 id="wd-title">四大學習世界</h2><p class="d">這個專案涵蓋的學習標籤。</p></div>
+      ${worldChars(p, false)}
+    </div>
+  </section>
+  ${faqSection(packageFaq(p))}
+  ${relatedPacks(p)}
+  ${ctaBand({ title: '還想看其他方案？', body: '回到課綱單元課程包依學習目標找單元，或切換到上一個、下一個課程方案。', btn: { href: '#', text: '回課綱單元課程包' }, pager })}`;
+}
+
+// 官方 LINE 連結：請換成正式的加入好友網址（例如 https://lin.ee/xxxx）
+const LINE_URL = 'https://weclass.tw/';
+function ctaBand({ pager = '' } = {}) {
+  return `${pager ? `<section class="pager-strip" aria-label="上一個、下一個方案"><div class="wrap">${pager}</div></section>` : ''}
+  <section class="band teal cta on-teal" aria-labelledby="cta-title">
+    <div class="wrap">
+      <div>
+        <div class="tgroup"><p class="en" aria-hidden="true">Contact Us</p><h2 id="cta-title">洽談合作</h2></div>
+        <p class="big">為您的課堂注入 STEAM 創新能量！</p>
+        <p class="body">無論是常態課程、課後社團或冬夏令營，WeClass 皆能為您量身規劃。<br>立即加入官方 LINE，WeClass 教育顧問將盡快與您聯繫。</p>
+        <a class="btn orange" href="${LINE_URL}" target="_blank" rel="noopener">加入官方 LINE，索取【最新機構合作方案】<span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="cast" role="img" aria-label="WeClass 品牌角色群像"></div>
+    </div>
+  </section>`;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   6. 單元彈窗
+   ════════════════════════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════════════════════════
+   7. 路由：# → 總覽、#find → 總覽並捲到找課、#p1 → 方案頁、#p1.3 → 方案頁＋第 3 單元
+   ════════════════════════════════════════════════════════════════ */
+function setNav(which) {
+  ['goal', 'all'].forEach(k => { const el = document.getElementById('nav-' + k); if (k === which) el.setAttribute('aria-current', 'page'); else el.removeAttribute('aria-current'); });
+}
+/* 手機漢堡選單 */
+const burger = document.getElementById('burger'), mnav = document.getElementById('mnav');
+function renderMnav() {
+  const h = location.hash.replace('#', '').split('.')[0];
+  const grp = type => db.filter(p => p.type === type).map(p => `<li><a href="#${p.id}"${h === p.id ? ' aria-current="page"' : ''}>${esc(p.title)}</a></li>`).join('');
+  mnav.innerHTML = `<div class="main"><a href="#"${h === '' ? ' aria-current="page"' : ''}>依學習目標找單元<span aria-hidden="true">→</span></a><a href="#all"${h === 'all' ? ' aria-current="page"' : ''}>全部課程方案<span aria-hidden="true">→</span></a><a href="https://weclass.tw/" class="official">回 WeClass 官網<span aria-hidden="true">↗</span></a></div>
+    <h3>初階課程<small>1~6 年級</small></h3><ul>${grp('初階')}</ul>
+    <h3>進階課程<small>9~15 歲</small></h3><ul>${grp('進階')}</ul>`;
+}
+function setMenu(open) {
+  if (open) renderMnav();
+  mnav.hidden = !open; burger.setAttribute('aria-expanded', open); burger.setAttribute('aria-label', open ? '關閉選單' : '開啟選單');
+}
+burger.addEventListener('click', () => setMenu(mnav.hidden));
+mnav.addEventListener('click', e => { const a = e.target.closest('a'); if (a) { setMenu(false); if (a.getAttribute('href') === '#' && location.hash === '') renderGoal(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !mnav.hidden) { setMenu(false); burger.focus(); } });
+document.addEventListener('click', e => { if (!mnav.hidden && !e.target.closest('.site-head')) setMenu(false); });
+window.matchMedia('(min-width: 901px)').addEventListener('change', e => { if (e.matches) setMenu(false); });
+
+function route() {
+  if (!mnav.hidden) setMenu(false);
+  const h = location.hash.replace('#', '');
+  if (BASE) {
+    const legacy = h ? hrefMap('#' + h) : null;
+    if (legacy) { location.replace(legacy); return; }
+    const path = decodeURIComponent(location.pathname), at = path.indexOf(BASE);
+    const rest = (at >= 0 ? path.slice(at + BASE.length) : '').replace(/index\.html$/, '').replace(/\/$/, '');
+    const pk = db.find(x => slugOf(x) === rest), un = (h.match(/^u(\d+)$/) || [])[1];
+    if (pk) renderPackage(pk, un ? +un : 0);
+    else if (rest === 'all') renderTheme();
+    else renderGoal();
+    return;
+  }
+  const m = h.match(/^(p\d+)(?:\.(\d+))?$/);
+  const p = m && db.find(x => x.id === m[1]);
+  if (p) renderPackage(p, m[2] ? +m[2] : 0);
+  else if (h === 'all' || h === 'theme') renderTheme();
+  else renderGoal();
+}
+window.addEventListener('hashchange', route);
+if (BASE) document.addEventListener('click', e => {
+  const a = e.target.closest('a[href^="#"]'); if (!a || e.defaultPrevented) return;
+  const to = hrefMap(a.getAttribute('href')); if (to) { e.preventDefault(); location.href = to; }
+});
+route();
+
+/* 課程資料來源：填入「WeClass 課程資料庫」試算表部署的網頁應用程式網址後，網站會改讀試算表（讀不到時沿用內建資料） */
+const DATA_URL = '';
+if (DATA_URL) fetch(DATA_URL).then(r => r.json()).then(j => {
+  if (!j || !Array.isArray(j.courses) || !j.courses.length) return;
+  db.splice(0, db.length, ...j.courses);
+  buildTags(); totalUnits = db.reduce((a, p) => a + p.units.length, 0);
+  route();
+}).catch(() => {});
+</script>

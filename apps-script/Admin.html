@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><base target="_top"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WeClass 課程後台</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Poppins:wght@700;900&display=swap">
+<style>
+/* 版面：頂部工具列 → 左側方案清單｜中間方案編輯表單｜右側網站即時預覽（窄螢幕依序堆疊） */
+:root {
+  --teal: #1D4C58; --ink: #1C4D59; --mint: #87CCC8; --mint-pale: #E1F6F4;
+  --orange: #F08419; --peach: #FFDBA9; --cream: #FDEFDF; --paper: #FFFFFF;
+  --line: #E8DCCB; --field: #FBF7F2; --muted: #5E7378; --danger: #B3261E;
+  --w-sci: #E3F4F2; --w-sci-d: #1D6A6B; --w-eng: #FDEBD6; --w-eng-d: #A04F00;
+  --w-tech: #DCEBEF; --w-tech-d: #1C4D59; --w-art: #FCF0D3; --w-art-d: #8A5A00;
+  --f-zh: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --f-en: "Poppins", "Noto Sans TC", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { background: var(--cream); color: var(--ink); font-family: var(--f-zh); font-weight: 500; font-size: 15px; line-height: 1.55; }
+button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--teal); color: #fff; }
+.top .in { display: flex; align-items: center; gap: 14px; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.brand { font-family: var(--f-en); font-weight: 900; font-size: 18px; letter-spacing: .01em; }
+.brand small { font-family: var(--f-zh); font-weight: 700; font-size: 13px; color: var(--mint); margin-left: 8px; }
+.top .sp { flex: 1; }
+.state { font-size: 13px; font-weight: 700; color: var(--mint); white-space: nowrap; }
+.state.dirty { color: var(--peach); }
+.btn { border: 0; border-radius: 999px; padding: 9px 18px; font-weight: 900; letter-spacing: .04em; white-space: nowrap; }
+.btn.pub { background: var(--orange); color: var(--ink); }
+.btn.pub:disabled { opacity: .55; cursor: default; }
+.btn.line { background: transparent; box-shadow: inset 0 0 0 2px currentColor; }
+.btn.soft { background: var(--mint-pale); color: var(--teal); }
+.btn.small { padding: 5px 12px; font-size: 13px; }
+.btn.danger { background: transparent; color: var(--danger); box-shadow: inset 0 0 0 1.5px var(--danger); }
+
+.layout { display: grid; grid-template-columns: 260px minmax(0, 1fr) 360px; gap: 18px; padding-block: 18px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1500px; margin: 0 auto; align-items: start; }
+.layout > * { min-width: 0; }
+.panel { background: var(--paper); border-radius: 18px; box-shadow: 0 10px 22px -12px rgba(28, 77, 89, .3); }
+
+/* 方案清單 */
+.list { position: sticky; top: 76px; padding: 14px; max-height: calc(100vh - 100px); overflow: auto; }
+.list h2 { margin: 2px 4px 10px; font-size: 14px; font-weight: 900; letter-spacing: .08em; color: var(--teal); display: flex; justify-content: space-between; align-items: center; }
+.list .search { width: 100%; border: 1.5px solid var(--line); border-radius: 999px; padding: 7px 14px; background: var(--field); margin-bottom: 10px; }
+.grp { font-size: 12px; font-weight: 900; color: var(--muted); letter-spacing: .1em; margin: 12px 6px 6px; }
+.item { width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; border: 0; background: transparent; border-radius: 12px; padding: 8px 10px; }
+.item:hover { background: var(--cream); }
+.item[aria-current="true"] { background: var(--mint-pale); box-shadow: inset 3px 0 0 var(--teal); }
+.item .th { width: 38px; height: 38px; border-radius: 10px; flex: none; background: var(--mint) center / cover; }
+.item.adv .th { background-color: var(--peach); }
+.item b { display: block; font-size: 14px; font-weight: 900; line-height: 1.3; }
+.item small { color: var(--muted); font-size: 12px; font-weight: 700; }
+.item .dot { margin-left: auto; width: 8px; height: 8px; border-radius: 50%; background: var(--orange); flex: none; }
+.add-pk { width: 100%; margin-top: 12px; border: 2px dashed var(--line); background: transparent; border-radius: 12px; padding: 10px; font-weight: 900; color: var(--teal); }
+.add-pk:hover { border-color: var(--teal); }
+
+/* 編輯表單 */
+.editor { padding: 22px 24px 26px; }
+.ed-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+.ed-head h1 { margin: 0; font-size: 24px; font-weight: 900; color: var(--teal); line-height: 1.3; }
+.ed-head p { margin: 2px 0 0; color: var(--muted); font-size: 13px; font-weight: 700; }
+fieldset { border: 0; padding: 0; margin: 0 0 22px; }
+legend { font-weight: 900; font-size: 15px; color: var(--teal); letter-spacing: .06em; margin-bottom: 10px; padding: 0; display: flex; align-items: center; gap: 8px; }
+.row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.f { display: grid; gap: 5px; margin-bottom: 12px; }
+.f > span { font-size: 13px; font-weight: 700; color: var(--muted); }
+.f input, .f select, .f textarea { width: 100%; border: 1.5px solid var(--line); background: var(--field); border-radius: 10px; padding: 9px 12px; font-weight: 700; }
+.f textarea { resize: vertical; min-height: 64px; font-weight: 500; line-height: 1.6; }
+.f input:focus, .f select:focus, .f textarea:focus { border-color: var(--teal); background: #fff; outline: none; box-shadow: 0 0 0 3px var(--mint-pale); }
+.seg { display: inline-flex; background: var(--field); border: 1.5px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
+.seg button { border: 0; background: transparent; border-radius: 8px; padding: 6px 14px; font-weight: 900; }
+.seg button[aria-pressed="true"] { background: var(--teal); color: #fff; }
+.cover { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 14px; align-items: center; }
+.drop { position: relative; aspect-ratio: 4 / 3; border-radius: 12px; border: 2px dashed var(--line); background: var(--field) center / cover no-repeat; display: grid; place-items: center; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--muted); cursor: pointer; overflow: hidden; }
+.drop.has { border-style: solid; border-color: transparent; color: transparent; }
+.drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.drop:hover { border-color: var(--teal); }
+.hint { font-size: 12.5px; color: var(--muted); margin: 0; }
+
+.units { display: grid; gap: 10px; }
+.unit { border: 1.5px solid var(--line); border-radius: 14px; background: #fff; }
+.unit.open { border-color: var(--teal); box-shadow: 0 6px 14px -8px rgba(28, 77, 89, .35); }
+.u-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+.u-no { font-family: var(--f-en); font-weight: 900; font-size: 12px; background: var(--teal); color: #fff; border-radius: 7px; padding: 2px 8px; flex: none; }
+.u-title { flex: 1; min-width: 0; text-align: left; border: 0; background: transparent; padding: 0; }
+.u-title b { display: block; font-weight: 900; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.u-title small { color: var(--muted); font-size: 12px; font-weight: 700; }
+.u-tools { display: flex; gap: 4px; flex: none; }
+.ic { width: 30px; height: 30px; border-radius: 8px; border: 0; background: var(--field); font-size: 14px; line-height: 1; display: grid; place-items: center; }
+.ic:hover { background: var(--mint-pale); }
+.ic:disabled { opacity: .3; cursor: default; }
+.u-body { padding: 4px 14px 14px; border-top: 1px dashed var(--line); }
+.u-grid { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 12px; }
+.durs { display: flex; flex-wrap: wrap; gap: 6px; }
+.durs button { border: 1.5px solid var(--line); background: var(--field); border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: 13px; }
+.durs button[aria-pressed="true"] { background: var(--teal); border-color: var(--teal); color: #fff; }
+.worlds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.wbox { border-radius: 12px; padding: 10px; }
+.wbox.sci { background: var(--w-sci); --d: var(--w-sci-d); } .wbox.eng { background: var(--w-eng); --d: var(--w-eng-d); }
+.wbox.tech { background: var(--w-tech); --d: var(--w-tech-d); } .wbox.art { background: var(--w-art); --d: var(--w-art-d); }
+.wbox > b { display: block; font-size: 12.5px; font-weight: 900; color: var(--d); margin-bottom: 6px; letter-spacing: .06em; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 4px; background: var(--d); color: #fff; border-radius: 999px; padding: 2px 4px 2px 10px; font-size: 12.5px; font-weight: 700; }
+.chip button { border: 0; background: rgba(255, 255, 255, .25); color: #fff; width: 18px; height: 18px; border-radius: 50%; font-size: 11px; line-height: 1; padding: 0; }
+.tagin { position: relative; flex: 1; min-width: 110px; }
+.tagin input { width: 100%; border: 1.5px dashed color-mix(in srgb, var(--d) 40%, transparent); background: rgba(255, 255, 255, .7); border-radius: 999px; padding: 3px 10px; font-size: 12.5px; }
+.tagin input:focus { outline: none; border-style: solid; background: #fff; }
+.sugg { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 4px); background: #fff; border-radius: 10px; box-shadow: 0 10px 20px -8px rgba(0, 0, 0, .25); padding: 4px; max-height: 180px; overflow: auto; }
+.sugg button { display: block; width: 100%; text-align: left; border: 0; background: transparent; border-radius: 7px; padding: 5px 9px; font-size: 13px; }
+.sugg button:hover, .sugg button.on { background: var(--cream); }
+.sugg small { color: var(--muted); margin-left: 6px; }
+.add-unit { width: 100%; border: 2px dashed var(--line); background: transparent; border-radius: 14px; padding: 12px; font-weight: 900; color: var(--teal); }
+.add-unit:hover { border-color: var(--teal); }
+.danger-zone { display: flex; justify-content: space-between; align-items: center; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; flex-wrap: wrap; }
+.confirm { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; font-weight: 700; }
+
+/* 預覽 */
+.pv { position: sticky; top: 76px; padding: 14px; }
+.pv h2 { margin: 2px 4px 10px; font-size: 14px; font-weight: 900; letter-spacing: .08em; color: var(--teal); display: flex; justify-content: space-between; }
+.pv h2 small { font-weight: 700; color: var(--muted); letter-spacing: 0; }
+.site { background: var(--cream); border-radius: 14px; padding: 14px; max-height: calc(100vh - 150px); overflow: auto; }
+.s-card { background: #fff; border-radius: 14px; padding: 10px 10px 12px; box-shadow: 0 8px 14px -8px rgba(0, 0, 0, .2); transform: rotate(-1deg); }
+.s-photo { aspect-ratio: 4 / 3; border-radius: 10px; background: var(--mint) center / cover; position: relative; }
+.s-card.adv .s-photo { background-color: var(--peach); }
+.s-photo span { position: absolute; left: 8px; bottom: 8px; background: var(--teal); color: #fff; font-size: 11.5px; font-weight: 700; border-radius: 7px; padding: 2px 8px; }
+.s-card h3 { margin: 10px 4px 4px; font-size: 17px; font-weight: 900; color: var(--teal); }
+.s-card p { margin: 0 4px 10px; font-size: 12.5px; color: #636363; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.s-meta { display: flex; justify-content: space-between; align-items: center; margin: 0 4px; }
+.s-meta i { font-style: normal; font-size: 12px; font-weight: 700; background: var(--mint-pale); border-radius: 999px; padding: 2px 9px; }
+.s-meta b { font-size: 12px; background: var(--orange); border-radius: 999px; padding: 3px 10px; }
+.s-units { margin-top: 16px; display: grid; gap: 8px; }
+.s-unit { background: #fff; border-radius: 12px; padding: 9px 11px; font-size: 13px; }
+.s-unit b { display: flex; justify-content: space-between; gap: 8px; color: var(--teal); font-weight: 900; }
+.s-unit b span { font-family: var(--f-en); font-size: 11px; color: var(--teal); white-space: nowrap; }
+.s-unit .t { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 5px; }
+.s-unit .t i { font-style: normal; font-size: 11px; border-radius: 999px; padding: 0 7px; font-weight: 700; }
+.t .sci { background: var(--w-sci); color: var(--w-sci-d); } .t .eng { background: var(--w-eng); color: var(--w-eng-d); }
+.t .tech { background: var(--w-tech); color: var(--w-tech-d); } .t .art { background: var(--w-art); color: var(--w-art-d); }
+.s-empty { color: var(--muted); font-size: 13px; text-align: center; padding: 10px; }
+
+.toast { position: fixed; z-index: 50; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); translate: -50% 0; background: var(--teal); color: #fff; font-weight: 700; padding: 10px 18px; border-radius: 999px; box-shadow: 0 10px 20px -8px rgba(0, 0, 0, .4); opacity: 0; transform: translateY(8px); transition: opacity .25s, transform .25s; pointer-events: none; max-width: calc(100vw - 32px); text-align: center; }
+.toast.on { opacity: 1; transform: none; }
+.demo-note { margin: 0 auto; max-width: 1500px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 30px; font-size: 13px; color: var(--muted); }
+
+@media (max-width: 1180px) { .layout { grid-template-columns: 240px minmax(0, 1fr); } .list { position: static; max-height: none; } .pv { grid-column: 1 / -1; position: static; } .site { max-height: none; display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 14px; } .s-units { margin-top: 0; } }
+@media (max-width: 760px) {
+  .layout { grid-template-columns: 1fr; }
+  .list { position: static; max-height: none; }
+  .list .items { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+  .list .grp { display: none; }
+  .item { flex: none; width: auto; max-width: 220px; }
+  .editor { padding: 18px 14px; }
+  .row, .u-grid, .worlds, .cover { grid-template-columns: 1fr; }
+  .cover .drop { max-width: 220px; }
+  .site { display: block; }
+  .brand small { display: none; }
+  .state { white-space: normal; font-size: 12px; line-height: 1.3; text-align: right; min-width: 0; }
+  .top .in { gap: 10px; }
+  .btn.pub { padding: 8px 14px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+[hidden] { display: none !important; } body { margin: 0; }
+</style>
+</head><body>
+
+<header class="top">
+  <div class="in">
+    <span class="brand">WeClass<small>課程後台</small></span>
+    <span class="sp"></span>
+    <span class="state" id="state" aria-live="polite">所有變更已發布</span>
+    <button class="btn pub" id="publish" type="button" disabled>發布到網站</button>
+  </div>
+</header>
+
+<main class="layout">
+  <nav class="panel list" aria-label="課程方案">
+    <h2>課程方案 <span id="count" style="font-family:var(--f-en)"></span></h2>
+    <input class="search" id="search" type="search" placeholder="搜尋方案或單元" aria-label="搜尋方案或單元">
+    <div class="items" id="items"></div>
+    <button class="add-pk" id="addpk" type="button">＋ 新增課程方案</button>
+  </nav>
+
+  <section class="panel editor" id="editor" aria-label="編輯方案"></section>
+
+  <aside class="panel pv" aria-label="網站預覽">
+    <h2>網站預覽 <small>即時顯示，發布後才會上線</small></h2>
+    <div class="site" id="site"></div>
+  </aside>
+</main>
+<p class="demo-note" id="note">修改會先暫存在這個視窗，按右上角「發布到網站」才會寫回試算表，網站約 5 分鐘內更新。關閉視窗前記得先發布。</p>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const IS_GAS = typeof google !== 'undefined' && google.script && google.script.run;
+const SAMPLE = [];   // 只在本機預覽時使用；在試算表裡會改讀試算表資料
+const WORLDS = [['sci', '科學/化學世界'], ['eng', '工程世界'], ['tech', '科技世界'], ['art', '藝術世界']];
+const GRADES = ['1~3年級', '1~6年級', '3~6年級', '9~15歲'];
+const DURS = ['90分鐘', '180分鐘', '270分鐘', '跨日大型專案'];
+let data = [], cur = '', openUnit = 0, dirty = new Set(), confirmDel = false;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const pad = n => String(n).padStart(2, '0');
+const pk = () => data.find(p => p.id === cur) || data[0];
+const allTags = k => { const m = new Map(); data.forEach(p => p.units.forEach(u => u[k].forEach(t => m.set(t, (m.get(t) || 0) + 1)))); return [...m].sort((a, b) => b[1] - a[1]); };
+const totalMin = p => p.units.reduce((a, u) => a + (parseInt(u.duration, 10) || 0), 0);
+const metaText = p => p.type === '進階' ? '3 天專案' : `${p.units.length} 個單元・${totalMin(p)} 分鐘`;
+
+function touch(msg) { dirty.add(cur); renderState(); renderList(); renderSite(); if (msg) toast(msg); }
+function renderState() {
+  const n = dirty.size, s = $('#state');
+  s.textContent = n ? `${n} 個方案有未發布的變更` : '所有變更已發布'; s.classList.toggle('dirty', !!n);
+  $('#publish').disabled = !n;
+}
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 2400); }
+
+function renderList() {
+  const q = $('#search').value.trim();
+  const hit = p => !q || p.title.includes(q) || p.units.some(u => u.title.includes(q));
+  $('#count').textContent = data.length;
+  $('#items').innerHTML = ['初階', '進階'].map(type => {
+    const ps = data.filter(p => p.type === type && hit(p)); if (!ps.length) return '';
+    return `<p class="grp">${type}課程</p>` + ps.map(p => `<button class="item ${p.type === '進階' ? 'adv' : ''}" data-id="${p.id}" aria-current="${p.id === cur}" type="button">
+      <span class="th" style="${p.intro_image ? `background-image:url('${p.intro_image}')` : ''}"></span><span><b>${esc(p.title || '未命名方案')}</b><small>${esc(p.grades)}・${metaText(p)}${p.published === false ? '・<b style=\'display:inline;color:var(--danger);font-size:12px\'>下架中</b>' : ''}</small></span>${dirty.has(p.id) ? '<span class="dot" title="未發布"></span>' : ''}</button>`).join('');
+  }).join('') || '<p class="hint" style="padding:8px">找不到符合的方案。</p>';
+}
+
+function renderEditor() {
+  const p = pk(); confirmDel = false;
+  $('#editor').innerHTML = `
+  <div class="ed-head"><div><h1>${esc(p.title || '未命名方案')}</h1><p>${p.type}課程・${metaText(p)}</p></div></div>
+  <fieldset><legend>基本資料</legend>
+    <div class="row">
+      <label class="f"><span>方案名稱</span><input id="p-title" value="${esc(p.title)}" placeholder="例如：小小天文學家"></label>
+      <label class="f"><span>適合年級</span><select id="p-grades">${GRADES.map(g => `<option ${g === p.grades ? 'selected' : ''}>${g}</option>`).join('')}</select></label>
+      <div class="f"><span>類型</span><div class="seg" id="p-type">${['初階', '進階'].map(t => `<button type="button" data-v="${t}" aria-pressed="${p.type === t}">${t}</button>`).join('')}</div></div>
+    </div>
+    <div class="f"><span>網站上顯示</span><div class="seg" id="p-pub"><button type="button" data-v="1" aria-pressed="${p.published !== false}">上架</button><button type="button" data-v="0" aria-pressed="${p.published === false}">下架（先不顯示）</button></div></div>
+    <label class="f"><span>網址代稱（英文小寫與連字號，例如 little-astronomer；上線後請勿再改）</span><input id="p-slug" value="${esc(p.slug || '')}" placeholder="little-astronomer" inputmode="url" autocapitalize="off"></label>
+    <label class="f"><span>方案介紹（顯示在方案卡與課程頁）</span><textarea id="p-desc" rows="2">${esc(p.desc)}</textarea></label>
+    <div class="cover">
+      <label class="drop ${p.intro_image ? 'has' : ''}" style="${p.intro_image ? `background-image:url('${p.intro_image}')` : ''}">點這裡上傳<br>封面照片<input type="file" accept="image/*" id="p-photo" aria-label="上傳封面照片"></label>
+      <p class="hint">建議橫式照片、寬度 1200px 以上。沒有上傳時，網站會用單元照片代替。</p>
+    </div>
+  </fieldset>
+  ${p.type === '進階' ? `<fieldset><legend>專案資訊</legend>
+    <label class="f"><span>學習成果（一行一項，格式「標題｜說明」）</span><textarea id="p-outcomes" rows="3">${esc((p.outcomes || []).map(o => o.title + '｜' + o.desc).join('\n'))}</textarea></label>
+    <label class="f"><span>課程表（一行一天，格式「星期三｜項目一；項目二」）</span><textarea id="p-schedule" rows="3">${esc((p.schedule || []).map(d => d.day + '｜' + d.items.join('；')).join('\n'))}</textarea></label>
+    <label class="f"><span>課程需求（一行一項）</span><textarea id="p-req" rows="3">${esc((p.requirements || []).join('\n'))}</textarea></label>
+  </fieldset>` : ''}
+  <fieldset><legend>課程單元 <span class="hint" style="font-weight:700">${p.units.length} 個</span></legend>
+    <div class="units" id="units">${p.units.map((u, i) => unitHtml(u, i, p)).join('')}</div>
+    <button class="add-unit" id="addunit" type="button" style="margin-top:10px">＋ 新增單元</button>
+  </fieldset>
+  <div class="danger-zone">
+    <span class="hint">修改會先存成草稿，按右上角「發布到網站」才會上線。</span>
+    <span id="delbox"><button class="btn danger small" id="delpk" type="button">刪除這個方案</button></span>
+  </div>`;
+}
+function unitHtml(u, i, p) {
+  const open = i === openUnit;
+  const tags = WORLDS.reduce((a, [k]) => a + u[k].length, 0);
+  return `<div class="unit ${open ? 'open' : ''}" data-i="${i}">
+    <div class="u-head"><span class="u-no">${p.type === '進階' ? 'Project' : 'Unit ' + pad(i + 1)}</span>
+      <button class="u-title" type="button" data-act="toggle" aria-expanded="${open}"><b>${esc(u.title || '未命名單元')}</b><small>${esc(u.duration)}・${tags} 個學習標籤</small></button>
+      <span class="u-tools"><button class="ic" type="button" data-act="up" aria-label="上移" ${i === 0 ? 'disabled' : ''}>↑</button><button class="ic" type="button" data-act="down" aria-label="下移" ${i === p.units.length - 1 ? 'disabled' : ''}>↓</button><button class="ic" type="button" data-act="del" aria-label="刪除單元">✕</button></span></div>
+    ${open ? `<div class="u-body">
+      <div class="u-grid">
+        <label class="f"><span>單元名稱</span><input data-f="title" value="${esc(u.title)}" placeholder="例如：水火箭發射"></label>
+        <div class="f"><span>上課時間</span><div class="durs">${DURS.map(d => `<button type="button" data-dur="${d}" aria-pressed="${u.duration === d}">${d.replace('分鐘', ' 分').replace('跨日大型專案', '跨日')}</button>`).join('')}</div></div>
+      </div>
+      <div class="u-grid" style="grid-template-columns:minmax(0,1fr) 150px"><label class="f"><span>單元說明</span><textarea data-f="desc" rows="3">${esc(u.desc)}</textarea></label>
+        <div class="f"><span>單元照片</span><label class="drop ${u.img ? 'has' : ''}" style="${u.img ? `background-image:url('${u.img}')` : ''}">上傳照片<input type="file" accept="image/*" data-uphoto aria-label="上傳單元照片"></label></div></div>
+      <div class="u-grid" style="grid-template-columns:1fr 1fr">
+        <label class="f"><span>科學知識</span><input data-f="sci_desc" value="${esc(u.sci_desc)}"></label>
+        <label class="f"><span>技能訓練</span><input data-f="skill_desc" value="${esc(u.skill_desc)}"></label>
+      </div>
+      <div class="f"><span>四大世界標籤（打字會提示已有的標籤，按 Enter 新增）</span>
+        <div class="worlds">${WORLDS.map(([k, n]) => `<div class="wbox ${k}"><b>${n}</b><div class="chips">${u[k].map((t, ti) => `<span class="chip">${esc(t)}<button type="button" data-rm="${k}|${ti}" aria-label="移除 ${esc(t)}">✕</button></span>`).join('')}
+          <span class="tagin"><input data-tag="${k}" placeholder="＋ 加標籤" autocomplete="off" aria-label="新增${n}標籤"></span></div></div>`).join('')}</div>
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+function renderSite() {
+  const p = pk(); const ph = p.intro_image;
+  $('#site').innerHTML = `<article class="s-card ${p.type === '進階' ? 'adv' : ''}"><div class="s-photo" style="${ph ? `background-image:url(${ph})` : ''}"><span>${p.type}・${esc(p.grades)}</span></div>
+    <h3>${esc(p.title || '未命名方案')}</h3><p>${esc(p.desc || '（尚未填寫介紹）')}</p><div class="s-meta"><i>${p.type === '進階' ? '3 天專案' : p.units.length + ' 個單元'}</i><b>看課程 →</b></div></article>
+    <div class="s-units">${p.units.length ? p.units.map((u, i) => `<div class="s-unit"><b>${esc(u.title || '未命名單元')}<span>${p.type === '進階' ? 'Project' : 'Unit ' + pad(i + 1)}・${esc(u.duration.replace('分鐘', ' min'))}</span></b>
+      <div class="t">${WORLDS.flatMap(([k]) => u[k].map(t => `<i class="${k}">${esc(t)}</i>`)).join('')}</div></div>`).join('') : '<p class="s-empty">還沒有單元，按「＋ 新增單元」開始。</p>'}</div>`;
+}
+
+function renderAll() { renderList(); renderEditor(); renderSite(); renderState(); }
+
+// 清單
+$('#items').addEventListener('click', e => { const b = e.target.closest('.item'); if (!b) return; cur = b.dataset.id; openUnit = 0; renderAll(); if (innerWidth < 760) $('#editor').scrollIntoView({ behavior: 'smooth' }); });
+$('#search').addEventListener('input', renderList);
+function addPack() {
+  const n = Math.max(0, ...data.map(p => parseInt(String(p.id).replace(/\D/g, ''), 10) || 0)) + 1;
+  data.push({ id: 'p' + n, published: true, title: '', type: '初階', grades: '3~6年級', desc: '', intro_image: '', outcomes: [], schedule: [], requirements: [], units: [{ title: '', duration: '90分鐘', desc: '', sci_desc: '', skill_desc: '', sci: [], eng: [], tech: [], art: [], img: '' }] });
+  cur = 'p' + n; openUnit = 0; dirty.add(cur); renderAll(); $('#p-title').focus(); toast('已新增一個空白方案，先填方案名稱');
+}
+$('#addpk').addEventListener('click', addPack);
+
+// 編輯器：文字欄位
+$('#editor').addEventListener('input', e => {
+  const p = pk(), el = e.target;
+  if (el.id === 'p-title') { p.title = el.value; $('#editor h1').textContent = el.value || '未命名方案'; return touch(); }
+  if (el.id === 'p-desc') { p.desc = el.value; return touch(); }
+  if (el.id === 'p-slug') { p.slug = el.value.toLowerCase().replace(/[^a-z0-9-]+/g, '-'); return touch(); }
+  const lines = v => v.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+  if (el.id === 'p-outcomes') { p.outcomes = lines(el.value).map(l => { const [a, ...b] = l.split('｜'); return { title: a.trim(), desc: b.join('｜').trim() }; }); return touch(); }
+  if (el.id === 'p-schedule') { p.schedule = lines(el.value).map(l => { const [a, ...b] = l.split('｜'); return { day: a.trim(), items: b.join('｜').split('；').map(x => x.trim()).filter(Boolean) }; }); return touch(); }
+  if (el.id === 'p-req') { p.requirements = lines(el.value); return touch(); }
+  if (el.dataset.f) { const i = +el.closest('.unit').dataset.i; p.units[i][el.dataset.f] = el.value; if (el.dataset.f === 'title') el.closest('.unit').querySelector('.u-title b').textContent = el.value || '未命名單元'; return touch(); }
+  if (el.dataset.tag) showSugg(el);
+});
+$('#editor').addEventListener('change', e => {
+  const p = pk(), el = e.target;
+  if (el.id === 'p-grades') { p.grades = el.value; touch(); renderEditor(); }
+  if (el.id === 'p-photo' && el.files[0]) uploadImage(el.files[0], url => { p.intro_image = url; touch('封面照片已更新'); renderEditor(); });
+  if (el.dataset.uphoto !== undefined && el.files[0]) { const i = +el.closest('.unit').dataset.i; uploadImage(el.files[0], url => { p.units[i].img = url; touch('單元照片已更新'); renderEditor(); }); }
+});
+// 編輯器：按鈕
+$('#editor').addEventListener('click', e => {
+  const p = pk(), t = e.target;
+  const seg = t.closest('#p-type button'); if (seg) { p.type = seg.dataset.v; touch(); renderEditor(); return; }
+  const pub = t.closest('#p-pub button'); if (pub) { p.published = pub.dataset.v === '1'; touch(p.published ? '這個方案會顯示在網站上' : '發布後這個方案會從網站隱藏'); renderEditor(); return; }
+  if (t.closest('#addunit')) { p.units.push({ title: '', duration: '90分鐘', desc: '', sci_desc: '', skill_desc: '', sci: [], eng: [], tech: [], art: [], img: '' }); openUnit = p.units.length - 1; touch('已新增單元'); renderEditor(); document.querySelector(`.unit[data-i="${openUnit}"] [data-f="title"]`).focus(); return; }
+  if (t.closest('#delpk')) { $('#delbox').innerHTML = `<span class="confirm">確定刪除「${esc(p.title || '未命名方案')}」？<button class="btn danger small" id="delyes" type="button">刪除</button><button class="btn soft small" id="delno" type="button">取消</button></span>`; return; }
+  if (t.closest('#delno')) { renderEditor(); return; }
+  if (t.closest('#delyes')) { const name = p.title || '未命名方案'; data = data.filter(x => x !== p); dirty.add('deleted-' + p.id); cur = data[0].id; openUnit = 0; renderAll(); toast(`已刪除「${name}」，發布後網站才會移除`); return; }
+  const unit = t.closest('.unit'); if (!unit) return; const i = +unit.dataset.i;
+  const act = t.closest('[data-act]')?.dataset.act;
+  if (act === 'toggle') { openUnit = openUnit === i ? -1 : i; renderEditor(); return; }
+  if (act === 'up' && i > 0) { [p.units[i - 1], p.units[i]] = [p.units[i], p.units[i - 1]]; openUnit = openUnit === i ? i - 1 : openUnit; touch('單元順序已調整'); renderEditor(); return; }
+  if (act === 'down' && i < p.units.length - 1) { [p.units[i + 1], p.units[i]] = [p.units[i], p.units[i + 1]]; openUnit = openUnit === i ? i + 1 : openUnit; touch('單元順序已調整'); renderEditor(); return; }
+  if (act === 'del') { const name = p.units[i].title || '未命名單元'; p.units.splice(i, 1); openUnit = -1; touch(`已刪除單元「${name}」`); renderEditor(); return; }
+  const d = t.closest('[data-dur]'); if (d) { p.units[i].duration = d.dataset.dur; touch(); renderEditor(); return; }
+  const rm = t.closest('[data-rm]'); if (rm) { const [k, ti] = rm.dataset.rm.split('|'); p.units[i][k].splice(+ti, 1); touch(); renderEditor(); return; }
+  const sg = t.closest('.sugg button'); if (sg) { addTag(i, sg.dataset.k, sg.dataset.v); return; }
+});
+// 標籤輸入與提示
+function showSugg(input) {
+  const k = input.dataset.tag, q = input.value.trim(), box = input.parentElement;
+  box.querySelector('.sugg')?.remove(); if (!q) return;
+  const i = +input.closest('.unit').dataset.i, have = new Set(pk().units[i][k]);
+  const list = allTags(k).filter(([t]) => t.includes(q) && !have.has(t)).slice(0, 8);
+  box.insertAdjacentHTML('beforeend', `<div class="sugg">${list.map(([t, n]) => `<button type="button" data-k="${k}" data-v="${esc(t)}">${esc(t)}<small>${n} 個單元在用</small></button>`).join('')}<button type="button" data-k="${k}" data-v="${esc(q)}">＋ 新增「${esc(q)}」</button></div>`);
+}
+function addTag(i, k, v) {
+  v = v.trim(); if (!v) return; const u = pk().units[i];
+  if (!u[k].includes(v)) u[k].push(v);
+  touch(); renderEditor();
+  document.querySelector(`.unit[data-i="${i}"] [data-tag="${k}"]`)?.focus();
+}
+$('#editor').addEventListener('keydown', e => {
+  const el = e.target; if (!el.dataset.tag) return;
+  if (e.key === 'Enter') { e.preventDefault(); if (e.isComposing) return; const i = +el.closest('.unit').dataset.i; addTag(i, el.dataset.tag, el.value); }
+  if (e.key === 'Escape') { el.value = ''; el.parentElement.querySelector('.sugg')?.remove(); }
+});
+document.addEventListener('click', e => { if (!e.target.closest('.tagin')) document.querySelectorAll('.sugg').forEach(s => s.remove()); });
+
+// 照片：先在瀏覽器縮到最寬 1600px，再存到雲端硬碟
+function uploadImage(file, done) {
+  const r = new FileReader();
+  r.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, 1600 / img.width), c = document.createElement('canvas');
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      const url = c.toDataURL('image/jpeg', 0.85);
+      if (!IS_GAS) return done(url);
+      toast('照片上傳中…');
+      google.script.run.withSuccessHandler(done).withFailureHandler(e => toast('照片上傳失敗：' + e.message)).uploadPhoto(url, file.name.replace(/\.\w+$/, '') + '.jpg');
+    };
+    img.src = r.result;
+  };
+  r.readAsDataURL(file);
+}
+// 發布
+$('#publish').addEventListener('click', () => {
+  const n = dirty.size; const btn = $('#publish'); btn.disabled = true; btn.textContent = '發布中…';
+  const done = res => { dirty.clear(); btn.textContent = '發布到網站'; renderState(); renderList(); toast(res && res.units !== undefined ? `已發布：${res.packs} 個方案、${res.units} 個單元，網站約 5 分鐘內更新` : `已發布 ${n} 個方案的變更（預覽模式）`); };
+  if (!IS_GAS) return setTimeout(done, 700);
+  google.script.run.withSuccessHandler(done).withFailureHandler(e => { btn.disabled = false; btn.textContent = '發布到網站'; toast('發布失敗：' + e.message); }).saveCourses(data);
+});
+
+function boot(list) {
+  data = (list || []).map(p => Object.assign({ published: true, outcomes: [], schedule: [], requirements: [], intro_image: '' }, p));
+  cur = data[0] ? data[0].id : ''; openUnit = 0;
+  if (!data.length) { addPack(); return; }
+  renderAll();
+}
+if (IS_GAS) {
+  $('#editor').innerHTML = '<p class="hint" style="padding:30px;text-align:center">正在讀取試算表裡的課程…</p>';
+  google.script.run.withSuccessHandler(boot).withFailureHandler(err => { $('#editor').innerHTML = `<p class="hint" style="padding:30px;color:var(--danger)">讀取失敗：${esc(err.message)}</p>`; }).getCourses();
+} else boot(structuredClone(SAMPLE));
+</script>
+</body></html>
