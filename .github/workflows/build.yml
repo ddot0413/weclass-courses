@@ -1,0 +1,45 @@
+# 自動產生課程網站並發布到 GitHub Pages
+# 每天台灣時間凌晨 3 點從試算表讀最新課程重新產生；也可以在 Actions 頁面按「Run workflow」立即更新。
+# 目前是給客戶看的預覽網址 https://ddot0413.github.io/weclass-courses/（不讓搜尋引擎收錄）。
+# 之後接上 courses.weclass.tw：SITE_ORIGIN 改成 https://courses.weclass.tw、SITE_BASE 改成 /、刪掉 --noindex。
+name: Build course site
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 19 * * *'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install playwright==1.47.0 && python -m playwright install --with-deps chromium
+      - name: Build
+        env:
+          DATA_URL: https://script.google.com/macros/s/AKfycbwsQRRy-7l0NSfUNeplodcIuVzs3QbhbsmuY5Win1jBUnvCp8h_K8jPLLPzFG4pRr0X/exec
+          SITE_ORIGIN: https://ddot0413.github.io
+          SITE_BASE: /weclass-courses/
+        run: python build.py --origin "$SITE_ORIGIN" --base "$SITE_BASE" --data-url "$DATA_URL" --live-data --noindex
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
