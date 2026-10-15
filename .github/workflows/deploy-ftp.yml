@@ -1,7 +1,6 @@
 # 自動產生課程網站並用 FTP 上傳到 weclass.tw/courses/
 # 每天台灣時間凌晨 3 點從試算表讀最新課程重新產生並上傳，也可以在 Actions 頁面按「Run workflow」立即更新。
 # 設定（Settings › Secrets and variables › Actions › Secrets）：
-#   DATA_URL      試算表部署的網頁應用程式網址（/exec 結尾）
 #   FTP_SERVER    主機 FTP 位址，例如 ftp.weclass.tw
 #   FTP_USERNAME  FTP 帳號
 #   FTP_PASSWORD  FTP 密碼
@@ -29,7 +28,8 @@ jobs:
       - run: pip install playwright==1.47.0 && python -m playwright install --with-deps chromium
       - name: Build
         env:
-          DATA_URL: ${{ secrets.DATA_URL }}
+          # 試算表「WeClass 課程資料庫」部署的網頁應用程式網址（只提供已上架課程，可公開）
+          DATA_URL: https://script.google.com/macros/s/AKfycbwsQRRy-7l0NSfUNeplodcIuVzs3QbhbsmuY5Win1jBUnvCp8h_K8jPLLPzFG4pRr0X/exec
         run: |
           if [ -n "$DATA_URL" ]; then EXTRA="--data-url $DATA_URL --live-data"; fi
           python build.py --origin https://weclass.tw --base /courses/ $EXTRA
