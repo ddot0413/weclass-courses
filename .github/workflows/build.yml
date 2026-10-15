@@ -33,7 +33,9 @@ jobs:
         run: python build.py --origin "$SITE_ORIGIN" --base "$SITE_BASE" --data-url "$DATA_URL" --live-data --noindex
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          # 預覽網址本身就在 /weclass-courses/ 底下，所以上傳產生出來的 weclass-courses 資料夾內容
+          # （改用 courses.weclass.tw、SITE_BASE 為 / 時，這裡改回 dist）
+          path: dist/weclass-courses
   deploy:
     needs: build
     runs-on: ubuntu-latest
