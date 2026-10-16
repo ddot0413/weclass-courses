@@ -79,6 +79,15 @@ body = body.replace('<!--NAVDROP-->', _nav_drop())   # 下拉選單直接寫進�
 import hashlib
 VER = hashlib.md5((css + js).encode('utf-8')).hexdigest()[:8]   # 內容變了檔名參數就變，瀏覽器不會用到舊的快取
 
+# 官方 LINE 加入好友 QR Code（電腦版課程清單用）；有安裝 qrcode 套件才產生，沒有時網頁改用線上套件畫
+QR_JS = ''
+try:
+    import qrcode, qrcode.image.svg
+    qrcode.make('https://line.me/R/ti/p/%40238hxhaz', image_factory=qrcode.image.svg.SvgPathImage, box_size=10, border=2).save(str(SITE / 'assets' / 'line-qr.svg'))
+    QR_JS = f"window.WECLASS_QR = {json.dumps(A + 'line-qr.svg')};"
+except Exception as e:
+    print('（略過 QR Code：', e, '）')
+
 FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
          '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Poppins:wght@700;900&display=swap" rel="stylesheet">')
 
@@ -93,7 +102,7 @@ def page(head, app_html=''):
 {FONTS}
 <link rel="stylesheet" href="{A}site.css?v={VER}">
 <link rel="icon" href="{A}logo.svg" type="image/svg+xml">
-<script>window.WECLASS_BASE = {json.dumps(BASE)};</script>
+<script>window.WECLASS_BASE = {json.dumps(BASE)};{QR_JS}</script>
 </head>
 <body>
 {body.replace('<main id="app"></main>', '<main id="app">' + app_html + '</main>')}

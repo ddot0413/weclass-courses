@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install playwright==1.47.0 && python -m playwright install --with-deps chromium
+      - run: pip install playwright==1.47.0 qrcode==7.4.2 && python -m playwright install --with-deps chromium
       - name: Build
         env:
           DATA_URL: https://script.google.com/macros/s/AKfycbwsQRRy-7l0NSfUNeplodcIuVzs3QbhbsmuY5Win1jBUnvCp8h_K8jPLLPzFG4pRr0X/exec

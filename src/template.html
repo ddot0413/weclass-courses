@@ -647,6 +647,12 @@ button.wt[aria-pressed="true"] { background: var(--wd); border-color: var(--wd);
   .hero-cta .addc { font-size: 15px; padding: 11px 18px; }
   .addc { font-size: 13px; padding: 5px 12px; }
 }
+.cart-tip { margin: 0 0 8px; font-size: 12px; color: var(--mint); line-height: 1.5; }
+.cart-qr { margin-top: 12px; background: var(--white); color: var(--ink); border-radius: 16px; padding: 14px; text-align: center; }
+.cart-qr p { margin: 0 0 10px; font-size: 12.5px; line-height: 1.5; }
+.cart-qr p b { display: block; font-size: 14px; color: var(--teal); }
+.cart-qr .qr-img { display: flex; justify-content: center; margin-bottom: 8px; }
+.cart-qr a { font-size: 12.5px; font-weight: 700; color: #06A048; }
 </style>
 
 <header class="site-head">
@@ -1242,7 +1248,7 @@ function advancedPage(p, crumb, pager) {
 }
 
 // 官方 LINE 連結：請換成正式的加入好友網址（例如 https://lin.ee/xxxx）
-const LINE_URL = 'https://weclass.tw/';
+const LINE_URL = 'https://line.me/R/ti/p/%40238hxhaz';   // WeClass 官方 LINE 加入好友
 function ctaBand({ pager = '' } = {}) {
   return `${pager ? `<section class="pager-strip" aria-label="上一個、下一個方案"><div class="wrap">${pager}</div></section>` : ''}
   <section class="band teal cta on-teal" aria-labelledby="cta-title">
@@ -1322,7 +1328,7 @@ function route() {
 }
 window.addEventListener('hashchange', route);
 /* ════ 我的課程清單：勾選有興趣的方案或單元，選身份後用官方 LINE 傳給顧問 ════ */
-const LINE_OA_ID = '';   // 官方 LINE 帳號 ID，例如 '@weclass'（留空時改為複製訊息）
+const LINE_OA_ID = '@238hxhaz';   // WeClass 官方 LINE 帳號 ID
 const ROLES = ['企業合作', '教材採購', '營隊合作'];
 const CART_KEY = 'weclass-cart-v1';
 let cart = [], cartRole = '', cartOpen = false;
@@ -1366,7 +1372,9 @@ function renderCart() {
       <p class="cart-q">您是哪一種合作？</p>
       <div class="roles" role="radiogroup">${ROLES.map(r => `<button type="button" role="radio" data-role="${r}" aria-checked="${cartRole === r}">${r}</button>`).join('')}</div>
       <p class="cart-err" id="cart-err" aria-live="polite"></p>
+      <p class="cart-tip">傳送前請在 LINE 聊天室上方按「加入好友」，顧問才能回覆您。</p>
       <button type="button" class="cart-send">用 LINE 傳給 WeClass 顧問</button>
+      <div class="cart-qr" id="cart-qr" hidden></div>
       <button type="button" class="cart-clear">清空清單</button>
     </div>`;
 }
@@ -1383,8 +1391,18 @@ document.addEventListener('click', e => {
     const err = document.getElementById('cart-err');
     if (!cartRole) { err.textContent = '請先選擇合作類型。'; return; }
     const msg = cartMessage(cartItems());
-    if (LINE_OA_ID) { const a = document.createElement('a'); a.href = `https://line.me/R/oaMessage/${encodeURIComponent(LINE_OA_ID)}/?${encodeURIComponent(msg)}`; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); err.textContent = '已打開 LINE，確認訊息後按傳送即可。'; }
-    else { (navigator.clipboard ? navigator.clipboard.writeText(msg) : Promise.reject()).then(() => { err.textContent = '已複製訊息，請貼到 WeClass 官方 LINE 傳送。'; }, () => { err.textContent = msg; }); }
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    const chatUrl = `https://line.me/R/oaMessage/${encodeURIComponent(LINE_OA_ID)}/?${encodeURIComponent(msg)}`;
+    if (isMobile) { location.href = chatUrl; err.textContent = '已打開 LINE：先按上方「加入好友」，再按傳送。'; return; }
+    // 電腦版：複製訊息＋顯示 QR Code，用手機掃描後加入好友、貼上傳送
+    const qr = document.getElementById('cart-qr'); qr.hidden = false;
+    qr.innerHTML = `<p><b>用手機掃描，加入 WeClass 官方 LINE</b>訊息已複製，加入好友後貼上傳送即可。</p><div class="qr-img" id="qr-img"></div><a href="${LINE_URL}" target="_blank" rel="noopener">或在電腦版 LINE 開啟 ↗</a>`;
+    if (window.WECLASS_QR) { document.getElementById('qr-img').innerHTML = `<img src="${window.WECLASS_QR}" width="150" height="150" alt="WeClass 官方 LINE 加入好友 QR Code">`; }
+    else {
+    const draw = () => { try { new QRCode(document.getElementById('qr-img'), { text: 'https://line.me/R/ti/p/' + encodeURIComponent(LINE_OA_ID), width: 150, height: 150, correctLevel: QRCode.CorrectLevel.M }); } catch (x) {} };
+    if (window.QRCode) draw(); else { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'; s.onload = draw; document.head.appendChild(s); }
+    }
+    (navigator.clipboard ? navigator.clipboard.writeText(msg) : Promise.reject()).then(() => { err.textContent = '已複製課程清單訊息。'; }, () => { err.textContent = msg; });
   }
 });
 renderNavDrop();
