@@ -612,6 +612,41 @@ button.wt[aria-pressed="true"] { background: var(--wd); border-color: var(--wd);
 .nav .navdrop-panel a[aria-current] { background: var(--mint-pale); box-shadow: inset 3px 0 0 var(--teal); }
 .nav .navdrop-panel .nd-all { grid-column: 1 / -1; justify-content: center; margin-top: 10px; border-top: 2px dashed #EBD9C2; border-radius: 0; padding-top: 14px; color: var(--teal); }
 .nav .navdrop-panel .nd-all:hover { background: none; color: var(--orange); }
+.addc { border: 0; background: var(--white); box-shadow: inset 0 0 0 2px var(--teal); color: var(--teal); border-radius: 999px; font-weight: 700; font-size: 14px; padding: 6px 14px; letter-spacing: 0.04em; white-space: nowrap; transition: background .15s, color .15s, transform .2s; }
+.addc:hover { background: var(--mint-pale); }
+.addc[aria-pressed="true"] { background: var(--teal); color: var(--white); }
+.addc.mini { font-size: 12px; padding: 3px 10px; box-shadow: inset 0 0 0 1.5px var(--teal); }
+.hero-cta .addc { font-size: 17px; padding: 13px 24px; background: transparent; }
+.hero-cta .addc[aria-pressed="true"] { background: var(--teal); }
+.card .meta { flex-wrap: wrap; row-gap: 8px; }
+.urow { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: auto; }
+.urow .utime { margin-top: 0; }
+.cart { position: fixed; z-index: 70; right: max(24px, env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); width: 340px; max-width: calc(100vw - 32px); background: var(--teal); color: var(--white); border-radius: 22px; box-shadow: 0 18px 40px -10px rgba(0, 0, 0, .45); overflow: hidden; }
+.cart-bar { width: 100%; border: 0; background: transparent; color: inherit; display: flex; align-items: center; gap: 10px; padding: 14px 18px; text-align: left; font-weight: 900; font-size: 16px; letter-spacing: 0.04em; }
+.cart-bar span:first-child { display: flex; align-items: center; gap: 8px; }
+.cart-bar b { font-family: var(--f-en); background: var(--orange); color: var(--ink); border-radius: 999px; min-width: 24px; height: 24px; display: inline-grid; place-items: center; font-size: 13px; padding: 0 7px; }
+.cart-bar small { margin-left: auto; color: var(--mint); font-weight: 700; font-size: 13px; }
+.cart-bar .cv { font-size: 12px; color: var(--mint); }
+.cart-bar.bump { animation: bump .45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes bump { 40% { transform: scale(1.04); } }
+.cart-body { padding: 0 18px 16px; max-height: min(70vh, 560px); overflow-y: auto; }
+.cart ol { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
+.cart li { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: rgba(255, 255, 255, .1); border-radius: 12px; padding: 8px 10px; }
+.cart li b { display: block; font-weight: 700; font-size: 14px; line-height: 1.35; }
+.cart li small { color: var(--mint); font-size: 12px; }
+.cart .rm { flex: none; border: 0; width: 24px; height: 24px; border-radius: 50%; background: rgba(255, 255, 255, .18); color: var(--white); font-size: 11px; }
+.cart-q { margin: 4px 0 8px; font-weight: 900; font-size: 14px; letter-spacing: 0.06em; }
+.roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.roles button { border: 0; background: rgba(255, 255, 255, .14); color: var(--white); border-radius: 12px; padding: 9px 4px; font-weight: 700; font-size: 13.5px; }
+.roles button[aria-checked="true"] { background: var(--white); color: var(--teal); box-shadow: inset 0 0 0 2px var(--orange); }
+.cart-err { min-height: 1.2em; margin: 8px 0; font-size: 12.5px; color: var(--peach); white-space: pre-wrap; }
+.cart-send { width: 100%; border: 0; background: #06C755; color: var(--white); border-radius: 999px; padding: 12px; font-weight: 900; font-size: 15px; letter-spacing: 0.04em; }
+.cart-clear { width: 100%; border: 0; background: transparent; color: var(--mint); font-size: 12.5px; margin-top: 6px; text-decoration: underline; }
+@media (max-width: 900px) {
+  .cart { right: 12px; left: 12px; width: auto; max-width: none; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); border-radius: 18px; }
+  .hero-cta .addc { font-size: 15px; padding: 11px 18px; }
+  .addc { font-size: 13px; padding: 5px 12px; }
+}
 </style>
 
 <header class="site-head">
@@ -862,7 +897,7 @@ function renderGoal() {
   </section>
   ${faqSection(homeFaq())}
   ${ctaBand({ title: '想看完整主題？', body: '每個單元都屬於一個課程方案，點單元可以看學習重點，也可以瀏覽全部 11 個課程方案。', btn: { href: '#all', text: '看全部課程方案' } })}`;
-  bindGoal(); updateGoal(); window.scrollTo(0, 0);
+  bindGoal(); updateGoal(); renderCart(); window.scrollTo(0, 0);
 }
 
 function bindGoal() {
@@ -894,7 +929,7 @@ function updateGoal() {
       <span class="photo"><img src="${unitPhoto(u, i)}" alt="" loading="lazy"><span class="lv">${p.type === '進階' ? 'Project' : `Unit ${pad(i + 1)}`}</span></span>
       <span class="ub"><span class="upkg">${esc(p.title)}・${esc(p.grades)}</span><strong>${esc(u.title)}</strong>
       ${hitTags.length ? `<span class="hits">${hitTags.map(t => `<i>${esc(t)}</i>`).join('')}</span>` : `<span class="udesc">${esc(u.desc)}</span>`}
-      <span class="utime">${esc(u.duration)}</span></span></a>`;
+      <span class="urow"><span class="utime">${esc(u.duration)}</span>${cartBtn('u:' + u.id, true)}</span></span></a>`;
   }).join('') : `<div class="no-result"><div class="char" aria-hidden="true"></div><p style="font-weight:700;letter-spacing:.06em;margin:0">目前的條件沒有符合的單元。</p></div>`;
 }
 
@@ -1068,7 +1103,7 @@ function renderPackage(p, openUnitNo) {
   const crumb = `<p class="crumb"><a href="#">課綱單元課程包</a><span aria-hidden="true">›</span><a href="#all">全部課程方案</a></p>`;
   const pager = `<nav class="pager" aria-label="其他課程方案"><a href="#${prev.id}"><small>← Previous</small><strong>${esc(prev.title)}</strong></a><a class="next" href="#${next.id}"><small>Next →</small><strong>${esc(next.title)}</strong></a></nav>`;
   app.innerHTML = p.type === '進階' ? advancedPage(p, crumb, pager) : juniorPage(p, crumb, pager);
-  bindWorldChars(p); bindExplore(p); bindRelated();
+  bindWorldChars(p); bindExplore(p); bindRelated(); renderCart();
   window.scrollTo(0, 0);
   if (openUnitNo && p.units[openUnitNo - 1]) requestAnimationFrame(() => openInline(p, openUnitNo - 1));
 }
@@ -1093,7 +1128,7 @@ function juniorPage(p, crumb, pager) {
         <span class="pill teal">初階課程方案・${esc(p.grades)}</span>
         <h1 id="pk-title">${esc(p.title)}</h1>
         <p class="d">${esc(p.desc)}</p>
-        <div class="hero-cta"><a class="btn orange" href="#units" onclick="document.getElementById('units').scrollIntoView();return false;">看 ${p.units.length} 個實作單元 <span aria-hidden="true">↓</span></a></div>
+        <div class="hero-cta"><a class="btn orange" href="#units" onclick="document.getElementById('units').scrollIntoView();return false;">看 ${p.units.length} 個實作單元 <span aria-hidden="true">↓</span></a>${cartBtn('p:' + p.id)}</div>
       </div>
       <div class="hero-framed"><div class="framed"><img src="${pkgPhoto(p)}" alt="${esc(p.title)} 課堂照片"></div></div>
     </div>
@@ -1126,7 +1161,7 @@ function juniorPage(p, crumb, pager) {
             <div class="body">
               <h3>${esc(u.title)}</h3>
               <p class="d">${esc(u.desc)}</p>
-              <div class="meta"><span class="time">${esc(u.duration)}</span><button class="more" aria-expanded="false" aria-controls="ud-${i}">學習重點 <span class="chev" aria-hidden="true">▼</span></button></div>
+              <div class="meta"><span class="time">${esc(u.duration)}</span>${cartBtn('u:' + u.id)}<button class="more" aria-expanded="false" aria-controls="ud-${i}">學習重點 <span class="chev" aria-hidden="true">▼</span></button></div>
               <div class="udetail" id="ud-${i}" hidden>
                 <dl><dt>科學知識</dt><dd>${esc(u.sci_desc)}</dd><dt>技能訓練</dt><dd>${esc(u.skill_desc)}</dd></dl>
                 <div class="uw">${WORLDS.flatMap(w => u[w.key].map(t => `<span class="ut ${w.key}" data-k="${esc(w.key + '|' + t)}">${esc(t)}</span>`)).join('')}</div>
@@ -1154,7 +1189,7 @@ function advancedPage(p, crumb, pager) {
         <span class="pill teal">進階專案式學習 (XPBL)・${esc(p.grades)}</span>
         <h1 id="pk-title">${esc(p.title)}</h1>
         <p class="d">${esc(p.desc)}</p>
-        <div class="hero-cta"><a class="btn orange" href="#project" onclick="document.getElementById('project').scrollIntoView({block:'center'});return false;">看專案學習重點 <span aria-hidden="true">↓</span></a></div>
+        <div class="hero-cta"><a class="btn orange" href="#project" onclick="document.getElementById('project').scrollIntoView({block:'center'});return false;">看專案學習重點 <span aria-hidden="true">↓</span></a>${cartBtn('p:' + p.id)}</div>
       </div>
       <div class="hero-framed"><div class="framed"><img src="${pkgPhoto(p)}" alt="${esc(p.title)} 課堂照片"></div></div>
     </div>
@@ -1286,6 +1321,72 @@ function route() {
   else renderGoal();
 }
 window.addEventListener('hashchange', route);
+/* ════ 我的課程清單：勾選有興趣的方案或單元，選身份後用官方 LINE 傳給顧問 ════ */
+const LINE_OA_ID = '';   // 官方 LINE 帳號 ID，例如 '@weclass'（留空時改為複製訊息）
+const ROLES = ['企業合作', '教材採購', '營隊合作'];
+const CART_KEY = 'weclass-cart-v1';
+let cart = [], cartRole = '', cartOpen = false;
+try { const s = JSON.parse(localStorage.getItem(CART_KEY) || '{}'); cart = Array.isArray(s.items) ? s.items : []; cartRole = s.role || ''; } catch (e) {}
+const cartSave = () => { try { localStorage.setItem(CART_KEY, JSON.stringify({ items: cart, role: cartRole })); } catch (e) {} };
+function cartFind(key) {
+  const [k, id] = key.split(':');
+  if (k === 'p') { const p = db.find(x => x.id === id); return p && { key, kind: 'p', p }; }
+  for (const p of db) { const u = p.units.find(x => x.id === id); if (u) return { key, kind: 'u', p, u }; }
+  return null;
+}
+function cartBtn(key, mini) {
+  const on = cart.includes(key), pack = key[0] === 'p';
+  return `<button type="button" class="addc${mini ? ' mini' : ''}${pack ? ' pack' : ''}" data-ck="${key}" aria-pressed="${on}">${on ? (pack ? '已加入整個方案 ✓' : '已加入 ✓') : (pack ? '＋ 加入整個方案' : '＋ 加入清單')}</button>`;
+}
+function cartSync() { document.querySelectorAll('[data-ck]').forEach(b => { const tmp = document.createElement('div'); tmp.innerHTML = cartBtn(b.dataset.ck, b.classList.contains('mini')); const n = tmp.firstChild; b.setAttribute('aria-pressed', n.getAttribute('aria-pressed')); b.textContent = n.textContent; }); }
+function cartItems() { return cart.map(cartFind).filter(Boolean); }
+function cartTotal(items) {
+  const packs = new Set(items.filter(x => x.kind === 'p').map(x => x.p.id));
+  let m = 0, days = 0;
+  items.forEach(x => {
+    if (x.kind === 'p') { if (x.p.type === '進階') days += 3; else m += minutes(x.p); }
+    else if (!packs.has(x.p.id)) { const n = parseInt(x.u.duration, 10); if (n) m += n; else days += 3; }
+  });
+  return { m, days, text: [m ? `${m} 分鐘` : '', days ? `${days} 天專案` : ''].filter(Boolean).join('＋') || '—' };
+}
+function cartMessage(items) {
+  const lines = items.map(x => x.kind === 'p' ? `・${x.p.title}（整個方案・${x.p.type === '進階' ? '3 天專案' : `${x.p.units.length} 個單元・${minutes(x.p)} 分鐘`}）` : `・${x.u.title}（${x.p.title}・${x.u.duration}）`);
+  return `您好，我想詢問「${cartRole}」：\n${lines.join('\n')}\n合計約 ${cartTotal(items).text}\n（來自 WeClass 課程網站）`;
+}
+function renderCart() {
+  let el = document.getElementById('cart');
+  if (!el) { el = document.createElement('aside'); el.id = 'cart'; el.className = 'cart'; el.setAttribute('aria-label', '我的課程清單'); document.body.appendChild(el); }
+  const items = cartItems();
+  if (!items.length) { el.hidden = true; cartOpen = false; return; }
+  el.hidden = false; el.classList.toggle('open', cartOpen);
+  const tot = cartTotal(items);
+  el.innerHTML = `<button type="button" class="cart-bar" aria-expanded="${cartOpen}"><span>我的課程清單<b>${items.length}</b></span><small>${tot.text}</small><span class="cv" aria-hidden="true">${cartOpen ? '▾' : '▴'}</span></button>
+    <div class="cart-body"${cartOpen ? '' : ' hidden'}>
+      <ol>${items.map(x => `<li><span><b>${esc(x.kind === 'p' ? x.p.title : x.u.title)}</b><small>${x.kind === 'p' ? '整個方案・' + (x.p.type === '進階' ? '3 天專案' : minutes(x.p) + ' 分鐘') : esc(x.p.title) + '・' + esc(x.u.duration)}</small></span><button type="button" class="rm" data-rm="${x.key}" aria-label="移除 ${esc(x.kind === 'p' ? x.p.title : x.u.title)}">✕</button></li>`).join('')}</ol>
+      <p class="cart-q">您是哪一種合作？</p>
+      <div class="roles" role="radiogroup">${ROLES.map(r => `<button type="button" role="radio" data-role="${r}" aria-checked="${cartRole === r}">${r}</button>`).join('')}</div>
+      <p class="cart-err" id="cart-err" aria-live="polite"></p>
+      <button type="button" class="cart-send">用 LINE 傳給 WeClass 顧問</button>
+      <button type="button" class="cart-clear">清空清單</button>
+    </div>`;
+}
+function cartToggle(key) { cart = cart.includes(key) ? cart.filter(k => k !== key) : [...cart, key]; cartSave(); cartSync(); if (cart.length === 1 && cart.includes(key)) cartOpen = false; renderCart(); }
+document.addEventListener('click', e => {
+  const add = e.target.closest('.addc');
+  if (add) { e.preventDefault(); e.stopPropagation(); cartToggle(add.dataset.ck); const bar = document.querySelector('#cart .cart-bar'); if (bar) { bar.classList.remove('bump'); void bar.offsetWidth; bar.classList.add('bump'); } return; }
+  const c = e.target.closest('#cart'); if (!c) return;
+  if (e.target.closest('.cart-bar')) { cartOpen = !cartOpen; renderCart(); return; }
+  const rm = e.target.closest('[data-rm]'); if (rm) { cartToggle(rm.dataset.rm); return; }
+  const role = e.target.closest('[data-role]'); if (role) { cartRole = role.dataset.role; cartSave(); renderCart(); return; }
+  if (e.target.closest('.cart-clear')) { cart = []; cartSave(); cartSync(); renderCart(); return; }
+  if (e.target.closest('.cart-send')) {
+    const err = document.getElementById('cart-err');
+    if (!cartRole) { err.textContent = '請先選擇合作類型。'; return; }
+    const msg = cartMessage(cartItems());
+    if (LINE_OA_ID) { const a = document.createElement('a'); a.href = `https://line.me/R/oaMessage/${encodeURIComponent(LINE_OA_ID)}/?${encodeURIComponent(msg)}`; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove(); err.textContent = '已打開 LINE，確認訊息後按傳送即可。'; }
+    else { (navigator.clipboard ? navigator.clipboard.writeText(msg) : Promise.reject()).then(() => { err.textContent = '已複製訊息，請貼到 WeClass 官方 LINE 傳送。'; }, () => { err.textContent = msg; }); }
+  }
+});
 renderNavDrop();
 if (BASE) document.addEventListener('click', e => {
   const a = e.target.closest('a[href^="#"]'); if (!a || e.defaultPrevented) return;
@@ -1298,7 +1399,7 @@ const DATA_URL = '';
 if (DATA_URL) fetch(DATA_URL).then(r => r.json()).then(j => {
   if (!j || !Array.isArray(j.courses) || !j.courses.length) return;
   db.splice(0, db.length, ...j.courses);
-  buildTags(); totalUnits = db.reduce((a, p) => a + p.units.length, 0); renderNavDrop();
+  buildTags(); totalUnits = db.reduce((a, p) => a + p.units.length, 0); renderNavDrop(); renderCart();
   route();
 }).catch(() => {});
 </script>
