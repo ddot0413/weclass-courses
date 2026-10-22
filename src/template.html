@@ -228,6 +228,7 @@ a { color: inherit; }
 .notes-sec .tgroup { margin-bottom: 44px; }
 .notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
 .notes.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.list.sched .st { font-family: var(--f-en); font-weight: 700; color: var(--orange); margin-right: 8px; font-size: .92em; }
 .note { position: relative; background: var(--white); border-radius: 10px; padding: 34px 30px 30px; }
 .note.y { background: var(--yellow); }
 .note::before { content: ""; position: absolute; top: -10px; right: 50px; width: 84px; height: 22px; background: rgba(135, 204, 200, .85); transform: rotate(2.5deg); border-radius: 2px; }
@@ -3139,11 +3140,13 @@ const MODES = [
 ];
 // 分齡：依 Figma 課程彈窗（Age 6~8／9~11／11+）與方案的適合年級對應
 const STAGES = [
-  { id: 'a6', lvl: '低年級', age: 'Age 6~8', grade: '約 1~2 年級', desc: '小肌肉發展期，著重實作技巧與工具使用，從基本文具到安全操作熱熔膠槍、膠帶與尺規，帶孩子從平面邁向立體作品，盡情展現想像力。', grades: ['1~3年級', '1~6年級'] },
-  { id: 'a9', lvl: '中年級', age: 'Age 9~11', grade: '約 3~5 年級', desc: '提升實作技巧與科學素養，導入電子銲接與化學實驗設備。任務融入物理、化學、機械、電學原理，讓孩子應用原理改造作品，並養成實驗記錄的習慣。', grades: ['1~6年級', '3~6年級'] },
-  { id: 'a11', lvl: '高年級', age: 'Age 11+', grade: '高年級以上・9~15 歲', desc: '導入 Arduino 機器人程式與 3D 列印的大型專案，掌握數位建模與開源程式，體驗「從零創造」，培養科技創造的關鍵能力。', grades: ['9~15歲'] }
+  { id: 'a6', lvl: '低年級', age: 'Age 6~8', grade: '1~2 年級', desc: '小肌肉發展期，著重實作技巧與工具使用，從基本文具到安全操作熱熔膠槍、膠帶與尺規，帶孩子從平面邁向立體作品，盡情展現想像力。', grades: ['1~3年級', '1~6年級'] },
+  { id: 'a9', lvl: '中年級', age: 'Age 8~10', grade: '3~4 年級', desc: '提升實作技巧與科學素養，導入電子銲接與化學實驗設備。任務融入物理、化學、機械、電學原理，讓孩子應用原理改造作品，並養成實驗記錄的習慣。', grades: ['1~6年級', '3~6年級'] },
+  { id: 'a11', lvl: '高年級', age: 'Age 10~12', grade: '5~6 年級', desc: '挑戰更完整的機構與電路，並可銜接 Arduino 機器人程式與 3D 列印的大型專案，掌握數位建模與開源程式，體驗「從零創造」，培養科技創造的關鍵能力。', grades: ['1~6年級', '3~6年級', '9~15歲'] }
 ];
-const stagesOf = p => STAGES.filter(s => s.grades.includes(p.grades));
+// 方案出現在哪個年級：後台有勾「分齡」就照勾選，舊資料才用適合年級推算
+const inStage = (p, s) => (p.levels && p.levels.length) ? p.levels.includes(s.lvl) : s.grades.includes(p.grades);
+const stagesOf = p => STAGES.filter(s => inStage(p, s));
 const assetUrl = name => (getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).match(/url\(["']?(.*?)["']?\)/) || [])[1] || '';
 
 function modeSwitch(cur) {
@@ -3166,7 +3169,7 @@ function smallHero(m, extra = '') {
 
 /* 選課指南首頁：三種選課方式在同一頁切換（不換頁），#theme／#stage／#goal 可直接連到該方式 */
 const MODE_IDS = MODES.map(m => m.id);
-const MODE_TIP = { theme: '依主題瀏覽全部課程方案，初階是 4～6 個單元的主題課，進階是 3 天的大型專案。', stage: '依孩子的年齡與發展階段挑選。切換低、中、高年級，左右滑動看適合的課程。「1~6 年級」的方案在低年級與中年級都會列出。', goal: '點選想培養的知識與技能，下方即時列出有教到的單元；同一分類內任一標籤符合即列出。' };
+const MODE_TIP = { theme: '依主題瀏覽全部課程方案，初階是 4～6 個單元的主題課，進階是 3 天的大型專案。', stage: '依孩子的年齡與發展階段挑選。切換低、中、高年級，左右滑動看適合的課程。同一個方案可能適合好幾個年級，會在各年級都列出。', goal: '點選想培養的知識與技能，下方即時列出有教到的單元；同一分類內任一標籤符合即列出。' };
 function renderHome(mode) {
   if (!MODE_IDS.includes(mode)) mode = state.mode || 'theme';
   setTitle('WeClass 選課指南');
@@ -3212,7 +3215,7 @@ function showMode(mode, fromClick) {
     const showStage = si => {
       const s = STAGES[si]; state.stage = s.id;
       body.querySelectorAll('.lvl-tab').forEach(b => b.setAttribute('aria-selected', +b.dataset.si === si));
-      const list = db.filter(p => s.grades.includes(p.grades));
+      const list = db.filter(p => inStage(p, s));
       const box = document.getElementById('stage-box');
       box.innerHTML = `<article class="stage s${si}" id="${s.id}">
         <div class="stage-side"><p class="lvl-big">${s.lvl}</p><span class="age">${s.age}</span><p class="grade">${s.grade}・${list.length} 個方案</p><p class="sdesc">${s.desc}</p>
@@ -3479,6 +3482,20 @@ function worldNotes(p, labelUnits) {
   }).join('');
 }
 
+/* 課表：每一節存成「09:00 單元名稱」，時間另外標示 */
+function schedSection(p, sub, extraStyle) {
+  if (!p.schedule || !p.schedule.length) return '';
+  const slot = t => { const m = String(t).match(/^(\d{1,2}:\d{2})\s+(.*)$/); return m ? `<li><b class="st">${m[1]}</b>${esc(m[2])}</li>` : `<li>${esc(t)}</li>`; };
+  return `<section class="band peach notes-sec" aria-labelledby="sc-title"${extraStyle || ''}>
+    <div class="wrap" style="padding-block:120px 110px">
+      <div class="tgroup"><p class="en" aria-hidden="true">Schedule</p><h2 id="sc-title">詳細課程表</h2><p class="d">${sub}</p></div>
+      <div class="notes ${p.schedule.length >= 3 ? 'three' : ''}">${p.schedule.map((d, i) => `
+        <article class="note ${i % 2 ? 'y' : ''}"><p class="tiny">Day ${i + 1}</p><h3>${esc(d.day)}</h3><ul class="list sched">${d.items.map(slot).join('')}</ul></article>`).join('')}
+      </div>
+    </div>
+  </section>`;
+}
+
 function juniorPage(p, crumb, pager) {
   return `
   <section class="hero" aria-labelledby="pk-title">
@@ -3534,6 +3551,7 @@ function juniorPage(p, crumb, pager) {
       </div>
     </div>
   </section>
+  ${schedSection(p, `${p.schedule.length} 天・${p.units.length} 個實作單元的安排，可依單位需求調整。`, ' style="margin-top:-70px"')}
   ${faqSection(packageFaq(p))}
   ${relatedPacks(p)}
   ${ctaBand({ pager })}`;
@@ -3568,14 +3586,7 @@ function advancedPage(p, crumb, pager) {
       </div>
     </div>
   </section>
-  <section class="band peach notes-sec" aria-labelledby="sc-title" style="margin-top:-70px">
-    <div class="wrap" style="padding-block:120px 110px">
-      <div class="tgroup"><p class="en" aria-hidden="true">Schedule</p><h2 id="sc-title">詳細課程表</h2><p class="d">三天的大型專案，從設計、組裝到程式撰寫與成果發表。</p></div>
-      <div class="notes three">${p.schedule.map((d, i) => `
-        <article class="note ${i === 1 ? 'y' : ''}"><p class="tiny">Day ${i + 1}</p><h3>${esc(d.day)}</h3><ul class="list">${d.items.map(t => `<li>${esc(t)}</li>`).join('')}</ul></article>`).join('')}
-      </div>
-    </div>
-  </section>
+  ${schedSection(p, '三天的大型專案，從設計、組裝到程式撰寫與成果發表。', ' style="margin-top:-70px"')}
   <section class="notes-sec" aria-labelledby="rq-title">
     <div class="wrap">
       <div class="notes">
