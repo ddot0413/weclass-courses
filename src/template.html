@@ -44,6 +44,7 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
+@media (min-width: 901px) { html { zoom: .9; } }   /* 電腦與平板整體縮小 10% */
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
 body { margin: 0; background: var(--cream); color: var(--ink); font-family: var(--f-zh); font-weight: 500; font-size: 16px; line-height: 1.6; }
 img { max-width: 100%; display: block; }
@@ -104,7 +105,7 @@ a { color: inherit; }
 .band.mint { background: var(--mint) var(--tx-mint) center / 768px auto; clip-path: polygon(0 34px, 100% 0, 100% 100%, 0 100%); margin-top: -34px; }
 .band.peach { background: var(--peach) var(--tx-peach) center / 768px auto; clip-path: polygon(0 70px, 100% 0, 100% calc(100% - 50px), 0 100%); margin-top: -70px; }
 .band.teal { background: var(--teal) var(--tx-teal) center / 768px auto; clip-path: polygon(0 0, 100% 56px, 100% 100%, 0 100%); color: var(--white); }
-.band, .hero { overflow: hidden; }
+.band, .hero { overflow: hidden; overflow: clip; }   /* clip 不會擋住 sticky（課綱單元左側選單固定） */
 /* 色帶相接：深綠區塊往上疊，避免露出米色楔形縫 */
 .band + .band.teal { margin-top: -80px; clip-path: polygon(0 30px, 100% 0, 100% 100%, 0 100%); }
 .band + .band.teal .wrap { padding-top: 130px; }
@@ -689,7 +690,7 @@ button.wt[aria-pressed="true"] { background: var(--wd); border-color: var(--wd);
 .cart-qr .qr-img { display: flex; justify-content: center; margin: 0 auto 8px; width: 230px; max-width: 100%; }
 .cart-qr .qr-img svg { width: 100%; height: auto; display: block; }
 .cart-qr a { font-size: 12.5px; font-weight: 700; color: #06A048; }
-.home-hero .hero-cast { display: block; width: 300px; max-width: 30vw; margin-bottom: 40px; }
+.home-hero .hero-cast { display: block; width: 460px; max-width: 40vw; margin-bottom: 10px; }
 .mtabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0 0 14px; scroll-margin-top: 110px; }
 .mtab { display: flex; align-items: center; gap: 14px; border: 0; background: rgba(255, 255, 255, .55); border-radius: 22px; padding: 12px 18px 12px 12px; text-align: left; color: var(--teal); transition: background .2s, transform .2s, box-shadow .2s; }
 .mtab:hover { background: var(--white); transform: translateY(-2px); }
