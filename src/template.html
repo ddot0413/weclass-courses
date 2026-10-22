@@ -692,6 +692,9 @@ button.wt[aria-pressed="true"] { background: var(--wd); border-color: var(--wd);
 .cart-qr .qr-img svg { width: 100%; height: auto; display: block; }
 .cart-qr a { font-size: 12.5px; font-weight: 700; color: #06A048; }
 .home-hero .hero-cast { display: block; width: 460px; max-width: 40vw; margin-bottom: 10px; }
+.home-hero .en-big { font-size: clamp(28px, 3.4vw, 40px); }
+.home-hero h1 { font-size: clamp(22px, 2.5vw, 30px); margin: 8px 0; }
+.home-hero .hero-copy .d { font-size: 14.5px; max-width: 34em; }
 .mtabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0 0 14px; scroll-margin-top: 110px; }
 .mtab { display: flex; align-items: center; gap: 14px; border: 0; background: rgba(255, 255, 255, .55); border-radius: 22px; padding: 12px 18px 12px 12px; text-align: left; color: var(--teal); transition: background .2s, transform .2s, box-shadow .2s; }
 .mtab:hover { background: var(--white); transform: translateY(-2px); }
@@ -704,6 +707,9 @@ button.wt[aria-pressed="true"] { background: var(--wd); border-color: var(--wd);
 .mnav .main a.sub { padding-left: 32px; font-size: 16px; font-weight: 700; background: rgba(255, 255, 255, .6); }
 @media (max-width: 900px) {
   .home-hero .hero-cast { display: none; }
+  .hero.small.home-hero .hero-copy { padding-right: 0; }
+  .home-hero .en-big { font-size: 30px; }
+  .home-hero h1 { font-size: 22px; }
   .mtabs { gap: 8px; }
   .mtab { flex-direction: column; text-align: center; gap: 6px; padding: 12px 6px; border-radius: 16px; }
   .mdisc { width: 46px; height: 46px; }
