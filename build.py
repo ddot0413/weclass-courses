@@ -218,7 +218,7 @@ for rel, p in routes:
     r = rendered[rel]
     if rel == '':
         title = '選課指南｜依主題、年齡、學習目標找 STEAM 實作課程｜WeClass 維課教育'
-        desc = (f'WeClass 校長選課指南：{len(courses)} 個 STEAM 課程方案、{total_units} 個實作單元，可依主題、依孩子年齡，'
+        desc = (f'WeClass 選課指南，依學校單位與企業需求選課：{len(courses)} 個 STEAM 課程方案、{total_units} 個實作單元，可依主題、依孩子年齡，'
                 '或依 108 課綱四大學習世界（科學、工程、科技、藝術）找到適合的課程。適合學校、安親班、營隊與企業合作。')
         h = head(title, desc, rel, ORIGIN + A + 'cast-group.webp', ORG, crumbs(home_crumb, ('選課指南', url(''))), item_list, faq_ld(r['faq']))
     elif rel == 'all/':
