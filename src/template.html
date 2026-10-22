@@ -1,14 +1,14 @@
-<title>WeClass 課綱單元課程包</title>
+<title>WeClass 選課指南</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
 <!--
-  WeClass 課綱單元課程包 v3.1（只做官網 Find Your Course 第三張卡：Learn by Goal）
+  WeClass 選課指南 v4.0（三種選課方式合成一頁：依主題／依年齡／依學習目標）
   從官網外連進入的課程站：課程總覽＋依學習目標找課（入口）、11 個課程方案頁。
   視覺依 Figma《維課教育｜2026網頁設計》與《WeClass Brand Guidelines Book V01》。
   官網：https://weclass.tw/（左上角 Logo 與「回官網」）
-  網址：#（課綱單元課程包：依學習目標找單元）、#all（全部課程方案）、#p1～#p11（方案頁）、#p1.3（方案頁並打開第 3 單元）
+  網址：#（選課指南）、#theme／#stage／#goal（直接打開該選課方式）、#p1～#p11（方案頁）、#p1.3（方案頁並打開第 3 單元）
 -->
 <style id="design-tokens">
 /* Layout: Figma 02 課程介紹 / 08 課程彈窗 —— 奶油底首屏、斜切皺紙色帶分段、傾斜白卡、課程彈窗 */
@@ -654,15 +654,35 @@ button.wt[aria-pressed="true"] { background: var(--wd); border-color: var(--wd);
 .cart-qr .qr-img { display: flex; justify-content: center; margin: 0 auto 8px; width: 230px; max-width: 100%; }
 .cart-qr .qr-img svg { width: 100%; height: auto; display: block; }
 .cart-qr a { font-size: 12.5px; font-weight: 700; color: #06A048; }
+.home-hero .hero-cast { display: block; width: 300px; max-width: 30vw; margin-bottom: 40px; }
+.mtabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 0 0 14px; scroll-margin-top: 110px; }
+.mtab { display: flex; align-items: center; gap: 14px; border: 0; background: rgba(255, 255, 255, .55); border-radius: 22px; padding: 12px 18px 12px 12px; text-align: left; color: var(--teal); transition: background .2s, transform .2s, box-shadow .2s; }
+.mtab:hover { background: var(--white); transform: translateY(-2px); }
+.mtab[aria-selected="true"] { background: var(--white); box-shadow: 0 12px 22px -10px rgba(28, 77, 89, .35), inset 0 0 0 3px var(--orange); }
+.mdisc { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.mdisc img { width: 62%; height: 62%; object-fit: contain; }
+.mtxt small { display: block; font-family: var(--f-en); font-weight: 700; font-size: 12.5px; color: var(--teal); letter-spacing: 0.02em; }
+.mtxt b { display: block; font-weight: 900; font-size: 19px; letter-spacing: 0.06em; line-height: 1.35; }
+.mode-tip { margin: 0 4px 30px; font-weight: 700; letter-spacing: 0.05em; font-size: 15px; }
+.mnav .main a.sub { padding-left: 32px; font-size: 16px; font-weight: 700; background: rgba(255, 255, 255, .6); }
+@media (max-width: 900px) {
+  .home-hero .hero-cast { display: none; }
+  .mtabs { gap: 8px; }
+  .mtab { flex-direction: column; text-align: center; gap: 6px; padding: 12px 6px; border-radius: 16px; }
+  .mdisc { width: 46px; height: 46px; }
+  .mtxt small { display: none; }
+  .mtxt b { font-size: 13.5px; letter-spacing: 0.02em; }
+  .mode-tip { font-size: 13.5px; margin-bottom: 22px; }
+}
 </style>
 
 <header class="site-head">
   <div class="wrap">
     <a class="logo" href="https://weclass.tw/" aria-label="回 WeClass 維課教育官網"></a>
     <nav class="nav" aria-label="主選單">
-      <a href="#" id="nav-goal">依學習目標找單元</a>
+      <a href="#" id="nav-goal">選課指南</a>
       <div class="navdrop">
-        <a href="#all" id="nav-all" aria-haspopup="true">全部課程方案 <span class="caret" aria-hidden="true">▾</span></a>
+        <a href="#theme" id="nav-all" aria-haspopup="true">課程方案 <span class="caret" aria-hidden="true">▾</span></a>
         <div class="navdrop-panel" id="navdrop" aria-label="所有課程方案"><!--NAVDROP--></div>
       </div>
       <a href="https://weclass.tw/" class="official">回官網 <span aria-hidden="true">↗</span></a>
@@ -3037,7 +3057,8 @@ const slugOf = p => p.slug || SLUGS[p.id] || p.id;
 const pathFor = id => { const p = db.find(x => x.id === id); return BASE + (p ? slugOf(p) + '/' : ''); };
 function hrefMap(h) {
   if (h === '#') return BASE;
-  if (h === '#all') return BASE + 'all/';
+  if (h === '#all') return BASE + '#theme';
+  if (/^#(theme|stage|goal)$/.test(h)) return BASE + h;
   const m = String(h).match(/^#(p\d+)(?:\.(\d+))?$/);
   return m ? pathFor(m[1]) + (m[2] ? '#u' + m[2] : '') : null;
 }
@@ -3057,7 +3078,8 @@ function buildTags() {
   });
 }
 buildTags();
-const state = { selected: new Set(), tab: 'sci', query: '', from: 'theme', jumpStage: '' };   // selected 內容為 "sci|熱塑性塑膠"
+const state = { selected: new Set(), tab: 'sci', query: '', from: 'theme', jumpStage: '', mode: 'theme' };
+try { const m0 = sessionStorage.getItem('weclass-mode'); if (['theme', 'stage', 'goal'].includes(m0)) state.mode = m0; } catch (e) {}   // 記住上次用的選課方式，課程頁的路徑才對   // selected 內容為 "sci|熱塑性塑膠"
 function matchUnits() {
   const sel = [...state.selected].map(k => { const [cat, ...rest] = k.split('|'); return { cat, tag: rest.join('|') }; });
   const out = new Map();   // pkgId -> [unitIndex]
@@ -3106,105 +3128,69 @@ function smallHero(m, extra = '') {
   </section>`;
 }
 
-function renderGuide() {
+/* 選課指南首頁：三種選課方式在同一頁切換（不換頁），#theme／#stage／#goal 可直接連到該方式 */
+const MODE_IDS = MODES.map(m => m.id);
+const MODE_TIP = { theme: '依主題瀏覽全部課程方案，初階是 4～6 個單元的主題課，進階是 3 天的大型專案。', stage: '依孩子的年齡與發展階段挑選。「1~6 年級」的方案在 Age 6~8 與 Age 9~11 都會列出。', goal: '點選想培養的知識與技能，下方即時列出有教到的單元；同一分類內任一標籤符合即列出。' };
+function renderHome(mode) {
+  if (!MODE_IDS.includes(mode)) mode = state.mode || 'theme';
   setTitle('WeClass 選課指南');
-  setNav('guide');
+  setNav('goal');
   app.innerHTML = `
-  <section class="hero" aria-labelledby="g-title">
-    <span class="star s1" aria-hidden="true"></span><span class="star s2" aria-hidden="true"></span>
+  <section class="hero small home-hero" aria-labelledby="g-title">
+    <span class="star s1" aria-hidden="true"></span>
     <div class="wrap">
       <div class="hero-copy">
-        <div class="lettering create" role="img" aria-label="Create together"></div>
-        <h1 id="g-title">STEAM 課程方案</h1>
-        <p class="d">WeClass 維課教育為台灣 STEAM 實作與創客教育先驅品牌，致力於 <span class="hl">6–12 歲跨領域專題式課程</span>研發，提供從實作教材、材料採購到師資培訓的完整創客課程方案。</p>
-        <div class="stats"><span class="pill white">${db.length} 個課程方案</span><span class="pill white">${totalUnits} 個實作單元</span><span class="pill white">3 種選課方式</span></div>
+        <p class="crumb"><a href="https://weclass.tw/" target="_blank" rel="noopener">WeClass 官網</a><span aria-hidden="true">›</span><span>選課指南</span></p>
+        <p class="en-big" aria-hidden="true">Find Your Course</p>
+        <h1 id="g-title">校長選課指南，三種選課方式</h1>
+        <p class="d">${db.length} 個 STEAM 課程方案、${totalUnits} 個實作單元。依主題、依年齡或依學習目標，挑出最適合孩子的課程，加入清單後用 LINE 傳給 WeClass 顧問。</p>
       </div>
       <div class="hero-cast" role="img" aria-label="WeClass 品牌角色"></div>
     </div>
   </section>
-  <section class="band peach guide" aria-labelledby="fy-title">
+  <section class="band mint courses" id="finder" aria-label="選課">
     <div class="wrap">
-      <div class="sec-head">
-        <div class="tgroup"><p class="en" aria-hidden="true">Find Your Course</p><h2 id="fy-title">校長選課指南，三種選課方案！</h2></div>
-        <span class="ozzi" aria-hidden="true"></span>
-      </div>
-      <div class="guide-cards">
-        <svg class="blob" style="left:-40px;bottom:-30px" viewBox="0 0 179 174" aria-hidden="true"><path d="${BLOB}"/></svg>
-        <svg class="blob" style="right:-30px;top:-40px;width:140px" viewBox="0 0 179 174" aria-hidden="true"><path d="${BLOB}"/></svg>
-        ${MODES.map(m => `<a class="gcard" href="#${m.id}">
-          <span class="gdisc" style="background:${m.disc}"><img src="${assetUrl(m.icon)}" alt=""></span>
-          <span class="gen">${m.en}</span><span class="gname">${m.name}</span><span class="gdesc">${m.desc}</span>
-          <span class="go">查看方案</span></a>`).join('')}
-      </div>
+      <div class="mtabs" role="tablist" aria-label="三種選課方式">${MODES.map(m => `<button type="button" role="tab" class="mtab" data-mode="${m.id}" aria-selected="false"><span class="mdisc" style="background:${m.disc}"><img src="${assetUrl(m.icon)}" alt=""></span><span class="mtxt"><small>${m.en}</small><b>${m.name}</b></span></button>`).join('')}</div>
+      <p class="mode-tip" id="mode-tip"></p>
+      <div id="mode-body"></div>
     </div>
   </section>
-  ${ctaBand({ title: '需要課程規劃建議？', body: '如需規劃學校課程、安親班學期課程、營隊或教材授權，歡迎與 WeClass 聯繫，我們會依孩子的年齡與目標推薦適合的方案。', btn: { href: 'https://weclass.tw/', text: '回 WeClass 官網' } })}`;
-  window.scrollTo(0, 0);
+  ${faqSection(homeFaq())}
+  ${ctaBand()}`;
+  document.querySelector('.mtabs').addEventListener('click', e => { const b = e.target.closest('.mtab'); if (b) showMode(b.dataset.mode, true); });
+  showMode(mode, false);
+  renderCart(); window.scrollTo(0, 0);
 }
-
-function renderTheme() {
-  setTitle('全部課程方案｜WeClass 課綱單元課程包');
-  setNav('all');
-  const m = { en: 'All Packs', name: '全部課程方案', desc: `${db.length} 個 STEAM 課程方案、${totalUnits} 個實作單元，每個單元都對應 108 課綱的四大學習世界`, icon: 'ic-goal', disc: 'var(--mint-pale)' };
-  app.innerHTML = `${smallHero(m)}
-  <section class="band mint courses" aria-label="主題課程方案">
-    <div class="wrap">
-      ${['初階', '進階'].map(type => `<div class="pkg-group"><h3 class="gt">${type}主題<small>${type === '初階' ? '1~6 年級・每個主題 4~6 個單元' : '9~15 歲・3 天 XPBL 大型專案'}</small></h3>
-        <div class="pkgs">${db.filter(p => p.type === type).map((p, i) => pkgCard(p, i, null)).join('')}</div></div>`).join('')}
-    </div>
-  </section>
-  ${ctaBand({ title: '想依學習目標挑單元？', body: '點選想培養的知識與技能，直接找出對應的實作單元。', btn: { href: '#', text: '依學習目標找單元' } })}`;
-  window.scrollTo(0, 0);
-}
-
-function renderStage() {
-  setTitle('系統分齡課程包｜WeClass 選課指南');
-  setNav('stage'); state.from = 'stage';
-  const m = MODES[1];
-  app.innerHTML = `${smallHero(m)}
-  <section class="band mint courses" aria-label="分齡課程方案">
-    <div class="wrap">
-      ${modeSwitch('stage')}
-      <div class="stages">${STAGES.map((s, si) => { const list = db.filter(p => s.grades.includes(p.grades)); return `
-        <article class="stage s${si}" id="${s.id}">
-          <div class="stage-side">
-            <span class="age">${s.age}</span>
-            <p class="grade">${s.grade}・${list.length} 個方案</p>
-            <p class="sdesc">${s.desc}</p>
-          </div>
-          <div class="pkgs three">${list.map((p, i) => pkgCard(p, i, null)).join('')}</div>
-        </article>`; }).join('')}
-      </div>
-      <p class="note-line">「1~6 年級」的方案在 Age 6~8 與 Age 9~11 都會列出。</p>
-    </div>
-  </section>
-  ${ctaBand({ title: '想依學習目標挑單元？', body: '課綱單元課程包可以依四大世界的學習標籤，直接找出對應的實作單元。', btn: { href: '#goal', text: '看課綱單元課程包' } })}`;
-  window.scrollTo(0, 0);
-}
-
-function renderGoal() {
-  setTitle('WeClass 課綱單元課程包');
-  setNav('goal'); state.from = 'goal';
-  const m = MODES[2];
-  app.innerHTML = `${smallHero(m)}
-  <section class="band mint courses" aria-label="依學習目標找單元">
-    <div class="wrap">
-      <div class="tag-panel" id="tag-panel">
+function showMode(mode, fromClick) {
+  state.mode = mode; state.from = mode;
+  try { sessionStorage.setItem('weclass-mode', mode); } catch (e) {}
+  document.querySelectorAll('.mtab').forEach(b => b.setAttribute('aria-selected', b.dataset.mode === mode));
+  document.getElementById('mode-tip').textContent = MODE_TIP[mode];
+  const body = document.getElementById('mode-body');
+  if (mode === 'theme') {
+    body.innerHTML = ['初階', '進階'].map(type => `<div class="pkg-group"><h3 class="gt">${type}主題<small>${type === '初階' ? '1~6 年級・每個主題 4~6 個單元' : '9~15 歲・3 天 XPBL 大型專案'}</small></h3>
+      <div class="pkgs">${db.filter(p => p.type === type).map((p, i) => pkgCard(p, i, null)).join('')}</div></div>`).join('');
+  } else if (mode === 'stage') {
+    body.innerHTML = `<div class="stages">${STAGES.map((s, si) => { const list = db.filter(p => s.grades.includes(p.grades)); return `
+      <article class="stage s${si}" id="${s.id}">
+        <div class="stage-side"><span class="age">${s.age}</span><p class="grade">${s.grade}・${list.length} 個方案</p><p class="sdesc">${s.desc}</p></div>
+        <div class="pkgs three">${list.map((p, i) => pkgCard(p, i, null)).join('')}</div>
+      </article>`; }).join('')}</div>`;
+  } else {
+    body.innerHTML = `<div class="tag-panel" id="tag-panel">
         <div class="side">
           <div class="tabs" role="tablist" aria-label="四大學習世界" id="tabs"></div>
           <label class="search"><span aria-hidden="true">⌕</span><span class="sr">搜尋標籤</span><input id="q" type="search" placeholder="搜尋標籤，例如：磁力" autocomplete="off"></label>
-          <p class="empty-hint">點選想培養的知識與技能，下方即時列出符合的單元；同一分類內任一標籤符合即列出。</p>
         </div>
         <div class="tag-list" id="tag-list" role="tabpanel"></div>
       </div>
       <div class="picked" id="picked" hidden></div>
       <p class="summary" id="summary" aria-live="polite" style="margin-bottom:18px"></p>
-      <div class="units-grid" id="results"></div>
-    </div>
-  </section>
-  ${faqSection(homeFaq())}
-  ${ctaBand({ title: '想看完整主題？', body: '每個單元都屬於一個課程方案，點單元可以看學習重點，也可以瀏覽全部 11 個課程方案。', btn: { href: '#all', text: '看全部課程方案' } })}`;
-  bindGoal(); updateGoal(); renderCart(); window.scrollTo(0, 0);
+      <div class="units-grid" id="results"></div>`;
+    bindGoal(); updateGoal();
+  }
+  try { history.replaceState(null, '', location.pathname + location.search + '#' + mode); } catch (e) {}
+  if (fromClick) { const f = document.querySelector('.mtabs'); if (f.getBoundingClientRect().top < 60) f.scrollIntoView({ behavior: 'smooth' }); }
 }
 
 function bindGoal() {
@@ -3395,8 +3381,9 @@ function packageFaq(p) {
 function homeFaq() {
   const grades = uniq(db.map(p => p.grades));
   return [
-    ['什麼是課綱單元課程包？', '課綱單元課程包對應 108 課綱與四大學習世界（科學／化學、工程、科技、藝術），可以依想培養的知識與技能，直接找出對應的實作單元。'],
-    ['怎麼依學習目標找課？', '在上方選擇學習世界，點選想培養的知識或技能標籤，下方會即時列出有教到的單元；同一分類內任一標籤符合就會列出。'],
+    ['有哪三種選課方式？', '小小職人主題包：依趣味主題瀏覽完整課程方案；系統分齡課程包：依孩子的年齡與發展階段挑選；課綱單元課程包：對應 108 課綱與四大學習世界（科學／化學、工程、科技、藝術），依想培養的知識與技能找出單元。'],
+    ['怎麼依學習目標找課？', '在「課綱單元課程包」選擇學習世界，點選想培養的知識或技能標籤，下方會即時列出有教到的單元；同一分類內任一標籤符合就會列出。'],
+    ['可以只選部分單元嗎？', '可以。每個課程方案都能整套加入，也能只加入單一單元；加入清單後選擇合作類型，用 LINE 傳給 WeClass 顧問即可。'],
     ['目前有哪些課程方案？', `目前有 ${db.length} 個課程方案、${totalUnits} 個實作單元：${db.map(p => `${esc(p.title)}（${esc(p.grades)}）`).join('、')}。`],
     ['課程適合哪些年齡？', `依方案不同，適合 ${grades.map(esc).join('、')} 的孩子；初階方案以單元實作為主，進階方案是 3 天的大型專案。`]
   ];
@@ -3406,8 +3393,8 @@ function renderPackage(p, openUnitNo) {
   setTitle(`${p.title}｜WeClass STEAM 課程方案`);
   setNav('');
   const idx = db.indexOf(p), prev = db[(idx - 1 + db.length) % db.length], next = db[(idx + 1) % db.length];
-  const fm = MODES.find(m => m.id === state.from) || MODES[0];
-  const crumb = `<p class="crumb"><a href="#">課綱單元課程包</a><span aria-hidden="true">›</span><a href="#all">全部課程方案</a></p>`;
+  const fm = MODES.find(m => m.id === state.mode) || MODES[0];
+  const crumb = `<p class="crumb"><a href="#">選課指南</a><span aria-hidden="true">›</span><a href="#${fm.id}">${fm.name}</a></p>`;
   const pager = `<nav class="pager" aria-label="其他課程方案"><a href="#${prev.id}"><small>← Previous</small><strong>${esc(prev.title)}</strong></a><a class="next" href="#${next.id}"><small>Next →</small><strong>${esc(next.title)}</strong></a></nav>`;
   app.innerHTML = p.type === '進階' ? advancedPage(p, crumb, pager) : juniorPage(p, crumb, pager);
   bindWorldChars(p); bindExplore(p); bindRelated(); renderCart();
@@ -3481,7 +3468,7 @@ function juniorPage(p, crumb, pager) {
   </section>
   ${faqSection(packageFaq(p))}
   ${relatedPacks(p)}
-  ${ctaBand({ title: '還想看其他方案？', body: '回到課綱單元課程包依學習目標找單元，或切換到上一個、下一個課程方案。', btn: { href: '#', text: '回課綱單元課程包' }, pager })}`;
+  ${ctaBand({ pager })}`;
 }
 
 function advancedPage(p, crumb, pager) {
@@ -3545,7 +3532,7 @@ function advancedPage(p, crumb, pager) {
   </section>
   ${faqSection(packageFaq(p))}
   ${relatedPacks(p)}
-  ${ctaBand({ title: '還想看其他方案？', body: '回到課綱單元課程包依學習目標找單元，或切換到上一個、下一個課程方案。', btn: { href: '#', text: '回課綱單元課程包' }, pager })}`;
+  ${ctaBand({ pager })}`;
 }
 
 // 官方 LINE 連結：請換成正式的加入好友網址（例如 https://lin.ee/xxxx）
@@ -3575,7 +3562,7 @@ function ctaBand({ pager = '' } = {}) {
 /* 電腦版導覽列「全部課程方案」的下拉選單：分初階、進階列出每個方案，任何一頁都能直接換課程 */
 function navDropHtml() {
   const col = (type, note) => `<div class="nd-col"><p class="nd-h">${type}課程<small>${note}</small></p><ul>${db.filter(p => p.type === type).map(p => `<li><a href="#${p.id}" data-pid="${p.id}"><span>${esc(p.title)}</span><small>${esc(p.grades)}</small></a></li>`).join('')}</ul></div>`;
-  return col('初階', '單元實作') + col('進階', '3 天專案') + '<a class="nd-all" href="#all">看全部課程方案 →</a>';
+  return col('初階', '單元實作') + col('進階', '3 天專案') + '<a class="nd-all" href="#theme">看全部課程方案 →</a>';
 }
 function renderNavDrop() {
   const el = document.getElementById('navdrop'); if (!el) return;
@@ -3593,7 +3580,7 @@ const burger = document.getElementById('burger'), mnav = document.getElementById
 function renderMnav() {
   const h = location.hash.replace('#', '').split('.')[0];
   const grp = type => db.filter(p => p.type === type).map(p => `<li><a href="#${p.id}"${h === p.id ? ' aria-current="page"' : ''}>${esc(p.title)}</a></li>`).join('');
-  mnav.innerHTML = `<div class="main"><a href="#"${h === '' ? ' aria-current="page"' : ''}>依學習目標找單元<span aria-hidden="true">→</span></a><a href="#all"${h === 'all' ? ' aria-current="page"' : ''}>全部課程方案<span aria-hidden="true">→</span></a><a href="https://weclass.tw/" class="official">回 WeClass 官網<span aria-hidden="true">↗</span></a></div>
+  mnav.innerHTML = `<div class="main"><a href="#"${!/^p\d/.test(h) ? ' aria-current="page"' : ''}>選課指南<span aria-hidden="true">→</span></a>${MODES.map(m => `<a href="#${m.id}" class="sub">${m.name}<span aria-hidden="true">→</span></a>`).join('')}<a href="https://weclass.tw/" class="official">回 WeClass 官網<span aria-hidden="true">↗</span></a></div>
     <h3>初階課程<small>1~6 年級</small></h3><ul>${grp('初階')}</ul>
     <h3>進階課程<small>9~15 歲</small></h3><ul>${grp('進階')}</ul>`;
 }
@@ -3602,7 +3589,7 @@ function setMenu(open) {
   mnav.hidden = !open; burger.setAttribute('aria-expanded', open); burger.setAttribute('aria-label', open ? '關閉選單' : '開啟選單');
 }
 burger.addEventListener('click', () => setMenu(mnav.hidden));
-mnav.addEventListener('click', e => { const a = e.target.closest('a'); if (a) { setMenu(false); if (a.getAttribute('href') === '#' && location.hash === '') renderGoal(); } });
+mnav.addEventListener('click', e => { const a = e.target.closest('a'); if (a) { setMenu(false); if (a.getAttribute('href') === '#' && location.hash === '') renderHome(state.mode); } });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !mnav.hidden) { setMenu(false); burger.focus(); } });
 document.addEventListener('click', e => { if (!mnav.hidden && !e.target.closest('.site-head')) setMenu(false); });
 window.matchMedia('(min-width: 901px)').addEventListener('change', e => { if (e.matches) setMenu(false); });
@@ -3611,21 +3598,19 @@ function route() {
   if (!mnav.hidden) setMenu(false);
   const h = location.hash.replace('#', '');
   if (BASE) {
-    const legacy = h ? hrefMap('#' + h) : null;
+    const legacy = /^(p\d+(\.\d+)?|all)$/.test(h) ? hrefMap('#' + h) : null;
     if (legacy) { location.replace(legacy); return; }
     const path = decodeURIComponent(location.pathname), at = path.indexOf(BASE);
     const rest = (at >= 0 ? path.slice(at + BASE.length) : '').replace(/index\.html$/, '').replace(/\/$/, '');
     const pk = db.find(x => slugOf(x) === rest), un = (h.match(/^u(\d+)$/) || [])[1];
     if (pk) renderPackage(pk, un ? +un : 0);
-    else if (rest === 'all') renderTheme();
-    else renderGoal();
+    else renderHome(MODE_IDS.includes(h) ? h : (h === 'find' ? 'goal' : 'theme'));
     return;
   }
   const m = h.match(/^(p\d+)(?:\.(\d+))?$/);
   const p = m && db.find(x => x.id === m[1]);
   if (p) renderPackage(p, m[2] ? +m[2] : 0);
-  else if (h === 'all' || h === 'theme') renderTheme();
-  else renderGoal();
+  else renderHome(MODE_IDS.includes(h) ? h : (h === 'find' ? 'goal' : h === 'all' ? 'theme' : state.mode));
 }
 window.addEventListener('hashchange', route);
 /* ════ 我的課程清單：勾選有興趣的方案或單元，選身份後用官方 LINE 傳給顧問 ════ */

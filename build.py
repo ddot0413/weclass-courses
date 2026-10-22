@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-WeClass 課綱單元課程包：靜態網站產生器（SEO 版）
+WeClass 選課指南：靜態網站產生器（SEO 版）
 
 把 src/template.html（互動網頁）預先轉成一頁一頁的靜態 HTML：
-  /courses/                        課綱單元課程包（依學習目標找單元）
-  /courses/all/                    全部課程方案
+  /courses/                        選課指南（依主題／年齡／學習目標，同一頁切換）
   /courses/<方案網址>/              每個課程方案一頁
 並產生 sitemap.xml、robots.txt、llms.txt，每頁附上標題、描述、分享圖與結構化資料（Course、FAQPage、BreadcrumbList、ItemList）。
 頁面打開後仍是原本的互動網頁（篩選、角色標籤、展開學習重點都照常運作）。
@@ -72,7 +71,7 @@ def _nav_drop():
     def col(kind, note):
         items = ''.join(f'<li><a href="#{p["id"]}" data-pid="{p["id"]}"><span>{html.escape(p["title"])}</span><small>{html.escape(p["grades"])}</small></a></li>' for p in courses if p['type'] == kind)
         return f'<div class="nd-col"><p class="nd-h">{kind}課程<small>{note}</small></p><ul>{items}</ul></div>'
-    return col('初階', '單元實作') + col('進階', '3 天專案') + '<a class="nd-all" href="#all">看全部課程方案 →</a>'
+    return col('初階', '單元實作') + col('進階', '3 天專案') + '<a class="nd-all" href="#theme">看全部課程方案 →</a>'
 body = body.replace('<!--NAVDROP-->', _nav_drop())   # 下拉選單直接寫進每一頁，搜尋引擎也看得到每個課程的連結
 (SITE / 'assets' / 'site.css').write_text(css, 'utf-8')
 (SITE / 'assets' / 'site.js').write_text(js, 'utf-8')
@@ -115,7 +114,7 @@ def page(head, app_html=''):
 # ── 3. 每一頁的網址 ───────────────────────────────────────
 SLUGS = dict(re.findall(r"(p\d+): '([a-z0-9-]+)'", re.search(r'const SLUGS = \{(.*?)\};', js).group(1)))
 slug = lambda p: p.get('slug') or SLUGS.get(p['id']) or p['id']
-routes = [('', None), ('all/', None)] + [(slug(p) + '/', p) for p in courses]
+routes = [('', None)] + [(slug(p) + '/', p) for p in courses]
 for rel, _ in routes:
     (SITE / rel).mkdir(parents=True, exist_ok=True)
     (SITE / rel / 'index.html').write_text(page('<title>WeClass</title>'), 'utf-8')
@@ -137,7 +136,8 @@ def clean_links(s):
     def sub(m):
         h = m.group(1)
         if h == '#': return f'href="{BASE}"'
-        if h == '#all': return f'href="{BASE}all/"'
+        if h == '#all': return f'href="{BASE}#theme"'
+        if h in ('#theme', '#stage', '#goal'): return f'href="{BASE}{h}"'
         mm = re.fullmatch(r'#(p\d+)(?:\.(\d+))?', h)
         if mm and mm.group(1) in by_id:
             return f'href="{BASE}{by_id[mm.group(1)]}/' + (f'#u{mm.group(2)}' if mm.group(2) else '') + '"'
@@ -217,10 +217,10 @@ home_crumb = ('WeClass 官網', 'https://weclass.tw/')
 for rel, p in routes:
     r = rendered[rel]
     if rel == '':
-        title = '課綱單元課程包｜依學習目標找 STEAM 實作課程｜WeClass 維課教育'
-        desc = (f'對應 108 課綱與四大學習世界（科學、工程、科技、藝術），{len(courses)} 個 STEAM 課程方案、{total_units} 個實作單元，'
-                '依想培養的知識與技能直接找到適合的單元。適合國小到國中的學校、安親班與營隊。')
-        h = head(title, desc, rel, ORIGIN + A + 'cast-group.webp', ORG, crumbs(home_crumb, ('課綱單元課程包', url(''))), item_list, faq_ld(r['faq']))
+        title = '選課指南｜依主題、年齡、學習目標找 STEAM 實作課程｜WeClass 維課教育'
+        desc = (f'WeClass 校長選課指南：{len(courses)} 個 STEAM 課程方案、{total_units} 個實作單元，可依主題、依孩子年齡，'
+                '或依 108 課綱四大學習世界（科學、工程、科技、藝術）找到適合的課程。適合學校、安親班、營隊與企業合作。')
+        h = head(title, desc, rel, ORIGIN + A + 'cast-group.webp', ORG, crumbs(home_crumb, ('選課指南', url(''))), item_list, faq_ld(r['faq']))
     elif rel == 'all/':
         title = f'全部 STEAM 課程方案（{len(courses)} 個）｜WeClass 維課教育'
         desc = '、'.join(f"{c['title']}（{c['grades']}）" for c in courses)
@@ -238,7 +238,7 @@ for rel, p in routes:
                                         'courseWorkload': 'P3D' if p['type'] == '進階' else f'PT{m}M'},
                   'syllabusSections': [syllabus(u) for u in p['units']]}
         h = head(title, desc, rel, photo(p), course, faq_ld(r['faq']),
-                 crumbs(home_crumb, ('課綱單元課程包', url('')), ('全部課程方案', url('all/')), (p['title'], url(rel))))
+                 crumbs(home_crumb, ('選課指南', url('')), (p['title'], url(rel))))
     (SITE / rel / 'index.html').write_text(clean_links(page(h, r['app'])), 'utf-8')
 
 # ── 6. sitemap.xml、robots.txt、llms.txt、404 ────────────────
@@ -249,14 +249,14 @@ robots = 'User-agent: *\nDisallow: /\n' if args.noindex else f'User-agent: *\nAl
 (SITE / 'robots.txt').write_text(robots, 'utf-8')
 if BASE != '/':
     (OUT / 'robots.txt').write_text(robots, 'utf-8')   # 若課程站獨立部署（例如子網域），根目錄也放一份
-llms = [f'# WeClass 課綱單元課程包\n\n> WeClass 維課教育的 STEAM 實作課程方案：{len(courses)} 個方案、{total_units} 個單元，對應 108 課綱與四大學習世界（科學／化學、工程、科技、藝術）。官網：https://weclass.tw/\n',
-        f'- [依學習目標找單元]({url("")})\n- [全部課程方案]({url("all/")})\n\n## 課程方案\n']
+llms = [f'# WeClass 選課指南\n\n> WeClass 維課教育的 STEAM 實作課程方案：{len(courses)} 個方案、{total_units} 個單元，對應 108 課綱與四大學習世界（科學／化學、工程、科技、藝術）。官網：https://weclass.tw/\n',
+        f'- [選課指南：依主題、年齡、學習目標找課]({url("")})\n\n## 課程方案\n']
 for p in courses:
     m = minutes(p)
     llms.append(f"- [{p['title']}]({url(slug(p) + '/')})：{p['grades']}，{'3 天跨日專案' if p['type'] == '進階' else str(len(p['units'])) + ' 個單元、共 ' + str(m) + ' 分鐘'}。{p['desc']}\n")
 (SITE / 'llms.txt').write_text(''.join(llms), 'utf-8')
 (SITE / '404.html').write_text(page('<title>找不到這個頁面｜WeClass 維課教育</title><meta name="robots" content="noindex">',
-                                    f'<section class="hero" style="padding:80px 0"><div class="wrap"><div class="hero-copy"><h1>找不到這個頁面</h1><p class="d">這個課程可能已經改名或下架。</p><a class="btn orange" href="{BASE}">回課綱單元課程包</a></div></div></section>'), 'utf-8')
+                                    f'<section class="hero" style="padding:80px 0"><div class="wrap"><div class="hero-copy"><h1>找不到這個頁面</h1><p class="d">這個課程可能已經改名或下架。</p><a class="btn orange" href="{BASE}">回選課指南</a></div></div></section>'), 'utf-8')
 
 print(f'完成：{len(routes)} 頁，輸出在 {SITE}')
 for rel, _ in routes:
