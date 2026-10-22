@@ -100,7 +100,7 @@ def page(head, app_html=''):
 {head}
 {FONTS}
 <link rel="stylesheet" href="{A}site.css?v={VER}">
-<link rel="icon" href="{A}logo.svg" type="image/svg+xml">
+<link rel="icon" href="{A}favicon.svg" type="image/svg+xml">
 <script>window.WECLASS_BASE = {json.dumps(BASE)};{QR_JS}</script>
 </head>
 <body>
@@ -257,6 +257,11 @@ for p in courses:
 (SITE / 'llms.txt').write_text(''.join(llms), 'utf-8')
 (SITE / '404.html').write_text(page('<title>找不到這個頁面｜WeClass 維課教育</title><meta name="robots" content="noindex">',
                                     f'<section class="hero" style="padding:80px 0"><div class="wrap"><div class="hero-copy"><h1>找不到這個頁面</h1><p class="d">這個課程可能已經改名或下架。</p><a class="btn orange" href="{BASE}">回選課指南</a></div></div></section>'), 'utf-8')
+
+# 舊網址轉址：已移除的「全部課程方案」頁與三種方式的舊分頁，導回選課指南對應的切換鈕
+for old, mode in [('all', 'theme'), ('theme', 'theme'), ('stage', 'stage'), ('goal', 'goal'), ('guide', 'theme')]:
+    d = SITE / old; d.mkdir(exist_ok=True)
+    (d / 'index.html').write_text(f'<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><link rel="canonical" href="{ORIGIN}{BASE}"><meta http-equiv="refresh" content="0; url={BASE}#{mode}"><script>location.replace("{BASE}#{mode}")</script><title>WeClass 選課指南</title>', 'utf-8')
 
 print(f'完成：{len(routes)} 頁，輸出在 {SITE}')
 for rel, _ in routes:
