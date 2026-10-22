@@ -158,6 +158,8 @@ details.more summary { cursor: pointer; font-size: 13px; font-weight: 700; color
 .sugg button { display: block; width: 100%; text-align: left; border: 0; background: transparent; border-radius: 7px; padding: 5px 9px; font-size: 13px; }
 .sugg button:hover { background: var(--cream); }
 .sugg small { color: var(--muted); margin-left: 6px; }
+.durs .custom { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; }
+.durs .custom input { width: 84px; border: 1.5px solid var(--teal); border-radius: 999px; padding: 4px 10px; font-weight: 700; }
 .inherit { display: inline-flex; gap: 6px; flex-wrap: wrap; }
 .inherit span { background: var(--mint-pale); border-radius: 999px; padding: 3px 11px; font-size: 13px; font-weight: 700; }
 
@@ -216,19 +218,20 @@ const IS_GAS = typeof google !== 'undefined' && google.script && google.script.r
 const SAMPLE = [];   // 只在本機預覽時使用；在試算表裡會改讀試算表資料
 const WORLDS = [['sci', '科學/化學世界'], ['eng', '工程世界'], ['tech', '科技世界'], ['art', '藝術世界']];
 const LEVELS = [{ k: '低年級', g: [1, 2] }, { k: '中年級', g: [3, 4] }, { k: '高年級', g: [5, 6] }];
-const DURS = ['90分鐘', '180分鐘', '270分鐘', '跨日大型專案'];
+const DURS = ['30分鐘', '60分鐘', '90分鐘', '180分鐘', '270分鐘', '跨日大型專案'];
 const OLD_GRADES = { '1~3年級': ['低年級'], '1~6年級': ['低年級', '中年級', '高年級'], '3~6年級': ['中年級', '高年級'], '9~15歲': ['高年級'] };
-let data = [], tab = 'theme', view = null, dirty = 0, triedPublish = false;
+let data = [], loose = [], tab = 'theme', view = null, dirty = 0, triedPublish = false;
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pad = n => String(n).padStart(2, '0');
 const mins = u => parseInt(u.duration, 10) || 0;
-const packOf = u => data.find(p => p.units.includes(u));
-const newUnit = () => ({ title: '', duration: '90分鐘', desc: '', sci_desc: '', skill_desc: '', sci: [], eng: [], tech: [], art: [], img: '' });
+const packOf = u => data.find(p => p.units.includes(u));   // 沒放進主題的單元回傳 undefined
+const detach = u => { const p = packOf(u); if (p) p.units.splice(p.units.indexOf(u), 1); else loose.splice(loose.indexOf(u), 1); };
+const newUnit = () => ({ title: '', duration: '90分鐘', levels: [], desc: '', sci_desc: '', skill_desc: '', sci: [], eng: [], tech: [], art: [], img: '' });
 const gradeText = lv => { const g = LEVELS.filter(l => lv.includes(l.k)).flatMap(l => l.g); return g.length ? `${Math.min(...g)}~${Math.max(...g)}年級` : ''; };
 const slotCount = p => (p.schedule || []).reduce((a, d) => a + d.items.length, 0);
 const needsSchedule = p => p.published !== false && slotCount(p) === 0;
-const allTags = k => { const m = new Map(); data.forEach(p => p.units.forEach(u => u[k].forEach(t => m.set(t, (m.get(t) || 0) + 1)))); return [...m].sort((a, b) => b[1] - a[1]); };
+const allTags = k => { const m = new Map(); [...data.flatMap(p => p.units), ...loose].forEach(u => u[k].forEach(t => m.set(t, (m.get(t) || 0) + 1))); return [...m].sort((a, b) => b[1] - a[1]); };
 // 課表一節存成「09:00 單元名稱」，沒有時間就只有內容
 const parseSlot = s => { const m = String(s).match(/^(\d{1,2}:\d{2})\s+(.*)$/); return m ? { time: m[1].padStart(5, '0'), text: m[2] } : { time: '', text: String(s) }; };
 const normTime = t => { t = String(t).trim().replace(/[：.]/g, ':'); let m = t.match(/^(\d{1,2}):(\d{2})$/) || t.match(/^(\d{1,2})(\d{2})$/); return m && +m[1] < 24 && +m[2] < 60 ? pad(+m[1]) + ':' + m[2] : ''; };
@@ -246,7 +249,7 @@ function toast(m, bad) { const t = $('#toast'); t.textContent = m; t.classList.t
 function renderList() {
   const q = $('#search').value.trim();
   const units = data.flatMap(p => p.units.map(u => ({ u, p })));
-  $('#n-theme').textContent = data.length; $('#n-unit').textContent = units.length;
+  $('#n-theme').textContent = data.length; $('#n-unit').textContent = units.length + loose.length;
   document.querySelectorAll('.ltabs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.tab === tab));
   let html = '';
   if (tab === 'theme') {
@@ -259,10 +262,12 @@ function renderList() {
         <span><b>${esc(p.title || '未命名主題課程')}</b><small>${esc(p.levels.join('・') || '—')}・${p.units.length} 個單元${flags ? '・' + flags : ''}</small></span></button>`; }).join('');
     }).join('');
   } else {
-    html = data.map(p => {
+    const lo = loose.filter(u => !q || u.title.includes(q));
+    html = (lo.length ? '<p class="grp">還沒放進主題（網站暫不顯示）</p>' + lo.map(u => `<button class="item u" data-loose="${loose.indexOf(u)}" aria-current="${view && view.unit === u}" type="button">
+        <span class="th" style="${u.img ? `background-image:url('${u.img}')` : ''}"></span><span><b>${esc(u.title || '未命名單元')}</b><small>${esc(u.duration)}${u.levels.length ? '・' + u.levels.join('・') : ''}</small></span></button>`).join('') : '') + data.map(p => {
       const us = p.units.filter(u => !q || u.title.includes(q)); if (!us.length) return '';
       return `<p class="grp">${esc(p.title || '未命名主題課程')}</p>` + us.map(u => `<button class="item u" data-pack="${data.indexOf(p)}" data-unit="${p.units.indexOf(u)}" aria-current="${view && view.unit === u}" type="button">
-        <span class="th" style="${u.img ? `background-image:url('${u.img}')` : ''}"></span><span><b>${esc(u.title || '未命名單元')}</b><small>${esc(u.duration)}</small></span></button>`).join('');
+        <span class="th" style="${u.img ? `background-image:url('${u.img}')` : ''}"></span><span><b>${esc(u.title || '未命名單元')}</b><small>${esc(u.duration)}${u.levels.length ? '・' + u.levels.join('・') : ''}</small></span></button>`).join('');
     }).join('');
   }
   $('#items').innerHTML = html || '<p class="hint" style="padding:8px">找不到符合的課程。</p>';
@@ -332,14 +337,14 @@ function unitHtml(u) {
   const p = packOf(u);
   return `
   <div class="ed-head"><div><span class="kind u">單元課程</span><h1 id="h-title">${esc(u.title || '未命名單元')}</h1></div>
-    <button class="back" type="button" id="to-pack">← 回到「${esc(p.title || '未命名主題課程')}」</button></div>
+    ${p ? `<button class="back" type="button" id="to-pack">← 回到「${esc(p.title || '未命名主題課程')}」</button>` : ''}</div>
   <fieldset><legend>基本資料</legend>
     <div class="row">
       <label class="f"><span>單元名稱</span><input id="u-title" value="${esc(u.title)}" placeholder="例如：水火箭發射"></label>
-      <label class="f"><span>放在哪個主題課程</span><select id="u-pack">${data.map((x, k) => `<option value="${k}" ${x === p ? 'selected' : ''}>${esc(x.title || '未命名主題課程')}</option>`).join('')}</select></label>
+      <label class="f"><span>放在哪個主題課程</span><select id="u-pack"><option value="-1" ${p ? '' : 'selected'}>先不選擇（網站暫不顯示）</option>${data.map((x, k) => `<option value="${k}" ${x === p ? 'selected' : ''}>${esc(x.title || '未命名主題課程')}</option>`).join('')}</select></label>
     </div>
-    <div class="f"><span>上課時間</span><div class="durs" id="u-dur">${DURS.map(d => `<button type="button" data-dur="${d}" aria-pressed="${u.duration === d}">${d.replace('分鐘', ' 分鐘')}</button>`).join('')}</div></div>
-    <div class="f"><span>適合年級（跟著主題課程）</span><div class="inherit">${p.levels.map(l => `<span>${l}</span>`).join('') || '<span>主題課程還沒選年級</span>'}</div></div>
+    <div class="f"><span>上課時間</span><div class="durs" id="u-dur">${DURS.map(d => `<button type="button" data-dur="${d}" aria-pressed="${u.duration === d}">${d.replace('分鐘', ' 分鐘')}</button>`).join('')}<button type="button" data-dur="custom" aria-pressed="${!DURS.includes(u.duration)}">自填</button>${!DURS.includes(u.duration) ? `<label class="custom"><input id="u-mins" type="number" min="5" max="1440" step="5" value="${parseInt(u.duration, 10) || ''}" placeholder="120" aria-label="自填分鐘數"> 分鐘</label>` : ''}</div></div>
+    <div class="f"><span>適合年級（可複選）</span><div class="lvls" id="u-levels">${LEVELS.map(l => `<button type="button" data-ulv="${l.k}" aria-pressed="${u.levels.includes(l.k)}">${l.k}<small>${l.g[0]}~${l.g[1]} 年級</small></button>`).join('')}</div></div>
   </fieldset>
   <fieldset><legend>內容</legend>
     <div class="cover" style="align-items:start">
@@ -380,13 +385,14 @@ $('#new-theme').addEventListener('click', () => {
   data.push(p); openTheme(p); touch('已新增主題課程，先填名稱、選年級'); $('#p-title').focus();
 });
 $('#new-unit').addEventListener('click', () => {
-  const p = (view && view.pack) || data[0]; if (!p) return toast('請先新增一個主題課程', true);
-  const u = newUnit(); p.units.push(u); openUnit(u); touch(`已在「${p.title || '未命名主題課程'}」新增單元，可在上方改放到別的主題`); $('#u-title').focus();
+  const u = newUnit(); loose.push(u); openUnit(u); touch('已新增單元，主題可以之後再選'); $('#u-title').focus();
 });
 
 /* ── 清單互動 ── */
 $('#items').addEventListener('click', e => {
-  const b = e.target.closest('.item'); if (!b) return; const p = data[+b.dataset.pack];
+  const b = e.target.closest('.item'); if (!b) return;
+  if (b.dataset.loose !== undefined) return openUnit(loose[+b.dataset.loose]);
+  const p = data[+b.dataset.pack];
   b.dataset.unit !== undefined ? openUnit(p.units[+b.dataset.unit]) : openTheme(p);
 });
 document.querySelector('.ltabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (b) { tab = b.dataset.tab; renderList(); } });
@@ -411,6 +417,7 @@ $('#editor').addEventListener('input', e => {
     }
   } else {
     const u = v.unit, f = el.id.replace(/^u-/, '');
+    if (el.id === 'u-mins') { const n = parseInt(el.value, 10); u.duration = n > 0 ? n + '分鐘' : '自填'; return touch(); }
     if (['title', 'desc', 'sci_desc', 'skill_desc'].includes(f)) { u[f] = el.value; if (f === 'title') $('#h-title').textContent = el.value || '未命名單元'; return touch(); }
     if (el.dataset.tag) showSugg(el);
   }
@@ -421,7 +428,7 @@ $('#editor').addEventListener('change', e => {
   if (el.closest('.slot')) { renderEditor(true); return; }
   if (el.id === 'p-photo' && el.files[0]) uploadImage(el.files[0], url => { v.pack.intro_image = url; touch('封面照片已更新'); renderEditor(true); });
   if (el.id === 'u-photo' && el.files[0]) uploadImage(el.files[0], url => { v.unit.img = url; touch('單元照片已更新'); renderEditor(true); });
-  if (el.id === 'u-pack') { const from = packOf(v.unit), to = data[+el.value]; from.units.splice(from.units.indexOf(v.unit), 1); to.units.push(v.unit); v.pack = to; touch(`已移到「${to.title || '未命名主題課程'}」`); renderAll(true); }
+  if (el.id === 'u-pack') { const to = data[+el.value]; detach(v.unit); if (to) { to.units.push(v.unit); if (!v.unit.levels.length) v.unit.levels = [...to.levels]; } else loose.push(v.unit); v.pack = to; touch(to ? `已放進「${to.title || '未命名主題課程'}」` : '已改成先不放進主題'); renderAll(true); }
   if (el.id === 't-copy' && el.value !== '') {
     const others = data.filter(x => x !== v.pack).flatMap(x => x.units.filter(u => u.title).map(u => ({ x, u })));
     const src = others[+el.value].u, copy = JSON.parse(JSON.stringify(src)); delete copy.id;
@@ -437,13 +444,14 @@ $('#editor').addEventListener('click', e => {
   if (t.closest('#delno')) { renderEditor(true); return; }
   if (t.closest('#delyes')) {
     if (v.kind === 'theme') { data.splice(data.indexOf(v.pack), 1); view = data[0] ? { kind: 'theme', pack: data[0] } : null; }
-    else { const p = packOf(v.unit); p.units.splice(p.units.indexOf(v.unit), 1); view = { kind: 'theme', pack: p }; tab = 'theme'; }
+    else { const p = packOf(v.unit); detach(v.unit); view = p ? { kind: 'theme', pack: p } : (data[0] ? { kind: 'theme', pack: data[0] } : null); tab = p ? 'theme' : 'unit'; }
     touch('已刪除，發布後網站才會移除'); renderAll(); return;
   }
   if (v.kind === 'unit') {
     const u = v.unit;
     if (t.closest('#to-pack')) { openTheme(packOf(u)); return; }
-    const d = t.closest('[data-dur]'); if (d) { u.duration = d.dataset.dur; touch(); renderEditor(true); return; }
+    const d = t.closest('[data-dur]'); if (d) { if (d.dataset.dur === 'custom') { if (DURS.includes(u.duration)) u.duration = '自填'; renderEditor(true); $('#u-mins').focus(); } else { u.duration = d.dataset.dur; touch(); renderEditor(true); } return; }
+    const ul = t.closest('[data-ulv]'); if (ul) { const k = ul.dataset.ulv; u.levels = u.levels.includes(k) ? u.levels.filter(x => x !== k) : LEVELS.map(l => l.k).filter(x => x === k || u.levels.includes(x)); touch(); renderEditor(true); return; }
     const rm = t.closest('[data-rm]'); if (rm) { const [k, ti] = rm.dataset.rm.split('|'); u[k].splice(+ti, 1); touch(); renderEditor(true); return; }
     const sg = t.closest('.sugg button'); if (sg) { addTag(sg.dataset.k, sg.dataset.v); return; }
     return;
@@ -452,7 +460,7 @@ $('#editor').addEventListener('click', e => {
   const seg = t.closest('#p-type button'); if (seg) { p.type = seg.dataset.v; touch(); renderEditor(true); return; }
   const pub = t.closest('#p-pub button'); if (pub) { p.published = pub.dataset.v === '1'; touch(p.published ? '這個課程會顯示在網站上' : '發布後這個課程會從網站隱藏'); renderEditor(true); return; }
   const lv = t.closest('[data-lv]'); if (lv) { const k = lv.dataset.lv; p.levels = p.levels.includes(k) ? p.levels.filter(x => x !== k) : LEVELS.map(l => l.k).filter(x => x === k || p.levels.includes(x)); p.grades = gradeText(p.levels) || p.grades; touch(); renderEditor(true); return; }
-  if (t.closest('#t-addunit')) { const u = newUnit(); p.units.push(u); touch('已新增單元'); openUnit(u); $('#u-title').focus(); return; }
+  if (t.closest('#t-addunit')) { const u = newUnit(); u.levels = [...p.levels]; p.units.push(u); touch('已新增單元'); openUnit(u); $('#u-title').focus(); return; }
   if (t.closest('#a-run')) { autoSchedule(p); return; }
   if (t.closest('#addday')) { p.schedule.push({ day: `第 ${p.schedule.length + 1} 天`, items: [''] }); touch(); renderEditor(true); return; }
   const day = t.closest('.day'), act = t.closest('[data-act]')?.dataset.act;
@@ -538,16 +546,18 @@ $('#publish').addEventListener('click', () => {
   const btn = $('#publish'); btn.disabled = true; btn.textContent = '發布中…';
   const done = res => { dirty = 0; triedPublish = false; btn.textContent = '發布到網站'; renderAll(true); toast(res && res.units !== undefined ? `已發布：${res.packs} 個主題課程、${res.units} 個單元，網站約 5 分鐘內更新` : '已發布（預覽模式，資料不會寫到任何地方）'); };
   if (!IS_GAS) return setTimeout(done, 700);
-  google.script.run.withSuccessHandler(done).withFailureHandler(e => { btn.disabled = false; btn.textContent = '發布到網站'; toast('發布失敗：' + e.message, true); }).saveCourses(data);
+  google.script.run.withSuccessHandler(done).withFailureHandler(e => { btn.disabled = false; btn.textContent = '發布到網站'; toast('發布失敗：' + e.message, true); }).saveCourses(data, loose);
 });
 addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
 
 /* ── 開機 ── */
-function boot(list) {
-  data = (list || []).map(p => {
+function boot(res) {
+  const list = Array.isArray(res) ? res : (res && res.courses) || [];
+  loose = ((res && res.loose) || []).map(u => Object.assign(newUnit(), u));
+  data = list.map(p => {
     const q = Object.assign({ published: true, outcomes: [], schedule: [], requirements: [], intro_image: '', slug: '', levels: [] }, p);
     if (!q.levels.length) q.levels = OLD_GRADES[q.grades] ? [...OLD_GRADES[q.grades]] : [];
-    q.units = (q.units || []).map(u => Object.assign(newUnit(), u));
+    q.units = (q.units || []).map(u => { const x = Object.assign(newUnit(), u); if (!x.levels.length) x.levels = [...q.levels]; return x; });
     return q;
   });
   view = data[0] ? { kind: 'theme', pack: data[0] } : null;
