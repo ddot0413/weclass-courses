@@ -33,6 +33,37 @@
   /* 照片多邊形外框（Figma「圖片 / 課程理念介紹」的形狀） */
   --frame: polygon(20.1% 0%, 0% 18.3%, 0% 73.2%, 3.9% 89.4%, 42.7% 100%, 91.8% 91.5%, 100% 75.4%, 97.5% 18.3%, 93.7% 4%);
 }
+
+/* ════ 使用教學（第一次進站自動出現） ════ */
+.nav-guide { border: 0; background: transparent; font: inherit; font-weight: 700; font-size: 16px; letter-spacing: 0.14em; color: var(--teal); padding: 7px 16px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.nav-guide:hover { background: var(--mint-pale); }
+.mnav .mguide { width: 100%; border: 0; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.gd { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: 16px; background: rgba(18, 52, 61, .55); backdrop-filter: blur(3px); animation: gdIn .25s ease; }
+@keyframes gdIn { from { opacity: 0; } }
+.gd-card { position: relative; width: min(520px, 100%); background: var(--cream); border-radius: 28px; padding: 30px 30px 24px; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .5); color: var(--ink); }
+.gd-x { position: absolute; top: 14px; right: 14px; width: 38px; height: 38px; border: 0; border-radius: 50%; background: rgba(29, 76, 88, .08); color: var(--teal); font-size: 18px; cursor: pointer; }
+.gd-k { font-family: var(--f-en); font-weight: 700; font-size: 13px; letter-spacing: 0.16em; color: var(--orange); }
+.gd-h { margin: 4px 0 18px; font-size: 24px; font-weight: 900; letter-spacing: 0.04em; color: var(--teal); }
+.gd-step { display: grid; grid-template-columns: 112px 1fr; gap: 18px; align-items: center; min-height: 150px; background: var(--white); border-radius: 22px; padding: 18px; }
+.gd-step[hidden] { display: none; }
+.gd-pic { width: 112px; height: 112px; border-radius: 50%; background-color: var(--mint-pale); background-position: center; background-size: 82%; background-repeat: no-repeat; }
+.gd-n { display: inline-block; font-family: var(--f-en); font-weight: 700; font-size: 13px; color: var(--white); background: var(--teal); border-radius: 999px; padding: 2px 10px; letter-spacing: 0.06em; }
+.gd-step h3 { margin: 8px 0 6px; font-size: 19px; font-weight: 900; color: var(--teal); }
+.gd-step p { margin: 0; font-size: 15px; line-height: 1.75; color: var(--grey-text); }
+.gd-step p b { color: var(--ink); }
+.gd-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; }
+.gd-dots { display: flex; gap: 8px; }
+.gd-dots i { width: 8px; height: 8px; border-radius: 99px; background: rgba(29, 76, 88, .2); transition: width .25s, background .25s; }
+.gd-dots i.on { width: 24px; background: var(--orange); }
+.gd-btns { display: flex; gap: 8px; }
+.gd-skip { border: 0; background: transparent; font: inherit; font-weight: 700; font-size: 15px; color: var(--grey-text); padding: 10px 12px; cursor: pointer; }
+.gd .btn { font-size: 15px; padding: 11px 24px; cursor: pointer; }
+@media (max-width: 560px) {
+  .gd-card { padding: 26px 18px 18px; border-radius: 24px; }
+  .gd-h { font-size: 20px; }
+  .gd-step { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 10px; }
+  .gd-pic { width: 92px; height: 92px; }
+}
 </style>
 <style id="brand-assets">
 /* 品牌素材（全部內嵌）：Logo、手寫標題、星芒筆刷、皺紙紋理、角色、課程照片 */
@@ -728,6 +759,7 @@ button.wt[aria-pressed="true"] { background: var(--wd); border-color: var(--wd);
         <a href="#theme" id="nav-all" aria-haspopup="true">課程方案 <span class="caret" aria-hidden="true">▾</span></a>
         <div class="navdrop-panel" id="navdrop" aria-label="所有課程方案"><!--NAVDROP--></div>
       </div>
+      <button type="button" class="nav-guide" data-guide>使用教學</button>
       <a href="https://weclass.tw/" class="official">回官網 <span aria-hidden="true">↗</span></a>
     </nav>
     <button class="burger" id="burger" aria-label="開啟選單" aria-expanded="false" aria-controls="mnav"><span></span><span></span><span></span></button>
@@ -3557,7 +3589,7 @@ function juniorPage(p, crumb, pager) {
       </div>
     </div>
   </section>
-  ${schedSection(p, `${p.schedule.length} 天・${p.units.length} 個實作單元的安排，可依單位需求調整。`, ' style="margin-top:-70px"')}
+  ${schedSection(p, `${(p.schedule || []).length} 天・${p.units.length} 個實作單元的安排，可依單位需求調整。`, ' style="margin-top:-70px"')}
   ${faqSection(packageFaq(p))}
   ${relatedPacks(p)}
   ${ctaBand({ pager })}`;
@@ -3665,7 +3697,7 @@ const burger = document.getElementById('burger'), mnav = document.getElementById
 function renderMnav() {
   const h = location.hash.replace('#', '').split('.')[0];
   const grp = type => db.filter(p => p.type === type).map(p => `<li><a href="#${p.id}"${h === p.id ? ' aria-current="page"' : ''}>${esc(p.title)}</a></li>`).join('');
-  mnav.innerHTML = `<div class="main"><a href="#"${!/^p\d/.test(h) ? ' aria-current="page"' : ''}>選課指南<span aria-hidden="true">→</span></a>${MODES.map(m => `<a href="#${m.id}" class="sub">${m.name}<span aria-hidden="true">→</span></a>`).join('')}<a href="https://weclass.tw/" class="official">回 WeClass 官網<span aria-hidden="true">↗</span></a></div>
+  mnav.innerHTML = `<div class="main"><a href="#"${!/^p\d/.test(h) ? ' aria-current="page"' : ''}>選課指南<span aria-hidden="true">→</span></a>${MODES.map(m => `<a href="#${m.id}" class="sub">${m.name}<span aria-hidden="true">→</span></a>`).join('')}<button type="button" class="sub mguide" data-guide>使用教學<span aria-hidden="true">?</span></button><a href="https://weclass.tw/" class="official">回 WeClass 官網<span aria-hidden="true">↗</span></a></div>
     <h3>初階課程<small>1~6 年級</small></h3><ul>${grp('初階')}</ul>
     <h3>進階課程<small>9~15 歲</small></h3><ul>${grp('進階')}</ul>`;
 }
@@ -3698,7 +3730,7 @@ function route() {
   else renderHome(MODE_IDS.includes(h) ? h : (h === 'find' ? 'goal' : h === 'all' ? 'theme' : state.mode));
 }
 window.addEventListener('hashchange', route);
-/* ════ 我的課程清單：勾選有興趣的方案或單元，選身份後用官方 LINE 傳給顧問 ════ */
+/* ════ 我的諮詢清單：勾選有興趣的方案或單元，選身份後用官方 LINE 傳給顧問 ════ */
 const LINE_OA_ID = '@238hxhaz';   // WeClass 官方 LINE 帳號 ID
 const ROLES = ['企業合作', '教材採購', '營隊合作'];
 const CART_KEY = 'weclass-cart-v1';
@@ -3713,7 +3745,7 @@ function cartFind(key) {
 }
 function cartBtn(key, mini) {
   const on = cart.includes(key), pack = key[0] === 'p';
-  return `<button type="button" class="addc${mini ? ' mini' : ''}${pack ? ' pack' : ''}" data-ck="${key}" aria-pressed="${on}">${on ? (pack ? '已加入整個方案 ✓' : '已加入 ✓') : (pack ? '＋ 加入整個方案' : '＋ 加入清單')}</button>`;
+  return `<button type="button" class="addc${mini ? ' mini' : ''}${pack ? ' pack' : ''}" data-ck="${key}" aria-pressed="${on}">${on ? (pack ? '已加入諮詢清單 ✓' : '已加入 ✓') : (pack ? '＋ 加入諮詢清單' : '＋ 加入清單')}</button>`;
 }
 function cartSync() { document.querySelectorAll('[data-ck]').forEach(b => { const tmp = document.createElement('div'); tmp.innerHTML = cartBtn(b.dataset.ck, b.classList.contains('mini')); const n = tmp.firstChild; b.setAttribute('aria-pressed', n.getAttribute('aria-pressed')); b.textContent = n.textContent; }); }
 function cartItems() { return cart.map(cartFind).filter(Boolean); }
@@ -3732,12 +3764,12 @@ function cartMessage(items) {
 }
 function renderCart() {
   let el = document.getElementById('cart');
-  if (!el) { el = document.createElement('aside'); el.id = 'cart'; el.className = 'cart'; el.setAttribute('aria-label', '我的課程清單'); document.body.appendChild(el); }
+  if (!el) { el = document.createElement('aside'); el.id = 'cart'; el.className = 'cart'; el.setAttribute('aria-label', '我的諮詢清單'); document.body.appendChild(el); }
   const items = cartItems();
   if (!items.length) { el.hidden = true; cartOpen = false; return; }
   el.hidden = false; el.classList.toggle('open', cartOpen);
   const tot = cartTotal(items);
-  el.innerHTML = `<button type="button" class="cart-bar" aria-expanded="${cartOpen}"><span>我的課程清單<b>${items.length}</b></span><small>${tot.text}</small><span class="cv" aria-hidden="true">${cartOpen ? '▾' : '▴'}</span></button>
+  el.innerHTML = `<button type="button" class="cart-bar" aria-expanded="${cartOpen}"><span>我的諮詢清單<b>${items.length}</b></span><small>${tot.text}</small><span class="cv" aria-hidden="true">${cartOpen ? '▾' : '▴'}</span></button>
     <div class="cart-body"${cartOpen ? '' : ' hidden'}>
       <ol>${items.map(x => `<li><span><b>${esc(x.kind === 'p' ? x.p.title : x.u.title)}</b><small>${x.kind === 'p' ? '整個方案・' + (x.p.type === '進階' ? '3 天專案' : minutes(x.p) + ' 分鐘') : esc(x.p.title) + '・' + esc(x.u.duration)}</small></span><button type="button" class="rm" data-rm="${x.key}" aria-label="移除 ${esc(x.kind === 'p' ? x.p.title : x.u.title)}">✕</button></li>`).join('')}</ol>
       <p class="cart-q">您是哪一種合作？</p>
@@ -3795,4 +3827,43 @@ if (DATA_URL) fetch(DATA_URL).then(r => r.json()).then(j => {
   buildTags(); totalUnits = db.reduce((a, p) => a + p.units.length, 0); renderNavDrop(); renderCart();
   route();
 }).catch(() => {});
+
+/* ════ 使用教學：第一次進站自動打開，之後可從選單「使用教學」再看 ════ */
+const GUIDE_KEY = 'weclass-guide-v1';
+const GUIDE_STEPS = [
+  { pic: 'char-watt', h: '選一種找課方式', p: '依<b>主題</b>、依<b>年齡</b>或依<b>學習目標</b>，點上方三個分頁切換。' },
+  { pic: 'char-ozzi', h: '點進課程看內容', p: '每個課程方案都有<b>單元介紹、上課時間與課表</b>，適合哪個年級一目了然。' },
+  { pic: 'char-max', h: '加入諮詢清單', p: '喜歡的方案按<b>「＋ 加入諮詢清單」</b>，也可以只加單一單元。' },
+  { pic: 'char-liz', h: '用 LINE 傳給顧問', p: '打開右下角<b>「我的諮詢清單」</b>，選擇合作類型，一鍵傳到 WeClass 官方 LINE。' }
+];
+function openGuide() {
+  if (document.querySelector('.gd')) return;
+  if (typeof setMenu === 'function' && !mnav.hidden) setMenu(false);
+  const last = document.activeElement;
+  const el = document.createElement('div');
+  el.className = 'gd'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-labelledby', 'gd-h');
+  el.innerHTML = `<div class="gd-card"><button type="button" class="gd-x" aria-label="關閉使用教學">✕</button>
+    <p class="gd-k">HOW TO USE</p><h2 class="gd-h" id="gd-h">四步驟，找到適合的課程</h2>
+    ${GUIDE_STEPS.map((x, i) => `<div class="gd-step"${i ? ' hidden' : ''}><span class="gd-pic" style="background-image:var(--${x.pic})" aria-hidden="true"></span><div><span class="gd-n">STEP ${i + 1}</span><h3>${x.h}</h3><p>${x.p}</p></div></div>`).join('')}
+    <div class="gd-foot"><div class="gd-dots" aria-hidden="true">${GUIDE_STEPS.map((_, i) => `<i${i ? '' : ' class="on"'}></i>`).join('')}</div>
+    <div class="gd-btns"><button type="button" class="gd-skip">跳過</button><button type="button" class="btn orange gd-next">下一步</button></div></div></div>`;
+  document.body.appendChild(el);
+  let i = 0;
+  const steps = el.querySelectorAll('.gd-step'), dots = el.querySelectorAll('.gd-dots i'), next = el.querySelector('.gd-next'), skip = el.querySelector('.gd-skip');
+  const show = () => { steps.forEach((s, k) => s.hidden = k !== i); dots.forEach((d, k) => d.classList.toggle('on', k === i)); const end = i === steps.length - 1; next.textContent = end ? '開始選課' : '下一步'; skip.hidden = end; };
+  const close = () => { try { localStorage.setItem(GUIDE_KEY, '1'); } catch (e) {} el.remove(); document.removeEventListener('keydown', onKey); if (last && last.focus) last.focus(); };
+  const onKey = e => { if (e.key === 'Escape') close(); else if (e.key === 'ArrowRight' && i < steps.length - 1) { i++; show(); } else if (e.key === 'ArrowLeft' && i > 0) { i--; show(); } };
+  next.addEventListener('click', () => { if (i < steps.length - 1) { i++; show(); } else close(); });
+  skip.addEventListener('click', close);
+  el.querySelector('.gd-x').addEventListener('click', close);
+  el.addEventListener('click', e => { if (e.target === el) close(); });
+  document.addEventListener('keydown', onKey);
+  next.focus();
+}
+document.addEventListener('click', e => { if (e.target.closest('[data-guide]')) { e.preventDefault(); openGuide(); } });
+(function () {
+  if (navigator.webdriver) return;   // 預先渲染時不顯示
+  let seen = false; try { seen = localStorage.getItem(GUIDE_KEY) === '1'; } catch (e) {}
+  if (!seen) setTimeout(openGuide, 600);
+})();
 </script>
