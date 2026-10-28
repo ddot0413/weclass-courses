@@ -71,7 +71,7 @@ def _nav_drop():
     def col(kind, note):
         items = ''.join(f'<li><a href="#{p["id"]}" data-pid="{p["id"]}"><span>{html.escape(p["title"])}</span><small>{html.escape(p["grades"])}</small></a></li>' for p in courses if p['type'] == kind)
         return f'<div class="nd-col"><p class="nd-h">{kind}課程<small>{note}</small></p><ul>{items}</ul></div>'
-    return col('初階', '單元實作') + col('進階', '3 天專案') + '<a class="nd-all" href="#theme">看全部課程方案 →</a>'
+    return col('初階', '單元實作') + col('進階', '5 天專案') + '<a class="nd-all" href="#theme">看全部課程方案 →</a>'
 body = body.replace('<!--NAVDROP-->', _nav_drop())   # 下拉選單直接寫進每一頁，搜尋引擎也看得到每個課程的連結
 (SITE / 'assets' / 'site.css').write_text(css, 'utf-8')
 (SITE / 'assets' / 'site.js').write_text(js, 'utf-8')
@@ -186,7 +186,9 @@ def syllabus(u):
 
 def photo(p):
     img = p.get('intro_image') or ''
-    return img if img.startswith('http') else ORIGIN + A + meta['photos'].get(PKG_PHOTO.get(p['id'], 'class'), 'ph-class.jpg')
+    if img.startswith('http'): return img
+    if img: return ORIGIN + A + img.lstrip('/')
+    return ORIGIN + A + meta['photos'].get(PKG_PHOTO.get(p['id'], 'class'), 'ph-class.jpg')
 
 
 def jsonld(*objs):
@@ -228,7 +230,7 @@ for rel, p in routes:
         h = head(title, desc, rel, ORIGIN + A + 'cast-group.webp', crumbs(home_crumb, ('課綱單元課程包', url('')), ('全部課程方案', url('all/'))), item_list)
     else:
         m = minutes(p)
-        dur = '3 天跨日專案' if p['type'] == '進階' else f"{len(p['units'])} 個單元・共 {m} 分鐘"
+        dur = f"{len(p.get('schedule') or []) or 5} 天跨日專案" if p['type'] == '進階' else f"{len(p['units'])} 個單元・共 {m} 分鐘"
         title = f"{p['title']}｜{p['grades']} STEAM 課程方案｜WeClass 維課教育"
         desc = f"{p['desc']}（{p['grades']}，{dur}）單元：{'、'.join(u['title'] for u in p['units'])}。"[:160]
         teaches = sorted({t for u in p['units'] for k in ('sci', 'eng', 'tech', 'art') for t in u[k]})
@@ -253,7 +255,7 @@ llms = [f'# WeClass 選課指南\n\n> WeClass 維課教育的 STEAM 實作課程
         f'- [選課指南：依主題、年齡、學習目標找課]({url("")})\n\n## 課程方案\n']
 for p in courses:
     m = minutes(p)
-    llms.append(f"- [{p['title']}]({url(slug(p) + '/')})：{p['grades']}，{'3 天跨日專案' if p['type'] == '進階' else str(len(p['units'])) + ' 個單元、共 ' + str(m) + ' 分鐘'}。{p['desc']}\n")
+    llms.append(f"- [{p['title']}]({url(slug(p) + '/')})：{p['grades']}，{str(len(p.get('schedule') or []) or 5) + ' 天跨日專案' if p['type'] == '進階' else str(len(p['units'])) + ' 個單元、共 ' + str(m) + ' 分鐘'}。{p['desc']}\n")
 (SITE / 'llms.txt').write_text(''.join(llms), 'utf-8')
 (SITE / '404.html').write_text(page('<title>找不到這個頁面｜WeClass 維課教育</title><meta name="robots" content="noindex">',
                                     f'<section class="hero" style="padding:80px 0"><div class="wrap"><div class="hero-copy"><h1>找不到這個頁面</h1><p class="d">這個課程可能已經改名或下架。</p><a class="btn orange" href="{BASE}">回選課指南</a></div></div></section>'), 'utf-8')

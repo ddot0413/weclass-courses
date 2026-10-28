@@ -3100,7 +3100,11 @@ var qrcode = function() {
    ════════════════════════════════════════════════════════════════ */
 const PHOTOS = {{PHOTOS}};
 const HERO_GIRL = '{{HERO_GIRL}}';
-const PKG_PHOTO = { p1: '3dpen', p2: 'cutting', p3: 'play', p4: 'robots', p5: 'wiring', p6: 'chem', p7: 'laugh', p8: 'class', p9: 'wiring', p10: 'robots', p11: 'play' };
+const PKG_PHOTO = { p1: '3dpen', p2: 'cutting', p3: 'play', p4: 'robots', p5: 'wiring', p6: 'chem', p7: 'laugh', p8: 'class', p9: 'wiring', p10: 'robots', p11: 'play', p12: 'wiring' };
+/* 照片欄位可以填完整網址，或只填網站 assets 資料夾裡的檔名（例如 u-p1-2.jpg） */
+const ASSET_BASE = /^data:/.test(PHOTOS.class || '') ? '' : String(PHOTOS.class || '').replace(/[^/]*$/, '');
+const imgSrc = v => !v ? '' : /^(https?:|data:|\/)/.test(v) ? v : ASSET_BASE + v;
+const projDays = p => (p.schedule || []).length || 5;
 const WORLDS = [
   { key: 'sci', name: '科學/化學', full: '科學/化學世界', en: 'Science & Chemistry' },
   { key: 'eng', name: '工程', full: '工程世界', en: 'Engineering' },
@@ -3110,7 +3114,7 @@ const WORLDS = [
 const BLOB = '{{BLOB}}';
 
 function unitPhoto(u, i) {
-  if (u.img) return u.img;
+  if (u.img) return imgSrc(u.img);
   const rules = [
     [/3D列印/, ['3dpen']], [/化學|溶液|鮭魚卵|寶石|墨水|水晶|電解|鞭炮|清潔/, ['chem']],
     [/機器人|車|龍舟|纜車|投籃|機構|連桿|爪|機械|緩降|發射/, ['robots', 'play']], [/程式|Arduino/, ['class']],
@@ -3121,12 +3125,12 @@ function unitPhoto(u, i) {
   const pool = hit ? hit[1] : ['class', 'laugh'];
   return PHOTOS[pool[i % pool.length]];
 }
-const pkgPhoto = p => p.intro_image || PHOTOS[PKG_PHOTO[p.id] || 'class'];
+const pkgPhoto = p => p.intro_image ? imgSrc(p.intro_image) : PHOTOS[PKG_PHOTO[p.id] || 'class'];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pad = n => String(n).padStart(2, '0');
 /* 靜態網站版（SEO）：每個方案有自己的網址，例如 /courses/steam-little-inventor/；預覽版仍用 #p1 */
 const BASE = window.WECLASS_BASE || '';
-const SLUGS = { p1: 'steam-little-inventor', p2: 'steam-creative-lab', p3: 'steam-playground', p4: 'robot-sports-day', p5: 'desktop-tech', p6: 'japanese-sushi-shop', p7: 'little-banker', p8: 'land-sea-air-vehicles', p9: 'smart-night-light', p10: 'sweeping-robot', p11: 'crazy-basketball-machine' };
+const SLUGS = { p1: 'steam-little-inventor', p2: 'steam-creative-lab', p3: 'steam-playground', p4: 'robot-sports-day', p5: 'desktop-tech', p6: 'japanese-sushi-shop', p7: 'little-banker', p8: 'land-sea-air-vehicles', p9: 'smart-night-light', p10: 'sweeping-robot', p11: 'crazy-basketball-machine', p12: 'coin-sorting-recording-bank' };
 const setTitle = s => { if (!BASE) document.title = s; };   // 靜態網站版保留每頁預先寫好的標題
 const slugOf = p => p.slug || SLUGS[p.id] || p.id;
 const pathFor = id => { const p = db.find(x => x.id === id); return BASE + (p ? slugOf(p) + '/' : ''); };
@@ -3207,7 +3211,7 @@ function smallHero(m, extra = '') {
 
 /* 選課指南首頁：三種選課方式在同一頁切換（不換頁），#theme／#stage／#goal 可直接連到該方式 */
 const MODE_IDS = MODES.map(m => m.id);
-const MODE_TIP = { theme: '依主題瀏覽全部課程方案，初階是 4～6 個單元的主題課，進階是 3 天的大型專案。', stage: '依孩子的年齡與發展階段挑選。切換低、中、高年級，左右滑動看適合的課程。同一個方案可能適合好幾個年級，會在各年級都列出。', goal: '點選想培養的知識與技能，下方即時列出有教到的單元；同一分類內任一標籤符合即列出。' };
+const MODE_TIP = { theme: '依主題瀏覽全部課程方案，初階是 4～6 個單元的主題課，進階是 5 天的跨日大型專案。', stage: '依孩子的年齡與發展階段挑選。切換低、中、高年級，左右滑動看適合的課程。同一個方案可能適合好幾個年級，會在各年級都列出。', goal: '點選想培養的知識與技能，下方即時列出有教到的單元；同一分類內任一標籤符合即列出。' };
 function renderHome(mode) {
   if (!MODE_IDS.includes(mode)) mode = state.mode || 'theme';
   setTitle('WeClass 選課指南');
@@ -3245,7 +3249,7 @@ function showMode(mode, fromClick) {
   document.getElementById('mode-tip').textContent = MODE_TIP[mode];
   const body = document.getElementById('mode-body');
   if (mode === 'theme') {
-    body.innerHTML = ['初階', '進階'].map(type => `<div class="pkg-group"><h3 class="gt">${type}主題<small>${type === '初階' ? '1~6 年級・每個主題 4~6 個單元' : '9~15 歲・3 天 XPBL 大型專案'}</small></h3>
+    body.innerHTML = ['初階', '進階'].map(type => `<div class="pkg-group"><h3 class="gt">${type}主題<small>${type === '初階' ? '1~6 年級・每個主題 4~6 個單元' : '9 歲以上・5 天 XPBL 大型專案'}</small></h3>
       <div class="pkgs">${db.filter(p => p.type === type).map((p, i) => pkgCard(p, i, null)).join('')}</div></div>`).join('');
   } else if (mode === 'stage') {
     const si0 = Math.max(0, STAGES.findIndex(s => s.id === state.stage));
@@ -3336,7 +3340,7 @@ function bindCarousel(root) {
 }
 
 function pkgCard(p, i, hits) {
-  const meta = p.type === '初階' ? `<span class="time">${p.units.length} 個單元</span>` : `<span class="time">3 天專案</span>`;
+  const meta = p.type === '初階' ? `<span class="time">${p.units.length} 個單元</span>` : `<span class="time">${projDays(p)} 天專案</span>`;
   return `<article class="pkg">
     <a class="photo" href="#${p.id}" tabindex="-1" aria-hidden="true"><img src="${pkgPhoto(p)}" alt="" loading="lazy"><span class="lv">${p.type}・${esc(p.grades)}</span></a>
     <div class="body"><h4>${esc(p.title)}</h4><p class="d">${esc(p.desc)}</p>
@@ -3476,7 +3480,7 @@ const uniq = a => [...new Set(a)];
 function packageFaq(p) {
   const items = [[`「${p.title}」適合幾歲的孩子？`, `適合 ${esc(p.grades)} 的孩子，屬於 WeClass 的${p.type}課程方案。`]];
   if (p.type === '進階') {
-    items.push(['課程怎麼安排、需要多少時間？', `這是 3 天的跨日大型專案（XPBL）。${(p.schedule || []).map(d => `${esc(d.day)}：${d.items.map(esc).join('、')}`).join('；')}。`]);
+    items.push(['課程怎麼安排、需要多少時間？', `這是 ${projDays(p)} 天的跨日大型專案（XPBL）。${(p.schedule || []).map(d => `${esc(d.day)}：${d.items.map(esc).join('、')}`).join('；')}。`]);
   } else {
     const m = minutes(p);
     items.push(['一共有幾個單元、需要多少時間？', `共 ${p.units.length} 個實作單元，合計 ${m} 分鐘（相當於 ${Math.round(m / 90)} 堂 90 分鐘的課）：${p.units.map(u => `${esc(u.title)}（${esc(u.duration)}）`).join('、')}。`]);
@@ -3494,7 +3498,7 @@ function homeFaq() {
     ['怎麼依學習目標找課？', '在「課綱單元課程包」選擇學習世界，點選想培養的知識或技能標籤，下方會即時列出有教到的單元；同一分類內任一標籤符合就會列出。'],
     ['可以只選部分單元嗎？', '可以。每個課程方案都能整套加入，也能只加入單一單元；加入清單後選擇合作類型，用 LINE 傳給 WeClass 顧問即可。'],
     ['目前有哪些課程方案？', `目前有 ${db.length} 個課程方案、${totalUnits} 個實作單元：${db.map(p => `${esc(p.title)}（${esc(p.grades)}）`).join('、')}。`],
-    ['課程適合哪些年齡？', `依方案不同，適合 ${grades.map(esc).join('、')} 的孩子；初階方案以單元實作為主，進階方案是 3 天的大型專案。`]
+    ['課程適合哪些年齡？', `依方案不同，適合 ${grades.map(esc).join('、')} 的孩子；初階方案以單元實作為主，進階方案是 5 天的大型專案。`]
   ];
 }
 
@@ -3624,7 +3628,7 @@ function advancedPage(p, crumb, pager) {
       </div>
     </div>
   </section>
-  ${schedSection(p, '三天的大型專案，從設計、組裝到程式撰寫與成果發表。', ' style="margin-top:-70px"')}
+  ${schedSection(p, `${projDays(p)} 天的大型專案，從設計、組裝到程式撰寫與成果發表。`, ' style="margin-top:-70px"')}
   <section class="notes-sec" aria-labelledby="rq-title">
     <div class="wrap">
       <div class="notes">
@@ -3679,7 +3683,7 @@ function ctaBand({ pager = '' } = {}) {
 /* 電腦版導覽列「全部課程方案」的下拉選單：分初階、進階列出每個方案，任何一頁都能直接換課程 */
 function navDropHtml() {
   const col = (type, note) => `<div class="nd-col"><p class="nd-h">${type}課程<small>${note}</small></p><ul>${db.filter(p => p.type === type).map(p => `<li><a href="#${p.id}" data-pid="${p.id}"><span>${esc(p.title)}</span><small>${esc(p.grades)}</small></a></li>`).join('')}</ul></div>`;
-  return col('初階', '單元實作') + col('進階', '3 天專案') + '<a class="nd-all" href="#theme">看全部課程方案 →</a>';
+  return col('初階', '單元實作') + col('進階', '5 天專案') + '<a class="nd-all" href="#theme">看全部課程方案 →</a>';
 }
 function renderNavDrop() {
   const el = document.getElementById('navdrop'); if (!el) return;
@@ -3759,7 +3763,7 @@ function cartTotal(items) {
   return { m, days, text: [m ? `${m} 分鐘` : '', days ? `${days} 天專案` : ''].filter(Boolean).join('＋') || '—' };
 }
 function cartMessage(items) {
-  const lines = items.map(x => x.kind === 'p' ? `・${x.p.title}（整個方案・${x.p.type === '進階' ? '3 天專案' : `${x.p.units.length} 個單元・${minutes(x.p)} 分鐘`}）` : `・${x.u.title}（${x.p.title}・${x.u.duration}）`);
+  const lines = items.map(x => x.kind === 'p' ? `・${x.p.title}（整個方案・${x.p.type === '進階' ? projDays(x.p) + ' 天專案' : `${x.p.units.length} 個單元・${minutes(x.p)} 分鐘`}）` : `・${x.u.title}（${x.p.title}・${x.u.duration}）`);
   return `您好，我想詢問「${cartRole}」：\n${lines.join('\n')}\n合計約 ${cartTotal(items).text}\n（來自 WeClass 課程網站）`;
 }
 function renderCart() {
@@ -3771,7 +3775,7 @@ function renderCart() {
   const tot = cartTotal(items);
   el.innerHTML = `<button type="button" class="cart-bar" aria-expanded="${cartOpen}"><span>我的諮詢清單<b>${items.length}</b></span><small>${tot.text}</small><span class="cv" aria-hidden="true">${cartOpen ? '▾' : '▴'}</span></button>
     <div class="cart-body"${cartOpen ? '' : ' hidden'}>
-      <ol>${items.map(x => `<li><span><b>${esc(x.kind === 'p' ? x.p.title : x.u.title)}</b><small>${x.kind === 'p' ? '整個方案・' + (x.p.type === '進階' ? '3 天專案' : minutes(x.p) + ' 分鐘') : esc(x.p.title) + '・' + esc(x.u.duration)}</small></span><button type="button" class="rm" data-rm="${x.key}" aria-label="移除 ${esc(x.kind === 'p' ? x.p.title : x.u.title)}">✕</button></li>`).join('')}</ol>
+      <ol>${items.map(x => `<li><span><b>${esc(x.kind === 'p' ? x.p.title : x.u.title)}</b><small>${x.kind === 'p' ? '整個方案・' + (x.p.type === '進階' ? projDays(x.p) + ' 天專案' : minutes(x.p) + ' 分鐘') : esc(x.p.title) + '・' + esc(x.u.duration)}</small></span><button type="button" class="rm" data-rm="${x.key}" aria-label="移除 ${esc(x.kind === 'p' ? x.p.title : x.u.title)}">✕</button></li>`).join('')}</ol>
       <p class="cart-q">您是哪一種合作？</p>
       <div class="roles" role="radiogroup">${ROLES.map(r => `<button type="button" role="radio" data-role="${r}" aria-checked="${cartRole === r}">${r}</button>`).join('')}</div>
       <p class="cart-err" id="cart-err" aria-live="polite"></p>

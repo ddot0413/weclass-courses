@@ -214,6 +214,10 @@ details.more summary { cursor: pointer; font-size: 13px; font-weight: 700; color
 <div class="toast" id="toast" role="status"></div>
 
 <script>
+/* 照片欄位只填檔名時（例如 u-p1-2.jpg），代表放在網站的 assets 資料夾；網站換網址時，改這一行 */
+const SITE_ASSETS = 'https://ddot0413.github.io/weclass-courses/assets/';
+const IMG = v => !v ? '' : /^(https?:|data:)/.test(v) ? v : SITE_ASSETS + v;
+
 const IS_GAS = typeof google !== 'undefined' && google.script && google.script.run;
 const SAMPLE = [];   // 只在本機預覽時使用；在試算表裡會改讀試算表資料
 const WORLDS = [['sci', '科學/化學世界'], ['eng', '工程世界'], ['tech', '科技世界'], ['art', '藝術世界']];
@@ -255,19 +259,19 @@ function renderList() {
   if (tab === 'theme') {
     html = ['初階', '進階'].map(type => {
       const ps = data.filter(p => p.type === type && (!q || p.title.includes(q))); if (!ps.length) return '';
-      return `<p class="grp">${type === '初階' ? '單元主題課' : '3 天大型專案'}</p>` + ps.map(p => {
+      return `<p class="grp">${type === '初階' ? '單元主題課' : '5 天大型專案'}</p>` + ps.map(p => {
         const flags = [p.published === false ? '<span class="warn">下架中</span>' : '', needsSchedule(p) ? '<span class="warn">缺課表</span>' : '', !p.levels.length ? '<span class="warn">未選年級</span>' : ''].filter(Boolean).join('・');
         return `<button class="item" data-pack="${data.indexOf(p)}" aria-current="${view && view.kind === 'theme' && view.pack === p}" type="button">
-        <span class="th" style="${p.intro_image ? `background-image:url('${p.intro_image}')` : (p.type === '進階' ? 'background-color:var(--peach)' : '')}"></span>
+        <span class="th" style="${p.intro_image ? `background-image:url('${IMG(p.intro_image)}')` : (p.type === '進階' ? 'background-color:var(--peach)' : '')}"></span>
         <span><b>${esc(p.title || '未命名主題課程')}</b><small>${esc(p.levels.join('・') || '—')}・${p.units.length} 個單元${flags ? '・' + flags : ''}</small></span></button>`; }).join('');
     }).join('');
   } else {
     const lo = loose.filter(u => !q || u.title.includes(q));
     html = (lo.length ? '<p class="grp">還沒放進主題（網站暫不顯示）</p>' + lo.map(u => `<button class="item u" data-loose="${loose.indexOf(u)}" aria-current="${view && view.unit === u}" type="button">
-        <span class="th" style="${u.img ? `background-image:url('${u.img}')` : ''}"></span><span><b>${esc(u.title || '未命名單元')}</b><small>${esc(u.duration)}${u.levels.length ? '・' + u.levels.join('・') : ''}</small></span></button>`).join('') : '') + data.map(p => {
+        <span class="th" style="${u.img ? `background-image:url('${IMG(u.img)}')` : ''}"></span><span><b>${esc(u.title || '未命名單元')}</b><small>${esc(u.duration)}${u.levels.length ? '・' + u.levels.join('・') : ''}</small></span></button>`).join('') : '') + data.map(p => {
       const us = p.units.filter(u => !q || u.title.includes(q)); if (!us.length) return '';
       return `<p class="grp">${esc(p.title || '未命名主題課程')}</p>` + us.map(u => `<button class="item u" data-pack="${data.indexOf(p)}" data-unit="${p.units.indexOf(u)}" aria-current="${view && view.unit === u}" type="button">
-        <span class="th" style="${u.img ? `background-image:url('${u.img}')` : ''}"></span><span><b>${esc(u.title || '未命名單元')}</b><small>${esc(u.duration)}${u.levels.length ? '・' + u.levels.join('・') : ''}</small></span></button>`).join('');
+        <span class="th" style="${u.img ? `background-image:url('${IMG(u.img)}')` : ''}"></span><span><b>${esc(u.title || '未命名單元')}</b><small>${esc(u.duration)}${u.levels.length ? '・' + u.levels.join('・') : ''}</small></span></button>`).join('');
     }).join('');
   }
   $('#items').innerHTML = html || '<p class="hint" style="padding:8px">找不到符合的課程。</p>';
@@ -286,11 +290,11 @@ function themeHtml(p) {
   <fieldset><legend>基本資料</legend>
     <div class="row">
       <label class="f"><span>課程名稱</span><input id="p-title" value="${esc(p.title)}" placeholder="例如：小小天文學家"></label>
-      <div class="f"><span>類型</span><div class="seg" id="p-type">${[['初階', '單元主題課'], ['進階', '3 天大型專案']].map(([v, n]) => `<button type="button" data-v="${v}" aria-pressed="${p.type === v}">${n}</button>`).join('')}</div></div>
+      <div class="f"><span>類型</span><div class="seg" id="p-type">${[['初階', '單元主題課'], ['進階', '5 天大型專案']].map(([v, n]) => `<button type="button" data-v="${v}" aria-pressed="${p.type === v}">${n}</button>`).join('')}</div></div>
     </div>
     <label class="f"><span>課程介紹（顯示在課程卡與課程頁）</span><textarea id="p-desc" rows="2">${esc(p.desc)}</textarea></label>
     <div class="cover">
-      <label class="drop ${p.intro_image ? 'has' : ''}" style="${p.intro_image ? `background-image:url('${p.intro_image}')` : ''}">點這裡上傳<br>封面照片<input type="file" accept="image/*" id="p-photo" aria-label="上傳封面照片"></label>
+      <label class="drop ${p.intro_image ? 'has' : ''}" style="${p.intro_image ? `background-image:url('${IMG(p.intro_image)}')` : ''}">點這裡上傳<br>封面照片<input type="file" accept="image/*" id="p-photo" aria-label="上傳封面照片"></label>
       <p class="hint" style="margin:0">建議橫式照片、寬度 1200px 以上。沒有上傳時，網站會用單元照片代替。</p>
     </div>
   </fieldset>
@@ -348,7 +352,7 @@ function unitHtml(u) {
   </fieldset>
   <fieldset><legend>內容</legend>
     <div class="cover" style="align-items:start">
-      <div class="f"><span>單元照片</span><label class="drop ${u.img ? 'has' : ''}" style="${u.img ? `background-image:url('${u.img}')` : ''}">上傳照片<input type="file" accept="image/*" id="u-photo" aria-label="上傳單元照片"></label></div>
+      <div class="f"><span>單元照片</span><label class="drop ${u.img ? 'has' : ''}" style="${u.img ? `background-image:url('${IMG(u.img)}')` : ''}">上傳照片<input type="file" accept="image/*" id="u-photo" aria-label="上傳單元照片"></label></div>
       <label class="f"><span>單元說明</span><textarea id="u-desc" rows="4">${esc(u.desc)}</textarea></label>
     </div>
     <div class="row" style="grid-template-columns:1fr 1fr">
