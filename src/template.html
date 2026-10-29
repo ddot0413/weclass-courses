@@ -260,6 +260,30 @@ a { color: inherit; }
 .notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
 .notes.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .list.sched .st { font-family: var(--f-en); font-weight: 700; color: var(--orange); margin-right: 8px; font-size: .92em; }
+/* 詳細課程表：日程清單 */
+.sc-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: -18px 0 26px; }
+.sc-chips span { background: #fff; border-radius: 999px; padding: 7px 16px; font-size: 14px; font-weight: 700; color: var(--teal); letter-spacing: .04em; }
+.sc-chips i { font-style: normal; font-family: var(--f-en); color: var(--orange); margin-right: 4px; }
+.sc { max-width: 920px; background: #fff; border-radius: 24px; overflow: hidden; margin: 0; padding: 0; list-style: none; }
+.sc-row { display: grid; grid-template-columns: 112px 1fr; border-bottom: 1px solid #EAD9C4; }
+.sc-row:last-child { border-bottom: 0; }
+.sc-d { background: var(--teal); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 0; }
+.sc-d small { font-family: var(--f-en); font-size: 11px; letter-spacing: .16em; opacity: .7; font-weight: 700; }
+.sc-d b { font-family: var(--f-en); font-size: 32px; font-weight: 900; line-height: 1.05; }
+.sc-s { display: flex; flex-direction: column; justify-content: center; }
+.sc-p { display: grid; grid-template-columns: 128px 1fr; gap: 14px; align-items: baseline; padding: 18px 24px; }
+.sc-p + .sc-p { border-top: 1px dashed #EAD9C4; }
+.sc-t { font-family: var(--f-en); font-weight: 700; color: var(--orange); font-size: 14.5px; white-space: nowrap; }
+.sc-t.zh { font-family: inherit; font-size: 14px; letter-spacing: .06em; }
+.sc-n { font-weight: 900; font-size: 17px; line-height: 1.5; color: var(--teal); letter-spacing: .04em; }
+.sc-n em { font-style: normal; font-size: 12.5px; font-weight: 700; background: var(--mint-pale); border-radius: 999px; padding: 2px 10px; margin-left: 8px; vertical-align: 2px; white-space: nowrap; }
+.sc-n small { display: block; font-size: 14px; font-weight: 500; color: #5f6f73; letter-spacing: .04em; margin-top: 2px; }
+@media (max-width: 720px) {
+  .sc-row { grid-template-columns: 72px 1fr; }
+  .sc-d b { font-size: 25px; }
+  .sc-p { grid-template-columns: 1fr; gap: 2px; padding: 14px 16px; }
+  .sc-n { font-size: 15.5px; }
+}
 .note { position: relative; background: var(--white); border-radius: 10px; padding: 34px 30px 30px; }
 .note.y { background: var(--yellow); }
 .note::before { content: ""; position: absolute; top: -10px; right: 50px; width: 84px; height: 22px; background: rgba(135, 204, 200, .85); transform: rotate(2.5deg); border-radius: 2px; }
@@ -3524,16 +3548,29 @@ function worldNotes(p, labelUnits) {
   }).join('');
 }
 
-/* 課表：每一節存成「09:00 單元名稱」，時間另外標示 */
+/* 課表：每一節存成「09:00 單元名稱」；同一單元連續兩節就合併成一行 */
 function schedSection(p, sub, extraStyle) {
   if (!p.schedule || !p.schedule.length) return '';
-  const slot = t => { const m = String(t).match(/^(\d{1,2}:\d{2})\s+(.*)$/); return m ? `<li><b class="st">${m[1]}</b>${esc(m[2])}</li>` : `<li>${esc(t)}</li>`; };
+  const mins = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+  const hm = x => String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(x % 60).padStart(2, '0');
+  const parse = s => { const m = String(s).match(/^(\d{1,2}:\d{2})\s+(.*)$/); return m ? { s: mins(m[1]), t: m[2].trim() } : { s: null, t: String(s).trim() }; };
+  const days = p.schedule.map(d => {
+    const it = (d.items || []).map(parse).filter(x => x.t);
+    it.forEach((x, k) => { if (x.s != null) { const nx = it[k + 1]; x.e = nx && nx.s != null ? nx.s - 10 : (it.length > 1 ? x.s + 90 : null); } });
+    const out = [];
+    it.forEach(x => { const last = out[out.length - 1]; if (last && last.t === x.t) { last.e = x.e; last.n++; } else out.push({ ...x, n: 1 }); });
+    return out;
+  });
+  const all = days.flat().filter(x => x.s != null);
+  const range = all.length ? `${hm(Math.min(...all.map(x => x.s)))}–${hm(Math.max(...all.map(x => x.e ?? x.s)))}` : '';
+  const name = x => { const m = x.t.match(/^【(.+?)】\s*(.*)$/); return m ? `${esc(m[1])}${m[2] ? `<small>${esc(m[2])}</small>` : ''}` : esc(x.t); };
+  const row = (d, i) => `<li class="sc-row"><div class="sc-d"><small>DAY</small><b>${i + 1}</b></div><div class="sc-s">${d.map((x, k) => `
+    <div class="sc-p">${x.s != null ? `<span class="sc-t">${hm(x.s)}${x.e != null ? '–' + hm(x.e) : ' 起'}</span>` : `<span class="sc-t zh">${d.length > 1 ? `第 ${k + 1} 堂` : '本日主題'}</span>`}<span class="sc-n">${name(x)}${x.n > 1 ? '<em>整個上午</em>' : ''}</span></div>`).join('')}</div></li>`;
   return `<section class="band peach notes-sec" aria-labelledby="sc-title"${extraStyle || ''}>
     <div class="wrap" style="padding-block:120px 110px">
       <div class="tgroup"><p class="en" aria-hidden="true">Schedule</p><h2 id="sc-title">詳細課程表</h2><p class="d">${sub}</p></div>
-      <div class="notes ${p.schedule.length >= 3 ? 'three' : ''}">${p.schedule.map((d, i) => `
-        <article class="note ${i % 2 ? 'y' : ''}"><p class="tiny">Day ${i + 1}</p><h3>${esc(d.day)}</h3><ul class="list sched">${d.items.map(slot).join('')}</ul></article>`).join('')}
-      </div>
+      <p class="sc-chips"><span><i>${days.length}</i>天</span>${range ? `<span><i>${range}</i>上課</span>` : ''}</p>
+      <ol class="sc">${days.map(row).join('')}</ol>
     </div>
   </section>`;
 }
