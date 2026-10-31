@@ -37,7 +37,6 @@
 /* ════ 使用教學（第一次進站自動出現） ════ */
 .nav-guide { border: 0; background: transparent; font: inherit; font-weight: 700; font-size: 16px; letter-spacing: 0.14em; color: var(--teal); padding: 7px 16px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
 .nav-guide:hover { background: var(--mint-pale); }
-.mnav .mguide { width: 100%; border: 0; background: transparent; font: inherit; text-align: left; cursor: pointer; }
 .gd { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: 16px; background: rgba(18, 52, 61, .55); backdrop-filter: blur(3px); animation: gdIn .25s ease; }
 @keyframes gdIn { from { opacity: 0; } }
 .gd-card { position: relative; width: min(520px, 100%); background: var(--cream); border-radius: 28px; padding: 30px 30px 24px; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .5); color: var(--ink); }
@@ -103,17 +102,34 @@ a { color: inherit; }
 .burger[aria-expanded="true"] span:nth-child(1) { top: 22px; transform: rotate(45deg); }
 .burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
 .burger[aria-expanded="true"] span:nth-child(3) { top: 22px; transform: rotate(-45deg); }
-.mnav { position: absolute; left: 0; right: 0; top: 100%; background: var(--cream); box-shadow: 0 18px 24px -12px rgba(0, 0, 0, .18); max-height: calc(100dvh - 66px - env(safe-area-inset-top, 0px)); overflow-y: auto;
-  padding: 6px max(20px, env(safe-area-inset-right, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px)); border-top: 2px dashed #EBD9C2; }
-.mnav .main { display: grid; gap: 6px; margin: 10px 0 14px; }
-.mnav .main a { display: flex; justify-content: space-between; align-items: center; text-decoration: none; font-weight: 900; font-size: 18px; letter-spacing: 0.06em; padding: 12px 16px; border-radius: 14px; background: var(--white); }
-.mnav .main a[aria-current="page"] { background: var(--mint); }
-.mnav .main a.official { background: var(--teal); color: var(--white); }
-.mnav h3 { font-weight: 900; font-size: 14px; letter-spacing: 0.08em; color: var(--teal); margin: 14px 4px 8px; display: flex; gap: 8px; align-items: baseline; }
-.mnav h3 small { font-weight: 700; font-size: 12px; color: var(--ink); opacity: .75; }
-.mnav ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.mnav ul a { display: block; text-decoration: none; font-weight: 700; font-size: 14.5px; letter-spacing: 0.04em; padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, .65); line-height: 1.35; }
-.mnav ul a[aria-current="page"] { background: var(--teal); color: var(--white); }
+.mnav { position: absolute; left: 0; right: 0; top: 100%; height: calc(100dvh - var(--mn-top, 70px)); background: var(--cream); overflow-y: auto; overscroll-behavior: contain;
+  display: flex; flex-direction: column; border-top: 1px solid #EAD9C4; animation: mnIn .22s ease; }
+.mnav[hidden] { display: none; }
+@keyframes mnIn { from { opacity: 0; transform: translateY(-8px); } }
+.mn-body { flex: 1; padding: 18px max(20px, env(safe-area-inset-right, 0px)) 24px max(20px, env(safe-area-inset-left, 0px)); }
+.mn-k { margin: 0 0 10px; font-family: var(--f-en); font-weight: 700; font-size: 12px; letter-spacing: .18em; color: var(--orange); text-transform: uppercase; }
+.mn-k b { font-family: "Noto Sans TC", sans-serif; font-weight: 900; font-size: 13px; letter-spacing: .1em; color: var(--teal); margin-left: 8px; text-transform: none; }
+.mn-modes { display: grid; gap: 8px; margin-bottom: 28px; }
+.mn-modes a { display: grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items: center; padding: 10px 14px 10px 10px; border-radius: 18px; background: var(--white); text-decoration: none; color: var(--teal); border: 2px solid transparent; }
+.mn-modes a[aria-current="page"] { border-color: var(--teal); }
+.mn-modes .ic { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; }
+.mn-modes .ic img { width: 34px; height: 34px; object-fit: contain; }
+.mn-modes b { display: block; font-weight: 900; font-size: 16.5px; letter-spacing: .06em; line-height: 1.3; }
+.mn-modes small { display: block; font-size: 12.5px; color: #5f6f73; letter-spacing: .04em; margin-top: 2px; }
+.mn-modes .ar { font-size: 15px; color: var(--teal); opacity: .5; }
+.mn-grp { margin-bottom: 20px; }
+.mn-grp h3 { margin: 0 0 6px; font-size: 14px; font-weight: 900; letter-spacing: .08em; color: var(--teal); display: flex; align-items: baseline; gap: 8px; }
+.mn-grp h3 small { font-size: 12px; font-weight: 700; color: #5f6f73; }
+.mn-grp ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; }
+.mn-grp li { border-bottom: 1px dashed #E3CFB6; }
+.mn-grp ul a { display: flex; align-items: center; gap: 8px; min-height: 46px; text-decoration: none; font-weight: 700; font-size: 14.5px; letter-spacing: .03em; line-height: 1.35; color: var(--teal); }
+.mn-grp ul a::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--mint); }
+.mn-grp ul a[aria-current="page"] { color: var(--orange); }
+.mn-grp ul a[aria-current="page"]::before { background: var(--orange); }
+.mn-foot { position: sticky; bottom: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px max(20px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px)); background: var(--cream); border-top: 1px solid #EAD9C4; }
+.mn-foot a, .mn-foot button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; border-radius: 999px; font: inherit; font-weight: 900; font-size: 15px; letter-spacing: .08em; text-decoration: none; cursor: pointer; }
+.mn-foot button { border: 2px solid var(--teal); background: transparent; color: var(--teal); }
+.mn-foot a { border: 2px solid var(--teal); background: var(--teal); color: var(--white); }
 
 /* ── 共用：標題組、膠囊、按鈕 ── */
 .tgroup .en { font-family: var(--f-en); font-weight: 900; font-size: clamp(38px, 5vw, 56px); line-height: 1; color: var(--teal); margin: 0 0 14px; letter-spacing: -0.01em; }
@@ -759,7 +775,6 @@ button.wt[aria-pressed="true"] { background: var(--wd); border-color: var(--wd);
 .mtxt small { display: block; font-family: var(--f-en); font-weight: 700; font-size: 12.5px; color: var(--teal); letter-spacing: 0.02em; }
 .mtxt b { display: block; font-weight: 900; font-size: 19px; letter-spacing: 0.06em; line-height: 1.35; }
 .mode-tip { margin: 0 4px 30px; font-weight: 700; letter-spacing: 0.05em; font-size: 15px; }
-.mnav .main a.sub { padding-left: 32px; font-size: 16px; font-weight: 700; background: rgba(255, 255, 255, .6); }
 @media (max-width: 900px) {
   .home-hero .hero-cast { display: none; }
   .hero.small.home-hero .hero-copy { padding-right: 0; }
@@ -3737,17 +3752,24 @@ function setNav(which) {
 const burger = document.getElementById('burger'), mnav = document.getElementById('mnav');
 function renderMnav() {
   const h = location.hash.replace('#', '').split('.')[0];
-  const grp = type => db.filter(p => p.type === type).map(p => `<li><a href="#${p.id}"${h === p.id ? ' aria-current="page"' : ''}>${esc(p.title)}</a></li>`).join('');
-  mnav.innerHTML = `<div class="main"><a href="#"${!/^p\d/.test(h) ? ' aria-current="page"' : ''}>選課指南<span aria-hidden="true">→</span></a>${MODES.map(m => `<a href="#${m.id}" class="sub">${m.name}<span aria-hidden="true">→</span></a>`).join('')}<button type="button" class="sub mguide" data-guide>使用教學<span aria-hidden="true">?</span></button><a href="https://weclass.tw/" class="official">回 WeClass 官網<span aria-hidden="true">↗</span></a></div>
-    <h3>初階課程<small>1~6 年級</small></h3><ul>${grp('初階')}</ul>
-    <h3>進階課程<small>9~15 歲</small></h3><ul>${grp('進階')}</ul>`;
+  const curMode = /^p\d/.test(h) ? '' : (MODES.some(m => m.id === h) ? h : state.mode);
+  const short = { theme: '用趣味主題串起每一堂課', stage: '依年齡挑選適合的課程', goal: '對應 108 課綱學習目標' };
+  const grp = (type, label, age) => `<div class="mn-grp"><h3>${label}<small>${age}</small></h3><ul>${db.filter(p => p.type === type).map(p => `<li><a href="#${p.id}"${h === p.id ? ' aria-current="page"' : ''}>${esc(p.title)}</a></li>`).join('')}</ul></div>`;
+  mnav.innerHTML = `<div class="mn-body">
+      <p class="mn-k">Guide<b>三種選課方式</b></p>
+      <div class="mn-modes">${MODES.map(m => `<a href="#${m.id}"${m.id === curMode ? ' aria-current="page"' : ''}><span class="ic" style="background:${m.disc}"><img src="${assetUrl(m.icon)}" alt=""></span><span><b>${m.name}</b><small>${short[m.id] || ''}</small></span><span class="ar" aria-hidden="true">→</span></a>`).join('')}</div>
+      <p class="mn-k">Courses<b>全部課程方案</b></p>
+      ${grp('初階', '初階課程', '1~6 年級')}${grp('進階', '進階課程', '9~15 歲')}
+    </div>
+    <div class="mn-foot"><button type="button" data-guide>使用教學</button><a href="https://weclass.tw/">回官網 <span aria-hidden="true">↗</span></a></div>`;
 }
 function setMenu(open) {
-  if (open) renderMnav();
+  if (open) { renderMnav(); mnav.style.setProperty('--mn-top', Math.round(document.querySelector('.site-head').getBoundingClientRect().bottom) + 'px'); }
+  document.documentElement.style.overflow = open ? 'hidden' : '';
   mnav.hidden = !open; burger.setAttribute('aria-expanded', open); burger.setAttribute('aria-label', open ? '關閉選單' : '開啟選單');
 }
 burger.addEventListener('click', () => setMenu(mnav.hidden));
-mnav.addEventListener('click', e => { const a = e.target.closest('a'); if (a) { setMenu(false); if (a.getAttribute('href') === '#' && location.hash === '') renderHome(state.mode); } });
+mnav.addEventListener('click', e => { if (e.target.closest('[data-guide]')) setMenu(false); const a = e.target.closest('a'); if (a) { setMenu(false); if (a.getAttribute('href') === '#' && location.hash === '') renderHome(state.mode); } });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !mnav.hidden) { setMenu(false); burger.focus(); } });
 document.addEventListener('click', e => { if (!mnav.hidden && !e.target.closest('.site-head')) setMenu(false); });
 window.matchMedia('(min-width: 901px)').addEventListener('change', e => { if (e.matches) setMenu(false); });
