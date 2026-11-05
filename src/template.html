@@ -540,10 +540,12 @@ a { color: inherit; }
 .udlg dd { margin: 0; }
 .udlg-act { margin-top: auto; padding-top: 12px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
 .udlg-more { font-weight: 900; font-size: 14px; color: var(--teal); }
-.noimg { display: block; width: 100%; height: 100%; min-height: 58px; border-radius: inherit; background: var(--mint-pale) var(--char-watt) no-repeat center / auto 72%; }
+.noimg { display: grid; place-items: center; width: 100%; height: 100%; min-height: 58px; border-radius: inherit; background: #DCE7E6; color: #7C9294; font-size: 13px; font-weight: 700; letter-spacing: .1em; }
+.noimg::after { content: "無照片"; }
+.wk .noimg { font-size: 11px; letter-spacing: .04em; min-height: 0; }
 .wk .noimg { width: 76px; height: 58px; border-radius: 12px; }
 .step .photo .noimg { position: absolute; inset: 0; }
-.udlg-photo .noimg.big { min-height: 300px; border-radius: 0; background-size: auto 55%; }
+.udlg-photo .noimg.big { min-height: 300px; border-radius: 0; font-size: 16px; }
 .sem-empty { background: var(--white); border-radius: 20px; padding: 30px 26px; text-align: center; color: var(--teal); }
 .sem-empty b { font-size: 19px; font-weight: 900; }
 .sem-empty p { margin: 10px 0 18px; font-size: 14.5px; line-height: 1.7; }
@@ -576,6 +578,21 @@ a { color: inherit; }
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; }
   .sb strong { font-size: 14.5px; }
   .udlg-in { grid-template-columns: 1fr; }
+  /* 手機：分齡、課綱只留最重要的資訊 */
+  .sem-side .age, .sem-note, .wmeta > i, .wn small, .sb .upkg, .ladder-foot { display: none; }
+  .sem-side h3 { margin: 0; }
+  .sem-stat { display: flex; gap: 14px; margin: 6px 0 0; }
+  .sem-stat span { background: none; padding: 0; font-size: 13px; text-align: left; }
+  .sem-stat b { display: inline; font-size: 16px; margin-right: 2px; }
+  .weeks { gap: 8px; }
+  .wk { grid-template-columns: 48px 52px minmax(0, 1fr); padding: 7px 10px 7px 4px; border-radius: 14px; }
+  .wk img, .wk .noimg { width: 52px; height: 44px; border-radius: 10px; }
+  .wb strong { margin-bottom: 2px; }
+  .wk .wn, .wk-gap .wn { font-size: 12.5px; white-space: nowrap; letter-spacing: -.02em; }
+  .wk .lvtxt { background: none !important; color: #5f6f73 !important; padding: 0; font-weight: 700; }
+  .wk-gap { grid-template-columns: 48px minmax(0, 1fr); padding: 10px 10px 10px 4px; }
+  .ladder-h p:last-child { margin-bottom: 14px; font-size: 13px; }
+  .sb strong { margin-bottom: 6px; }
   .udlg-photo img { min-height: 0; aspect-ratio: 16 / 10; }
   .udlg-b { padding: 20px 18px 20px; }
   .udlg-b h3 { font-size: 22px; }
