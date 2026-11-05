@@ -231,9 +231,7 @@ const pad = n => String(n).padStart(2, '0');
 const mins = u => parseInt(u.duration, 10) || 0;
 const packOf = u => data.find(p => p.units.includes(u));   // 沒放進主題的單元回傳 undefined
 const detach = u => { const p = packOf(u); if (p) p.units.splice(p.units.indexOf(u), 1); else loose.splice(loose.indexOf(u), 1); };
-const TERMS = ['一', '二', '三', '四', '五', '六'].flatMap(g => [g + '上', g + '下']);
-const LEVEL_TXT = ['', '入門', '基礎', '進階', '挑戰', '專案'];
-const newUnit = () => ({ title: '', duration: '90分鐘', levels: [], principles: [], level: 0, terms: [], desc: '', sci_desc: '', skill_desc: '', sci: [], eng: [], tech: [], art: [], img: '' });
+const newUnit = () => ({ title: '', duration: '90分鐘', levels: [], desc: '', sci_desc: '', skill_desc: '', sci: [], eng: [], tech: [], art: [], img: '' });
 const gradeText = lv => { const g = LEVELS.filter(l => lv.includes(l.k)).flatMap(l => l.g); return g.length ? `${Math.min(...g)}~${Math.max(...g)}年級` : ''; };
 const slotCount = p => (p.schedule || []).reduce((a, d) => a + d.items.length, 0);
 const needsSchedule = p => p.published !== false && slotCount(p) === 0;
@@ -366,11 +364,6 @@ function unitHtml(u) {
     <div class="worlds">${WORLDS.map(([k, n]) => `<div class="wbox ${k}"><b>${n}</b><div class="chips">${u[k].map((t, ti) => `<span class="chip">${esc(t)}<button type="button" data-rm="${k}|${ti}" aria-label="移除 ${esc(t)}">✕</button></span>`).join('')}
       <span class="tagin"><input data-tag="${k}" placeholder="＋ 加標籤" autocomplete="off" aria-label="新增${n}標籤"></span></div></div>`).join('')}</div>
   </fieldset>
-  <fieldset><legend>課綱原理與分齡課表 <span class="hint">「課綱單元課程包」依原理列出單元、由難到易排序；「系統分齡課程包」依學期列出單元（每 90 分鐘算一週）</span></legend>
-    <label class="f"><span>課綱原理（可填多個，用頓號分隔）</span><input id="u-principles" value="${esc((u.principles || []).join('、'))}" placeholder="例如：磁力、電路"></label>
-    <div class="f"><span>難易度</span><div class="durs" id="u-level">${[1, 2, 3, 4, 5].map(n => `<button type="button" data-ulvl="${n}" aria-pressed="${+u.level === n}">${n}・${LEVEL_TXT[n]}</button>`).join('')}</div></div>
-    <div class="f"><span>排進哪個學期（可複選；上＝Level One、下＝Level Two）</span><div class="durs" id="u-terms">${TERMS.map(k => `<button type="button" data-term="${k}" aria-pressed="${(u.terms || []).includes(k)}">${k}</button>`).join('')}</div></div>
-  </fieldset>
   <div class="danger-zone"><span class="hint" style="margin:0">修改會先存成草稿，按右上角「發布到網站」才會上線。</span>
     <span id="delbox"><button class="btn danger small" id="del" type="button">刪除這個單元</button></span></div>`;
 }
@@ -429,7 +422,6 @@ $('#editor').addEventListener('input', e => {
   } else {
     const u = v.unit, f = el.id.replace(/^u-/, '');
     if (el.id === 'u-mins') { const n = parseInt(el.value, 10); u.duration = n > 0 ? n + '分鐘' : '自填'; return touch(); }
-    if (f === 'principles') { u.principles = el.value.split(/[、,，]/).map(x => x.trim()).filter(Boolean); return touch(); }
     if (['title', 'desc', 'sci_desc', 'skill_desc'].includes(f)) { u[f] = el.value; if (f === 'title') $('#h-title').textContent = el.value || '未命名單元'; return touch(); }
     if (el.dataset.tag) showSugg(el);
   }
@@ -462,8 +454,6 @@ $('#editor').addEventListener('click', e => {
   if (v.kind === 'unit') {
     const u = v.unit;
     if (t.closest('#to-pack')) { openTheme(packOf(u)); return; }
-    const ul2 = t.closest('[data-ulvl]'); if (ul2) { u.level = +ul2.dataset.ulvl; touch(); renderEditor(true); return; }
-    const tm = t.closest('[data-term]'); if (tm) { const k = tm.dataset.term, cur = u.terms || []; u.terms = cur.includes(k) ? cur.filter(x => x !== k) : TERMS.filter(x => x === k || cur.includes(x)); touch(); renderEditor(true); return; }
     const d = t.closest('[data-dur]'); if (d) { if (d.dataset.dur === 'custom') { if (DURS.includes(u.duration)) u.duration = '自填'; renderEditor(true); $('#u-mins').focus(); } else { u.duration = d.dataset.dur; touch(); renderEditor(true); } return; }
     const ul = t.closest('[data-ulv]'); if (ul) { const k = ul.dataset.ulv; u.levels = u.levels.includes(k) ? u.levels.filter(x => x !== k) : LEVELS.map(l => l.k).filter(x => x === k || u.levels.includes(x)); touch(); renderEditor(true); return; }
     const rm = t.closest('[data-rm]'); if (rm) { const [k, ti] = rm.dataset.rm.split('|'); u[k].splice(+ti, 1); touch(); renderEditor(true); return; }

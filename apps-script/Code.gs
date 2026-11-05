@@ -20,7 +20,7 @@ const CACHE_KEY = 'courses-json';
 const WORLD_KEYS = ['sci', 'eng', 'tech', 'art'];
 
 const PACK_HEAD = ['方案編號', '上架', '排序', '方案名稱', '類型', '適合年級', '方案介紹', '封面照片', '學習成果', '課程表', '課程需求', '網址代稱', '分齡'];
-const UNIT_HEAD = ['方案編號', '排序', '單元名稱', '上課時間', '單元說明', '科學知識', '技能訓練', '科學標籤', '工程標籤', '科技標籤', '藝術標籤', '單元照片', '分齡', '課綱原理', '難易度', '分齡學期'];
+const UNIT_HEAD = ['方案編號', '排序', '單元名稱', '上課時間', '單元說明', '科學知識', '技能訓練', '科學標籤', '工程標籤', '科技標籤', '藝術標籤', '單元照片', '分齡'];
 
 /* ── 選單 ─────────────────────────────────────────── */
 function onOpen() {
@@ -96,8 +96,7 @@ function readCourses_(includeHidden) {
         .sort((a, b) => (Number(a[1]) || 0) - (Number(b[1]) || 0))
         .map((u, i) => ({
           id: r[0].trim().toLowerCase() + 'u' + (i + 1), title: u[2], duration: u[3] || '90分鐘', desc: u[4], sci_desc: u[5], skill_desc: u[6],
-          sci: tags(u[7]), eng: tags(u[8]), tech: tags(u[9]), art: tags(u[10]), img: u[11], levels: tags(u[12]).filter(x => LV.includes(x)),
-          principles: tags(u[13]), level: Number(u[14]) || 0, terms: tags(u[15])
+          sci: tags(u[7]), eng: tags(u[8]), tech: tags(u[9]), art: tags(u[10]), img: u[11], levels: tags(u[12]).filter(x => LV.includes(x))
         }))
     }))
     .filter(p => includeHidden || (p.published && p.units.length))
@@ -111,7 +110,31 @@ function readLoose_() {
   const ids = new Set(packSh.getDataRange().getDisplayValues().slice(1).map(r => r[0].trim().toLowerCase()).filter(Boolean));
   const tags = s => String(s || '').split(/[、,，]/).map(x => x.trim()).filter(Boolean);
   return unitSh.getDataRange().getDisplayValues().slice(1).filter(u => u[2] && !ids.has(String(u[0]).trim().toLowerCase()))
-    .map(u => ({ title: u[2], duration: u[3] || '90分鐘', desc: u[4], sci_desc: u[5], skill_desc: u[6], sci: tags(u[7]), eng: tags(u[8]), tech: tags(u[9]), art: tags(u[10]), img: u[11], levels: tags(u[12]), principles: tags(u[13]), level: Number(u[14]) || 0, terms: tags(u[15]) }));
+    .map(u => ({ title: u[2], duration: u[3] || '90分鐘', desc: u[4], sci_desc: u[5], skill_desc: u[6], sci: tags(u[7]), eng: tags(u[8]), tech: tags(u[9]), art: tags(u[10]), img: u[11], levels: tags(u[12]) }));
+}
+
+/* 單元總表（課綱單元課程包用）與分齡課表（系統分齡課程包用）：直接在試算表編輯 */
+const SHEET_CATALOG = '單元總表', SHEET_PLAN = '分齡課表';
+const CATALOG_HEAD = ['單元名稱', '課綱原理', '原理順序', '難易度', '建議課時', '適合年齡', '單元說明', '科學', '工程', '科技', '藝術', '對應課程方案單元'];
+const PLAN_HEAD = ['學期', '週次', '一年級', '二年級', '三年級', '四年級', '五年級', '六年級'];
+function readCurric_() {
+  const ss = SpreadsheetApp.getActive(), cs = ss.getSheetByName(SHEET_CATALOG), ps = ss.getSheetByName(SHEET_PLAN);
+  if (!cs) return null;
+  const tags = s => String(s || '').split(/[、,，]/).map(x => x.trim()).filter(Boolean);
+  const catalog = cs.getDataRange().getDisplayValues().slice(1).filter(r => String(r[0]).trim()).map(r => ({
+    name: r[0].trim(), principle: r[1].trim(), order: Number(r[2]) || 0, level: /智慧/.test(r[3]) ? 6 : (Number(r[3]) || 0), mins: parseInt(r[4], 10) || 0, age: r[5].trim(),
+    desc: r[6], sci: tags(r[7]), eng: tags(r[8]), tech: tags(r[9]), art: tags(r[10]), link: r[11].trim()
+  }));
+  const plan = {};
+  if (ps) {
+    let term = '上';
+    ps.getDataRange().getDisplayValues().slice(1).forEach(r => {
+      if (String(r[0]).includes('下')) term = '下'; else if (String(r[0]).includes('上')) term = '上';
+      const w = Number(r[1]); if (!(w >= 1 && w <= 15)) return;
+      for (let g = 1; g <= 6; g++) { const k = g + term; plan[k] = plan[k] || Array(15).fill(''); plan[k][w - 1] = String(r[1 + g] || '').trim(); }
+    });
+  }
+  return { catalog, plan };
 }
 
 /* 後台讀資料（google.script.run 呼叫） */
@@ -132,10 +155,10 @@ function saveCourses(courses, loose) {
         (p.schedule || []).map(d => d.day + '｜' + (d.items || []).join('；')).join('\n'),
         (p.requirements || []).join('\n'), p.slug || '', join(p.levels)]);
       (p.units || []).forEach((u, ui) => unitRows.push([id, ui + 1, u.title || '', u.duration || '90分鐘', u.desc || '', u.sci_desc || '', u.skill_desc || '',
-        join(u.sci), join(u.eng), join(u.tech), join(u.art), u.img || '', join(u.levels), join(u.principles), u.level || '', join(u.terms)]));
+        join(u.sci), join(u.eng), join(u.tech), join(u.art), u.img || '', join(u.levels)]));
     });
     (loose || []).forEach((u, ui) => { if (u.title) unitRows.push(['', ui + 1, u.title, u.duration || '90分鐘', u.desc || '', u.sci_desc || '', u.skill_desc || '',
-      join(u.sci), join(u.eng), join(u.tech), join(u.art), u.img || '', join(u.levels), join(u.principles), u.level || '', join(u.terms)]); });
+      join(u.sci), join(u.eng), join(u.tech), join(u.art), u.img || '', join(u.levels)]); });
     writeTable_(ss.getSheetByName(SHEET_PACKS), packRows);
     writeTable_(ss.getSheetByName(SHEET_UNITS), unitRows);
     styleSheet_(ss.getSheetByName(SHEET_PACKS), []);
@@ -162,7 +185,8 @@ function doGet() {
   let json = cache.get(CACHE_KEY);
   if (!json) {
     const courses = readCourses_(false).map(p => { const c = Object.assign({}, p); delete c.published; delete c.order; return c; });
-    json = JSON.stringify({ updated: new Date().toISOString(), courses: courses });
+    const cur = readCurric_() || {};
+    json = JSON.stringify({ updated: new Date().toISOString(), courses: courses, catalog: cur.catalog || [], plan: cur.plan || {} });
     if (json.length < 95000) cache.put(CACHE_KEY, json, 300);   // 快取 5 分鐘；後台發布時會清掉
   }
   return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);

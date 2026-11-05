@@ -40,10 +40,17 @@ A = BASE + 'assets/'
 # ── 1. 課程資料 ──────────────────────────────────────────
 if args.data_url:
     with urllib.request.urlopen(args.data_url, timeout=60) as r:
-        courses = json.loads(r.read().decode('utf-8'))['courses']
+        live = json.loads(r.read().decode('utf-8'))
+    courses = live['courses']
     print(f'從試算表讀到 {len(courses)} 個方案')
 else:
+    live = {}
     courses = json.loads((SRC / 'data.json').read_text('utf-8'))
+# 單元總表與分齡課表：試算表有「單元總表」分頁就用試算表的，否則用 src/curriculum.json
+curric = json.loads((SRC / 'curriculum.json').read_text('utf-8'))
+if live.get('catalog'):
+    curric = {'catalog': live['catalog'], 'plan': live.get('plan') or curric['plan']}
+    print(f'從試算表讀到單元總表 {len(curric["catalog"])} 個單元')
 if not courses:
     sys.exit('沒有課程資料')
 
@@ -60,6 +67,7 @@ t = t.replace('{{PHOTOS}}', json.dumps({k: A + v for k, v in meta['photos'].item
 t = t.replace('{{HERO_GIRL}}', A + meta['hero_girl'])
 t = t.replace('{{BLOB}}', meta['blob'])
 t = t.replace('{{DB}}', 'const db = ' + json.dumps(courses, ensure_ascii=False) + ';')
+t = t.replace('{{CURRIC}}', 'var CURRIC = ' + json.dumps(curric, ensure_ascii=False) + ';')
 if args.live_data and args.data_url:
     t = t.replace("const DATA_URL = '';", f"const DATA_URL = {json.dumps(args.data_url)};")
 assert '{{' not in t, '範本還有沒替換的欄位'
