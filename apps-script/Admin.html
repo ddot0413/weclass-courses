@@ -128,6 +128,10 @@ details.more summary { cursor: pointer; font-size: 13px; font-weight: 700; color
 .day-h .no { font-family: var(--f-en); font-weight: 900; font-size: 12px; color: var(--orange); flex: none; }
 .day-h input { flex: 1; min-width: 0; border: 0; background: transparent; font-weight: 900; font-size: 15px; color: var(--teal); padding: 4px 2px; border-bottom: 1.5px dashed transparent; }
 .day-h input:hover, .day-h input:focus { border-bottom-color: var(--line); outline: none; }
+.corder { display: grid; gap: 6px; }
+.crow { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; background: var(--field, #FBF7F1); border-radius: 12px; padding: 8px 10px; }
+.crow .cn { width: 30px; height: 30px; border-radius: 50%; background: var(--orange, #F08419); color: #fff; display: grid; place-items: center; font-size: 14px; }
+.crow small { display: block; color: #6b7b80; font-size: 12px; }
 .slot .hrs { display: flex; align-items: center; gap: 3px; }
 .slot .hrs i { font-style: normal; font-size: 12px; font-weight: 700; color: var(--muted, #6b7b80); white-space: nowrap; }
 .slot { display: grid; grid-template-columns: 76px minmax(0, 1fr) 26px; gap: 5px; align-items: center; }
@@ -206,6 +210,7 @@ details.more summary { cursor: pointer; font-size: 13px; font-weight: 700; color
     <div class="ltabs" role="group" aria-label="清單切換">
       <button type="button" data-tab="theme" aria-pressed="true">主題課程<i id="n-theme"></i></button>
       <button type="button" data-tab="unit" aria-pressed="false">單元課程<i id="n-unit"></i></button>
+      <button type="button" data-tab="curric" aria-pressed="false">課綱順序</button>
     </div>
     <input class="search" id="search" type="search" placeholder="搜尋課程名稱" aria-label="搜尋課程名稱">
     <div class="items" id="items"></div>
@@ -262,7 +267,53 @@ function renderState() {
 function toast(m, bad) { const t = $('#toast'); t.textContent = m; t.classList.toggle('bad', !!bad); t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), bad ? 4200 : 2400); }
 
 /* ── 左側清單 ── */
+/* ── 課綱順序：每個原理底下的單元由淺到深排列（存在試算表「單元總表」，按「儲存順序」立即生效） ── */
+let curric = null, curPr = '', curDirty = false;
+const LVT = ['', '入門', '基礎', '進階', '挑戰', '高階', '智慧機械'];
+function loadCurric() {
+  if (curric) return renderCurric();
+  $('#items').innerHTML = '<p class="hint" style="padding:10px">讀取單元總表…</p>';
+  const ok = list => { curric = list.map(x => ({ ...x })); const ps = prList(); curPr = ps[0] || ''; renderCurric(); };
+  if (!IS_GAS) return ok([{ name: '熱縮磁力釣魚', principle: '電與磁', order: 1, level: 2 }, { name: '磁力足球場', principle: '電與磁', order: 2, level: 2 }, { name: '磁吸懸浮燈', principle: '電與磁', order: 3, level: 5 }, { name: '銅箔發光卡片', principle: '基本電路認識', order: 1, level: 1 }]);
+  google.script.run.withSuccessHandler(ok).withFailureHandler(e => { $('#items').innerHTML = `<p class="hint" style="padding:10px;color:var(--danger)">${esc(e.message)}</p>`; }).getCurric();
+}
+const prList = () => [...new Set(curric.filter(c => c.principle).map(c => c.principle))];
+const inPr = pr => curric.filter(c => c.principle === pr && c.order).sort((a, b) => a.order - b.order);
+function renderCurric() {
+  document.querySelectorAll('.ltabs button').forEach(b => b.setAttribute('aria-pressed', b.dataset.tab === tab));
+  $('#items').innerHTML = `<p class="grp">科學原理</p>` + prList().map(pr => `<button class="item" type="button" data-pr="${esc(pr)}" aria-current="${pr === curPr}"><span><b>${esc(pr)}</b><small>${inPr(pr).length} 個單元</small></span></button>`).join('');
+  const list = inPr(curPr), others = curric.filter(c => c.principle !== curPr || !c.order).sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
+  $('#editor').innerHTML = `<div class="ed-head"><div><span class="kind">課綱單元課程包</span><h1>${esc(curPr)}</h1></div></div>
+    <fieldset><legend>建議學習順序 <span class="hint">網站上卡片左上角的 ①②③ 就是這個順序，由淺到深</span></legend>
+      <div class="corder">${list.map((c, i) => `<div class="crow" data-n="${esc(c.name)}"><b class="cn">${i + 1}</b><span><b>${esc(c.name)}</b><small>${c.level ? '難度：' + LVT[c.level] : ''}</small></span>
+        <span class="tools"><button class="ic" type="button" data-cm="-1" ${i ? '' : 'disabled'} aria-label="往前">↑</button><button class="ic" type="button" data-cm="1" ${i < list.length - 1 ? '' : 'disabled'} aria-label="往後">↓</button><button class="ic" type="button" data-cm="x" aria-label="從這個原理移除">✕</button></span></div>`).join('') || '<p class="hint">這個原理還沒有單元。</p>'}</div>
+      <div class="addrow"><select id="c-add" aria-label="加入單元"><option value="">＋ 加入其他單元到「${esc(curPr)}」…</option>${others.map(c => `<option value="${esc(c.name)}">${esc(c.name)}${c.principle ? '（目前在 ' + esc(c.principle) + '）' : ''}</option>`).join('')}</select></div>
+      <div class="sum"><span>${curDirty ? '<span class="err">還沒儲存</span>' : '已是最新'}</span><button class="btn pub" type="button" id="c-save" ${curDirty ? '' : 'disabled'}>儲存順序</button></div>
+    </fieldset>
+    <p class="hint">儲存後會寫回試算表「單元總表」的「課綱原理」「原理順序」兩欄，網站約 5 分鐘內更新。一個單元同時只會在一個原理底下。</p>`;
+}
+document.addEventListener('click', e => {
+  if (tab !== 'curric' || !curric) return;
+  const pb = e.target.closest('[data-pr]'); if (pb) { curPr = pb.dataset.pr; renderCurric(); return; }
+  const cm = e.target.closest('[data-cm]');
+  if (cm) { const list = inPr(curPr), i = list.findIndex(c => c.name === cm.closest('.crow').dataset.n);
+    if (cm.dataset.cm === 'x') { list[i].order = 0; list[i].principle = ''; list.splice(i, 1); }
+    else { const j = i + +cm.dataset.cm; [list[i], list[j]] = [list[j], list[i]]; }
+    list.forEach((c, k) => c.order = k + 1); curDirty = true; renderCurric(); return; }
+  if (e.target.closest('#c-save')) {
+    const btn = $('#c-save'); btn.disabled = true; btn.textContent = '儲存中…';
+    const ok = () => { curDirty = false; toast('已儲存順序，網站約 5 分鐘內更新'); renderCurric(); };
+    if (!IS_GAS) return setTimeout(ok, 400);
+    google.script.run.withSuccessHandler(ok).withFailureHandler(x => { btn.disabled = false; btn.textContent = '儲存順序'; toast('儲存失敗：' + x.message, true); }).saveCurric(curric.map(c => ({ name: c.name, principle: c.principle, order: c.order })));
+  }
+});
+document.addEventListener('change', e => {
+  if (e.target.id !== 'c-add' || !e.target.value) return;
+  const c = curric.find(x => x.name === e.target.value); const n = inPr(curPr).length;
+  c.principle = curPr; c.order = n + 1; curDirty = true; renderCurric();
+});
 function renderList() {
+  if (tab === 'curric') return loadCurric();
   const q = $('#search').value.trim();
   const units = data.flatMap(p => p.units.map(u => ({ u, p })));
   $('#n-theme').textContent = data.length; $('#n-unit').textContent = units.length + loose.length;
@@ -411,7 +462,7 @@ $('#items').addEventListener('click', e => {
   const p = data[+b.dataset.pack];
   b.dataset.unit !== undefined ? openUnit(p.units[+b.dataset.unit]) : openTheme(p);
 });
-document.querySelector('.ltabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (b) { tab = b.dataset.tab; renderList(); } });
+document.querySelector('.ltabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (b) { tab = b.dataset.tab; renderList(); if (tab !== 'curric') renderEditor(); } });
 $('#search').addEventListener('input', renderList);
 
 /* ── 文字輸入 ── */

@@ -137,6 +137,22 @@ function readCurric_() {
   return { catalog, plan };
 }
 
+/* 後台「課綱順序」：讀單元總表、存回原理分類與原理順序 */
+function getCurric() { const c = readCurric_(); if (!c) throw new Error('找不到「單元總表」分頁，請先執行一次「套用選課指南回饋_20261105」。'); return c.catalog; }
+function saveCurric(rows) {
+  const sh = SpreadsheetApp.getActive().getSheetByName(SHEET_CATALOG); if (!sh) throw new Error('找不到「單元總表」分頁');
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const v = sh.getDataRange().getValues(), head = v[0].map(String), cn = head.indexOf('單元名稱'), cp = head.indexOf('課綱原理'), co = head.indexOf('原理順序');
+    const map = {}; (rows || []).forEach(r => { map[String(r.name).trim()] = r; });
+    let n = 0;
+    for (let i = 1; i < v.length; i++) { const r = map[String(v[i][cn]).trim()]; if (!r) continue; v[i][cp] = r.principle || ''; v[i][co] = r.order || ''; n++; }
+    sh.getRange(1, 1, v.length, head.length).setValues(v);
+    CacheService.getScriptCache().remove(CACHE_KEY);
+    return { ok: true, n: n };
+  } finally { lock.releaseLock(); }
+}
+
 /* 後台讀資料（google.script.run 呼叫） */
 function getCourses() { return { courses: readCourses_(true), loose: readLoose_() }; }
 

@@ -519,8 +519,7 @@ a { color: inherit; }
 .step { width: 100%; height: 100%; font: inherit; text-align: left; cursor: pointer; border: 0; background: var(--white); border-radius: 18px; padding: 10px 10px 14px; display: flex; flex-direction: column; gap: 10px; color: var(--teal); box-shadow: 0 8px 16px rgba(0, 0, 0, .08); transition: transform .2s, box-shadow .2s; position: relative; }
 .step:hover { transform: translateY(-4px); box-shadow: 0 16px 24px rgba(0, 0, 0, .12); }
 .step .photo { aspect-ratio: 16 / 10; }
-.sn { display: none; }
-.sk { display: block; font-family: var(--f-en); font-weight: 900; font-size: 12px; letter-spacing: .16em; color: var(--orange); margin-bottom: 4px; }
+.sn { position: absolute; z-index: 2; top: 16px; left: 16px; width: 32px; height: 32px; border-radius: 50%; background: var(--orange); color: var(--white); font-family: var(--f-en); font-weight: 900; font-size: 16px; display: grid; place-items: center; border: 2px solid var(--white); box-shadow: 0 3px 8px rgba(0, 0, 0, .2); }
 .sb strong { display: block; font-weight: 900; font-size: 16px; letter-spacing: .04em; margin-bottom: 4px; }
 .sb .upkg { display: block; margin-bottom: 8px; }
 .sb .wlv { gap: 6px; flex-wrap: wrap; }
@@ -605,13 +604,10 @@ a { color: inherit; }
   .pr-list::-webkit-scrollbar { display: none; }
   .pr { flex: none; background: rgba(255, 255, 255, .7); white-space: nowrap; }
   .steps { grid-template-columns: 1fr; gap: 8px; }
-  .step { flex-direction: row; align-items: center; gap: 10px; padding: 7px 12px 7px 8px; border-radius: 14px; }
+  .step { flex-direction: row; align-items: center; gap: 12px; padding: 8px 12px 8px 8px; border-radius: 14px; }
   .step .photo { flex: none; width: 64px; height: 50px; aspect-ratio: auto; border-radius: 10px; }
   .steps { position: relative; padding-left: 0; }
-  .steps li:not(:last-child)::after { content: ""; position: absolute; bottom: -9px; left: 25px; width: 2px; height: 10px; border-radius: 0; background: rgba(29, 76, 88, .35); box-shadow: none; }
-  .sk { display: none; }
-  .step .sn { display: grid; place-items: center; flex: none; width: 40px; order: -1; font-family: var(--f-en); font-weight: 900; font-size: 18px; line-height: 1; color: var(--teal); }
-  .step .sn small { display: block; font-size: 9px; letter-spacing: .14em; color: var(--orange); margin-bottom: 2px; }
+  .step .sn { top: 2px; left: 2px; width: 24px; height: 24px; font-size: 13px; }
   .sb strong { font-size: 15px; margin-bottom: 4px; }
   .sb .utime { font-size: 12px; }
   .sem-side .age, .sem-note, .wmeta > i, .wn small, .sb .upkg, .ladder-foot { display: none; }
@@ -3530,9 +3526,9 @@ function showMode(mode, fromClick) {
       body.innerHTML = `<div class="pr-layout"><nav class="pr-list" aria-label="科學原理">${names.map(n => `<button type="button" class="pr" data-pr="${esc(n)}" aria-pressed="${n === pr}"${n === pr ? ' id="pr-on"' : ''}>${esc(n)}<span>${CAT.filter(c => c.principle === n && c.order).length}</span></button>`).join('')}</nav>
         <section class="ladder" aria-live="polite"><div class="ladder-h"><p class="sem-k">Principle</p><h3>${esc(pr)}</h3><p>${esc(PRINCIPLE_INFO[pr] || '')}${PRINCIPLE_INFO[pr] ? '・' : ''}共 ${list.length} 個單元，由簡單到困難排列</p></div>
           <ol class="steps">${list.map((c, k) => `<li><button type="button" class="step" data-cat="${c.k}">
-            <span class="sn"><small>STEP</small>${pad(k + 1)}</span><span class="photo">${thumb(c)}</span>
-            <span class="sb"><span class="sk">STEP ${pad(k + 1)}</span><strong>${esc(c.name)}</strong><span class="upkg">${c.p ? esc(c.p.title) : '單元課程'}${c.age ? '・' + esc(c.age) + ' 歲' : ''}</span><span class="wlv">${lvTag(c.level)}${catMins(c) ? `<span class="utime">${catMins(c)} 分鐘</span>` : ''}</span></span></button></li>`).join('')}</ol>
-          <p class="ladder-foot">STEP 是建議的學習順序，從 01 開始由淺到深。</p></section></div>`;
+            <span class="sn" aria-label="第 ${k + 1} 個">${k + 1}</span><span class="photo">${thumb(c)}</span>
+            <span class="sb"><strong>${esc(c.name)}</strong><span class="upkg">${c.p ? esc(c.p.title) : '單元課程'}${c.age ? '・' + esc(c.age) + ' 歲' : ''}</span><span class="wlv">${lvTag(c.level)}${catMins(c) ? `<span class="utime">${catMins(c)} 分鐘</span>` : ''}</span></span></button></li>`).join('')}</ol>
+          <p class="ladder-foot">圈圈數字是建議的學習順序，由淺到深。</p></section></div>`;
       body.querySelectorAll('.pr').forEach(b => b.addEventListener('click', () => { const x = body.querySelector('.pr-list').scrollLeft; state.principle = b.dataset.pr; drawGoal(); const l = body.querySelector('.pr-list'); l.scrollLeft = x; const on = document.getElementById('pr-on'); if (on && innerWidth < 901) on.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }));
     };
     drawGoal();
