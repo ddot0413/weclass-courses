@@ -579,6 +579,27 @@ a { color: inherit; }
   .sb strong { font-size: 14.5px; }
   .udlg-in { grid-template-columns: 1fr; }
   /* 手機：分齡、課綱只留最重要的資訊 */
+  .mode-tip { font-size: 13px; line-height: 1.6; }
+  .stage-ctl { position: sticky; top: calc(66px + env(safe-area-inset-top, 0px)); z-index: 6; margin: 0 -24px 12px; padding: 10px 24px; background: rgba(135, 204, 200, .96); backdrop-filter: blur(6px); box-shadow: 0 8px 12px -10px rgba(0, 0, 0, .25); }
+  .grade-tabs { display: flex; overflow-x: auto; scrollbar-width: none; gap: 6px; margin: 0 -24px 8px; padding: 0 24px; }
+  .grade-tabs::-webkit-scrollbar { display: none; }
+  .grade-tab { flex: none; display: block; padding: 8px 16px; border-radius: 999px; }
+  .grade-tab b { font-size: 15px; }
+  .grade-tab i { display: none; }
+  .term-tabs { margin: 0; padding: 3px; }
+  .term-tab { flex-direction: row; gap: 6px; padding: 7px 6px; align-items: baseline; }
+  .term-tab b { font-size: 13.5px; }
+  .term-tab i { font-size: 12px; }
+  .sem { padding: 16px 12px; border-radius: 20px; }
+  .pr-list { position: sticky; top: calc(66px + env(safe-area-inset-top, 0px)); z-index: 6; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -24px; padding: 10px 24px; border-radius: 0; background: rgba(135, 204, 200, .96); backdrop-filter: blur(6px); box-shadow: 0 8px 12px -10px rgba(0, 0, 0, .25); }
+  .pr-list::-webkit-scrollbar { display: none; }
+  .pr { flex: none; background: rgba(255, 255, 255, .7); white-space: nowrap; }
+  .steps { grid-template-columns: 1fr; gap: 8px; }
+  .step { flex-direction: row; align-items: center; gap: 10px; padding: 7px 12px 7px 8px; border-radius: 14px; }
+  .step .photo { flex: none; width: 64px; height: 50px; aspect-ratio: auto; border-radius: 10px; }
+  .step .sn { position: static; flex: none; width: 28px; height: 28px; font-size: 14px; box-shadow: none; order: -1; }
+  .sb strong { font-size: 15px; margin-bottom: 4px; }
+  .sb .utime { font-size: 12px; }
   .sem-side .age, .sem-note, .wmeta > i, .wn small, .sb .upkg, .ladder-foot { display: none; }
   .sem-side h3 { margin: 0; }
   .sem-stat { display: flex; gap: 14px; margin: 6px 0 0; }
@@ -3465,8 +3486,8 @@ function showMode(mode, fromClick) {
       const rows = []; weeks.forEach((n, w) => { const last = rows[rows.length - 1]; if (last && last.n === n) last.to = w + 1; else rows.push({ n, from: w + 1, to: w + 1 }); });
       const units = rows.filter(r => r.n), planned = units.reduce((a, r) => a + r.to - r.from + 1, 0);
       const wk = r => r.from === r.to ? `W${r.from}` : `W${r.from}–${r.to}`;
-      body.innerHTML = `<div class="grade-tabs" role="tablist" aria-label="年級">${GRADE_ZH.map((z, k) => `<button role="tab" class="grade-tab" data-g="${k + 1}" aria-selected="${g === k + 1}"><b>${z}年級</b><i>${STAGES[k < 2 ? 0 : k < 4 ? 1 : 2].lvl}</i></button>`).join('')}</div>
-        <div class="term-tabs" role="tablist" aria-label="學期">${[['上', 'Level One', '上學期'], ['下', 'Level Two', '下學期・進階']].map(([k, en, zh]) => `<button role="tab" class="term-tab" data-t="${k}" aria-selected="${state.term === k}"><b>${en}</b><i>${zh}</i></button>`).join('')}</div>
+      body.innerHTML = `<div class="stage-ctl"><div class="grade-tabs" role="tablist" aria-label="年級">${GRADE_ZH.map((z, k) => `<button role="tab" class="grade-tab" data-g="${k + 1}" aria-selected="${g === k + 1}"><b>${z}年級</b><i>${STAGES[k < 2 ? 0 : k < 4 ? 1 : 2].lvl}</i></button>`).join('')}</div>
+        <div class="term-tabs" role="tablist" aria-label="學期">${[['上', 'Level One', '上學期'], ['下', 'Level Two', '下學期・進階']].map(([k, en, zh]) => `<button role="tab" class="term-tab" data-t="${k}" aria-selected="${state.term === k}"><b>${en}</b><i>${zh}</i></button>`).join('')}</div></div>
         <article class="sem">
           <div class="sem-side"><p class="sem-k">Grade ${g}・${state.term === '上' ? 'Level One' : 'Level Two'}</p><h3>${GRADE_ZH[g - 1]}年級${state.term}學期</h3>
             <span class="age">${band.lvl}・${band.age}</span>
@@ -3482,6 +3503,7 @@ function showMode(mode, fromClick) {
           : `<div class="sem-empty"><b>${GRADE_ZH[g - 1]}年級的常態課程規劃中</b><p>可以先參考二年級 Level One，或從「小小職人主題包」挑選適合低年級的主題，由顧問協助安排。</p><button type="button" class="btn-line" data-g2>看二年級課表 →</button></div>`}
         </article>`;
       body.querySelectorAll('.grade-tab').forEach(b => b.addEventListener('click', () => { state.grade = +b.dataset.g; drawStage(); }));
+      const gOn = body.querySelector('.grade-tab[aria-selected="true"]'); if (gOn && innerWidth < 901) gOn.scrollIntoView({ inline: 'center', block: 'nearest' });
       body.querySelectorAll('.term-tab').forEach(b => b.addEventListener('click', () => { state.term = b.dataset.t; drawStage(); }));
       const g2 = body.querySelector('[data-g2]'); if (g2) g2.addEventListener('click', () => { state.grade = 2; drawStage(); });
     };
@@ -3492,13 +3514,13 @@ function showMode(mode, fromClick) {
     if (!names.includes(state.principle)) state.principle = names.includes('電與磁') ? '電與磁' : names[0];
     const drawGoal = () => {
       const pr = state.principle, list = CAT.filter(c => c.principle === pr && c.order).sort((a, b) => a.order - b.order);
-      body.innerHTML = `<div class="pr-layout"><nav class="pr-list" aria-label="科學原理">${names.map(n => `<button type="button" class="pr" data-pr="${esc(n)}" aria-pressed="${n === pr}">${esc(n)}<span>${CAT.filter(c => c.principle === n && c.order).length}</span></button>`).join('')}</nav>
+      body.innerHTML = `<div class="pr-layout"><nav class="pr-list" aria-label="科學原理">${names.map(n => `<button type="button" class="pr" data-pr="${esc(n)}" aria-pressed="${n === pr}"${n === pr ? ' id="pr-on"' : ''}>${esc(n)}<span>${CAT.filter(c => c.principle === n && c.order).length}</span></button>`).join('')}</nav>
         <section class="ladder" aria-live="polite"><div class="ladder-h"><p class="sem-k">Principle</p><h3>${esc(pr)}</h3><p>${esc(PRINCIPLE_INFO[pr] || '')}${PRINCIPLE_INFO[pr] ? '・' : ''}共 ${list.length} 個單元，由簡單到困難排列</p></div>
           <ol class="steps">${list.map((c, k) => `<li><button type="button" class="step" data-cat="${c.k}">
             <span class="sn">${k + 1}</span><span class="photo">${thumb(c)}</span>
             <span class="sb"><strong>${esc(c.name)}</strong><span class="upkg">${c.p ? esc(c.p.title) : '單元課程'}${c.age ? '・' + esc(c.age) + ' 歲' : ''}</span><span class="wlv">${catMins(c) ? `<span class="utime">${catMins(c)} 分鐘</span>` : ''}</span></span></button></li>`).join('')}</ol>
           <p class="ladder-foot">數字是建議的學習順序，從 1 開始由淺到深。</p></section></div>`;
-      body.querySelectorAll('.pr').forEach(b => b.addEventListener('click', () => { state.principle = b.dataset.pr; drawGoal(); if (innerWidth < 901) body.querySelector('.ladder').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+      body.querySelectorAll('.pr').forEach(b => b.addEventListener('click', () => { const x = body.querySelector('.pr-list').scrollLeft; state.principle = b.dataset.pr; drawGoal(); const l = body.querySelector('.pr-list'); l.scrollLeft = x; const on = document.getElementById('pr-on'); if (on && innerWidth < 901) on.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }));
     };
     drawGoal();
   }
