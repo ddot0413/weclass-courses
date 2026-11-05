@@ -459,6 +459,111 @@ a { color: inherit; }
 .lvl-tab:hover { background: rgba(255, 255, 255, .85); }
 .lvl-tab[aria-selected="true"] { background: var(--teal); color: var(--white); transform: translateY(-2px); }
 .lvl-tab[aria-selected="true"] i { background: var(--orange); color: var(--ink); }
+
+/* ════ 回饋 2026-11：主題包年級切換、分齡學期課表、課綱原理階梯、單元彈窗 ════ */
+.theme-lv { margin-bottom: 14px; }
+.theme-lv-note { margin: 0 0 30px; max-width: 760px; font-size: 14.5px; line-height: 1.75; letter-spacing: .05em; background: rgba(255, 255, 255, .55); border-radius: 16px; padding: 12px 18px; }
+.theme-lv-note b { font-weight: 900; color: var(--teal); margin-right: 10px; }
+.lvdots { display: inline-flex; gap: 3px; vertical-align: 1px; margin-right: 6px; }
+.lvdots i { width: 8px; height: 8px; border-radius: 50%; background: #D9E4E4; }
+.lvdots i.on { background: var(--orange); }
+.wlv { display: inline-flex; align-items: center; font-size: 12.5px; font-weight: 700; color: var(--teal); white-space: nowrap; gap: 0; }
+.sem-k { margin: 0 0 4px; font-family: var(--f-en); font-weight: 700; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); }
+
+.grade-tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin-bottom: 10px; }
+.grade-tab { font: inherit; cursor: pointer; border: 0; border-radius: 16px; background: rgba(255, 255, 255, .55); color: var(--teal); padding: 10px 6px; display: grid; gap: 2px; justify-items: center; }
+.grade-tab b { font-weight: 900; font-size: 17px; letter-spacing: .06em; }
+.grade-tab i { font-style: normal; font-size: 12px; font-weight: 700; opacity: .7; }
+.grade-tab:hover { background: rgba(255, 255, 255, .85); }
+.grade-tab[aria-selected="true"] { background: var(--teal); color: var(--white); }
+.term-tabs { display: inline-flex; gap: 4px; padding: 4px; background: rgba(255, 255, 255, .55); border-radius: 999px; margin-bottom: 18px; }
+.term-tab { font: inherit; cursor: pointer; border: 0; background: transparent; color: var(--teal); border-radius: 999px; padding: 8px 20px; display: flex; gap: 8px; align-items: baseline; }
+.term-tab b { font-family: var(--f-en); font-weight: 900; font-size: 15px; }
+.term-tab i { font-style: normal; font-size: 13px; font-weight: 700; }
+.term-tab[aria-selected="true"] { background: var(--orange); color: var(--white); }
+.sem { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 26px; background: rgba(255, 255, 255, .45); border-radius: 26px; padding: 28px; animation: stIn .3s ease; }
+.sem-side h3 { margin: 0 0 10px; font-size: 30px; font-weight: 900; color: var(--teal); letter-spacing: .04em; }
+.sem-side .age { display: inline-block; background: var(--orange); color: var(--ink); font-weight: 900; font-size: 13px; border-radius: 999px; padding: 4px 12px; }
+.sem-stat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 18px 0; }
+.sem-stat span { background: var(--white); border-radius: 14px; padding: 10px 6px; text-align: center; font-size: 12.5px; font-weight: 700; color: var(--teal); }
+.sem-stat b { display: block; font-family: var(--f-en); font-size: 24px; font-weight: 900; line-height: 1.1; }
+.sem-side .sdesc { font-size: 14px; line-height: 1.75; letter-spacing: .04em; margin: 0 0 10px; }
+.sem-note { font-size: 12.5px; color: #5f6f73; margin: 0; }
+.weeks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.wk { width: 100%; font: inherit; text-align: left; cursor: pointer; border: 0; background: var(--white); border-radius: 18px; padding: 10px 16px 10px 10px; display: grid; grid-template-columns: 74px 76px minmax(0, 1fr) auto; gap: 14px; align-items: center; color: var(--teal); box-shadow: 0 6px 14px rgba(0, 0, 0, .06); transition: transform .2s, box-shadow .2s; }
+.wk:hover { transform: translateY(-2px); box-shadow: 0 12px 20px rgba(0, 0, 0, .1); }
+.wn { font-family: var(--f-en); font-weight: 900; font-size: 18px; color: var(--teal); text-align: center; line-height: 1.1; }
+.wn small { display: block; font-family: "Noto Sans TC", sans-serif; font-size: 11.5px; font-weight: 700; color: #5f6f73; margin-top: 3px; }
+.wk img { width: 76px; height: 58px; object-fit: cover; border-radius: 12px; }
+.wb strong { display: block; font-weight: 900; font-size: 16.5px; letter-spacing: .04em; margin-bottom: 6px; }
+.wmeta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.wmeta > i, .prc { font-style: normal; font-size: 12px; font-weight: 700; background: var(--mint-pale); color: var(--teal); border-radius: 999px; padding: 2px 10px; }
+.wgo { font-size: 13px; font-weight: 900; color: var(--orange); white-space: nowrap; }
+.wk-gap { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 14px; align-items: center; border: 2px dashed rgba(29, 76, 88, .25); border-radius: 18px; padding: 14px 16px 14px 10px; font-size: 13.5px; line-height: 1.6; color: var(--teal); }
+.wk-gap .wn { font-size: 15px; }
+
+.pr-layout { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr); gap: 26px; align-items: start; }
+.pr-list { position: sticky; top: 124px; display: grid; gap: 6px; background: var(--white); border-radius: 20px; padding: 12px; box-shadow: var(--shadow-card); }
+.pr { font: inherit; cursor: pointer; border: 0; background: transparent; color: var(--teal); border-radius: 12px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; font-size: 15.5px; letter-spacing: .05em; text-align: left; }
+.pr span { font-family: var(--f-en); font-size: 12px; background: var(--mint-pale); border-radius: 999px; padding: 2px 9px; }
+.pr:hover { background: var(--cream); }
+.pr[aria-pressed="true"] { background: var(--teal); color: var(--white); }
+.pr[aria-pressed="true"] span { background: var(--orange); color: var(--ink); }
+.ladder { background: rgba(255, 255, 255, .45); border-radius: 26px; padding: 26px; animation: stIn .3s ease; }
+.ladder-h h3 { margin: 0 0 6px; font-size: 30px; font-weight: 900; color: var(--teal); }
+.ladder-h p:last-child { margin: 0 0 20px; font-size: 14.5px; letter-spacing: .05em; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 18px; counter-reset: s; }
+.steps li { position: relative; }
+.step { width: 100%; height: 100%; font: inherit; text-align: left; cursor: pointer; border: 0; background: var(--white); border-radius: 18px; padding: 10px 10px 14px; display: flex; flex-direction: column; gap: 10px; color: var(--teal); box-shadow: 0 8px 16px rgba(0, 0, 0, .08); transition: transform .2s, box-shadow .2s; position: relative; }
+.step:hover { transform: translateY(-4px); box-shadow: 0 16px 24px rgba(0, 0, 0, .12); }
+.step .photo { aspect-ratio: 16 / 10; }
+.sn { position: absolute; z-index: 2; top: -10px; left: -10px; width: 36px; height: 36px; border-radius: 50%; background: var(--orange); color: var(--white); font-family: var(--f-en); font-weight: 900; font-size: 17px; display: grid; place-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, .15); }
+.sb strong { display: block; font-weight: 900; font-size: 16px; letter-spacing: .04em; margin-bottom: 4px; }
+.sb .upkg { display: block; margin-bottom: 8px; }
+.sb .wlv { gap: 8px; }
+.sb .utime { margin: 0; }
+.ladder-foot { margin: 18px 0 0; font-size: 13px; font-weight: 700; color: #5f6f73; letter-spacing: .06em; }
+
+.udlg { border: 0; padding: 0; border-radius: 26px; width: min(880px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); background: var(--white); color: var(--teal); box-shadow: 0 30px 60px rgba(0, 0, 0, .3); }
+.udlg::backdrop { background: rgba(18, 52, 61, .55); backdrop-filter: blur(3px); }
+.udlg-in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+.udlg-photo img { width: 100%; height: 100%; min-height: 300px; object-fit: cover; display: block; }
+.udlg-b { padding: 30px 30px 26px; display: flex; flex-direction: column; gap: 10px; }
+.udlg-b h3 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: .04em; }
+.udlg-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0; }
+.udlg-meta .utime { margin: 0; }
+.udlg-d { margin: 4px 0 0; font-size: 15px; line-height: 1.8; letter-spacing: .04em; }
+.udlg dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 14px; line-height: 1.6; }
+.udlg dt { font-weight: 900; color: var(--orange); }
+.udlg dd { margin: 0; }
+.udlg-act { margin-top: auto; padding-top: 12px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.udlg-more { font-weight: 900; font-size: 14px; color: var(--teal); }
+.udlg-x { position: absolute; z-index: 2; top: 12px; right: 12px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .92); color: var(--teal); font-size: 17px; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, .15); }
+@media (max-width: 900px) {
+  .grade-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .term-tabs { display: flex; }
+  .term-tab { flex: 1; justify-content: center; flex-direction: column; align-items: center; gap: 0; padding: 8px 6px; }
+  .sem { grid-template-columns: 1fr; padding: 18px 14px; gap: 16px; }
+  .sem-side h3 { font-size: 24px; }
+  .sem-side .sdesc { display: none; }
+  .wk { grid-template-columns: 56px 64px minmax(0, 1fr); gap: 10px; padding: 8px 10px 8px 6px; }
+  .wk img { width: 64px; height: 52px; }
+  .wn { font-size: 15px; }
+  .wgo { display: none; }
+  .wb strong { font-size: 15px; }
+  .wk-gap { grid-template-columns: 56px minmax(0, 1fr); gap: 10px; font-size: 12.5px; }
+  .pr-layout { grid-template-columns: 1fr; gap: 16px; }
+  .pr-list { position: static; display: flex; flex-wrap: wrap; padding: 10px; gap: 6px; }
+  .pr { padding: 7px 12px; font-size: 14px; gap: 8px; background: var(--cream); border-radius: 999px; }
+  .ladder { padding: 18px 14px; scroll-margin-top: 90px; }
+  .ladder-h h3 { font-size: 24px; }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; }
+  .sb strong { font-size: 14.5px; }
+  .udlg-in { grid-template-columns: 1fr; }
+  .udlg-photo img { min-height: 0; aspect-ratio: 16 / 10; }
+  .udlg-b { padding: 20px 18px 20px; }
+  .udlg-b h3 { font-size: 22px; }
+}
 .stage { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 28px 34px; align-items: stretch; background: rgba(255, 255, 255, .45); border-radius: 26px; padding: 30px 0 30px 30px; overflow: hidden; animation: stIn .35s ease; }
 @keyframes stIn { from { opacity: 0; transform: translateY(8px); } }
 .stage-side { display: flex; flex-direction: column; align-items: flex-start; padding-top: 6px; }
@@ -3196,7 +3301,22 @@ function buildTags() {
   });
 }
 buildTags();
-const state = { selected: new Set(), tab: 'sci', query: '', from: 'theme', jumpStage: '', mode: 'theme', stage: 'a6' };
+/* 課綱原理、難易度（1 最簡單～5 最難）、分齡學期：試算表沒填時，用這份草稿 */
+const PLAN_DEFAULT = {"神奇平衡鳥 / 蝕刻鑰匙圈": [1, ["重心與平衡", "化學反應"], ["一上"]], "3D列印筆:藝術作品": [1, ["熱與材料"], ["一上"]], "彈珠平衡迷宮": [1, ["邏輯與數學"], ["一上"]], "熱縮磁力釣魚": [1, ["磁力", "熱與材料"], ["一上"]], "氫氣鞭炮": [2, ["化學反應"], ["一下"]], "震盪緩降機": [1, ["摩擦力"], ["一上"]], "聲音顯示器": [2, ["聲音與振動"], ["一下"]], "神奇平衡鳥": [1, ["重心與平衡"], ["一上"]], "蝕刻鑰匙圈": [2, ["化學反應"], ["二上"]], "歡樂剪叉懶人爪": [2, ["連桿機構"], ["二上"]], "銅箔發光卡片": [1, ["電路"], ["一下"]], "水晶寶寶小夜燈": [2, ["光學"], ["二下"]], "寶石越嶺": [2, ["滑輪與輪軸"], ["二下"]], "電流急急棒": [2, ["電路"], ["三上"]], "轉圈圈畫圖機": [2, ["邏輯與數學", "馬達與動力"], ["三上"]], "電動混色戰鬥陀螺": [2, ["光學", "馬達與動力"], ["三下"]], "電控螺旋迷宮": [3, ["電路", "馬達與動力"], ["四上"]], "滑雪機器人": [2, ["槓桿與力矩", "馬達與動力"], ["二下"]], "轉圈圈機器人": [2, ["重心與平衡", "馬達與動力"], ["二上"]], "磁力足球場": [2, ["磁力"], ["二上"]], "相撲機器人大戰": [3, ["摩擦力", "馬達與動力"], ["四上"]], "蟲蟲爬行機器人": [3, ["連桿機構"], ["四下"]], "皮克斯小檯燈": [2, ["連桿機構"], ["三上"]], "可愛槓桿垃圾桶": [1, ["槓桿與力矩"], ["一下"]], "瘋狂扭扭筆": [2, ["聲音與振動", "馬達與動力"], ["三上"]], "搖頭電風扇": [3, ["連桿機構"], ["五上"]], "磁吸懸浮燈": [3, ["磁力"], ["五下"]], "3D列印筆:壽司料理": [2, ["熱與材料"], ["三下"]], "美麗的化學鮭魚卵": [2, ["化學反應"], ["三下"]], "日式搖獎機": [3, ["滑輪與輪軸", "邏輯與數學"], ["五上"]], "自助飲料機": [4, ["空氣與流體"], ["六上"]], "自製藍寶石": [3, ["化學反應"], ["四下"]], "解密小金庫": [4, ["邏輯與數學"], ["六上"]], "隱形墨水筆": [3, ["化學反應"], ["四下"]], "存錢機器人": [4, ["電路"], ["六下"]], "氣壓火箭": [3, ["空氣與流體"], ["三下"]], "陸上龍舟:競速賽": [3, ["摩擦力", "馬達與動力"], ["五上"]], "吊索纜車機器人": [4, ["連桿機構", "重心與平衡"], ["五下"]], "跑跑線控車": [4, ["電路", "馬達與動力"], ["六下"]], "感光小夜燈專案": [5, ["程式設計", "光學", "電路"], []], "掃地機器人專案": [5, ["程式設計", "電路", "馬達與動力"], []], "投籃機系統整合": [5, ["程式設計", "槓桿與力矩"], []], "錄音分幣存錢筒專案": [5, ["程式設計", "光學", "聲音與振動"], []]};
+const LEVEL_NAME = ['', '入門', '基礎', '進階', '挑戰', '專案'];
+const PRINCIPLES = [['磁力', '磁鐵的吸引與排斥、看不見的超距力'], ['電路', '通路與斷路，讓電流動起來'], ['馬達與動力', '用馬達讓作品轉動、前進'], ['槓桿與力矩', '用小小的力氣做大大的事'], ['重心與平衡', '找到重心，站得穩又不倒'], ['連桿機構', '連桿、剪叉與四連桿的動作'], ['滑輪與輪軸', '滑輪、輪軸與轉動'], ['摩擦力', '摩擦力的來源與應用'], ['空氣與流體', '氣壓與流體的力量'], ['光學', '折射、色光與視覺暫留'], ['聲音與振動', '聲音怎麼產生、怎麼傳播'], ['化學反應', '電解、氧化還原與溶液'], ['熱與材料', '熱塑性塑膠與 3D 列印'], ['邏輯與數學', '邏輯推理、圓形、機率與密碼'], ['程式設計', 'Arduino 程式與感測器']];
+const GRADE_ZH = ['一', '二', '三', '四', '五', '六'];
+db.forEach(p => p.units.forEach(u => {
+  const d = PLAN_DEFAULT[u.title];
+  if (!Array.isArray(u.principles) || !u.principles.length) u.principles = d ? d[1] : [];
+  if (!(+u.level)) u.level = d ? d[0] : 3; else u.level = +u.level;
+  if (!Array.isArray(u.terms)) u.terms = d ? d[2] : [];
+}));
+/* 同名單元只算一次（例如 3D列印筆:藝術作品 出現在兩個方案） */
+const UNIQ = (() => { const seen = new Set(), out = []; db.forEach(p => p.units.forEach((u, i) => { if (!seen.has(u.title)) { seen.add(u.title); out.push({ p, u, i }); } })); return out; })();
+const weeksOf = u => Math.max(1, Math.round((parseInt(u.duration, 10) || 90) / 90));
+const dots = n => `<span class="lvdots" aria-label="難易度 ${n}／5">${[1, 2, 3, 4, 5].map(k => `<i class="${k <= n ? 'on' : ''}"></i>`).join('')}</span>`;
+const state = { selected: new Set(), tab: 'sci', query: '', from: 'theme', jumpStage: '', mode: 'theme', stage: 'a6', themeLv: 'all', grade: 1, term: '上', principle: '' };
 try { const m0 = sessionStorage.getItem('weclass-mode'); if (['theme', 'stage', 'goal'].includes(m0)) state.mode = m0; } catch (e) {}   // 記住上次用的選課方式，課程頁的路徑才對   // selected 內容為 "sci|熱塑性塑膠"
 function matchUnits() {
   const sel = [...state.selected].map(k => { const [cat, ...rest] = k.split('|'); return { cat, tag: rest.join('|') }; });
@@ -3250,7 +3370,7 @@ function smallHero(m, extra = '') {
 
 /* 選課指南首頁：三種選課方式在同一頁切換（不換頁），#theme／#stage／#goal 可直接連到該方式 */
 const MODE_IDS = MODES.map(m => m.id);
-const MODE_TIP = { theme: '依主題瀏覽全部課程方案，初階是 4～6 個單元的主題課，進階是 5 天的跨日大型專案。', stage: '依孩子的年齡與發展階段挑選。切換低、中、高年級，左右滑動看適合的課程。同一個方案可能適合好幾個年級，會在各年級都列出。', goal: '點選想培養的知識與技能，下方即時列出有教到的單元；同一分類內任一標籤符合即列出。' };
+const MODE_TIP = { theme: '用一個主題串起一整期營隊。先選孩子的年級，再點主題卡看單元內容、時數和 5 天課表；喜歡就按「＋ 加入諮詢清單」。初階主題由 4～6 個單元組成，進階是 5 天的跨日大型專案。', stage: '以學期為單位規劃常態課程。選年級和上、下學期，就會看到這一學期 15 週由淺到深的單元安排；Level One 是上學期，Level Two 是下學期的進階課程。點單元看詳細內容。', goal: '點一個想讓孩子學會的科學原理，下方依難易度從簡單到困難列出相關單元，點單元看詳細內容。' };
 function renderHome(mode) {
   if (!MODE_IDS.includes(mode)) mode = state.mode || 'theme';
   setTitle('WeClass 選課指南');
@@ -3288,37 +3408,57 @@ function showMode(mode, fromClick) {
   document.getElementById('mode-tip').textContent = MODE_TIP[mode];
   const body = document.getElementById('mode-body');
   if (mode === 'theme') {
-    body.innerHTML = ['初階', '進階'].map(type => `<div class="pkg-group"><h3 class="gt">${type}主題<small>${type === '初階' ? '1~6 年級・每個主題 4~6 個單元' : '9 歲以上・5 天 XPBL 大型專案'}</small></h3>
-      <div class="pkgs">${db.filter(p => p.type === type).map((p, i) => pkgCard(p, i, null)).join('')}</div></div>`).join('');
-  } else if (mode === 'stage') {
-    const si0 = Math.max(0, STAGES.findIndex(s => s.id === state.stage));
-    body.innerHTML = `<div class="lvl-tabs" role="tablist" aria-label="年級">${STAGES.map((s, si) => `<button class="lvl-tab" role="tab" data-si="${si}" aria-selected="${si === si0}">${s.lvl}<i>${s.age}</i></button>`).join('')}</div><div id="stage-box"></div>`;
-    const showStage = si => {
-      const s = STAGES[si]; state.stage = s.id;
-      body.querySelectorAll('.lvl-tab').forEach(b => b.setAttribute('aria-selected', +b.dataset.si === si));
-      const list = db.filter(p => inStage(p, s));
-      const box = document.getElementById('stage-box');
-      box.innerHTML = `<article class="stage s${si}" id="${s.id}">
-        <div class="stage-side"><p class="lvl-big">${s.lvl}</p><span class="age">${s.age}</span><p class="grade">${s.grade}・${list.length} 個方案</p><p class="sdesc">${s.desc}</p>
-          <div class="car-ctrl"><button class="car-btn prev" aria-label="上一個">←</button><button class="car-btn next" aria-label="下一個">→</button><span class="car-dots" aria-hidden="true">${list.map((_, i) => `<b class="${i ? '' : 'on'}"></b>`).join('')}</span></div></div>
-        <div class="car"><div class="car-track" tabindex="0" aria-label="${s.lvl}課程方案">${list.map((p, i) => pkgCard(p, i, null)).join('')}</div></div>
-      </article>`;
-      bindCarousel(box);
+    const tabs = [{ id: 'all', lvl: '全部年級', age: `${db.length} 個主題` }, ...STAGES];
+    const drawTheme = () => {
+      const s = STAGES.find(x => x.id === state.themeLv);
+      const groups = ['初階', '進階'].map(type => ({ type, list: db.filter(p => p.type === type && (!s || inStage(p, s))) })).filter(g => g.list.length);
+      body.innerHTML = `<div class="lvl-tabs theme-lv" role="tablist" aria-label="依年級篩選主題">${tabs.map(x => `<button class="lvl-tab" role="tab" data-lv="${x.id}" aria-selected="${state.themeLv === x.id}">${x.lvl}<i>${x.id === 'all' ? x.age : x.grade}</i></button>`).join('')}</div>
+        ${s ? `<p class="theme-lv-note"><b>${s.lvl}・${s.age}</b>${esc(s.desc)}</p>` : ''}
+        ${groups.map(({ type, list }) => `<div class="pkg-group"><h3 class="gt">${type}主題<small>${type === '初階' ? '每個主題 4~6 個單元，可排成 5 天營隊' : '9 歲以上・5 天 XPBL 大型專案'}・${list.length} 個</small></h3>
+        <div class="pkgs">${list.map((p, i) => pkgCard(p, i, null)).join('')}</div></div>`).join('')}`;
+      body.querySelectorAll('.theme-lv .lvl-tab').forEach(b => b.addEventListener('click', () => { state.themeLv = b.dataset.lv; drawTheme(); }));
     };
-    body.querySelectorAll('.lvl-tab').forEach(b => b.addEventListener('click', () => showStage(+b.dataset.si)));
-    showStage(si0);
+    drawTheme();
+  } else if (mode === 'stage') {
+    const drawStage = () => {
+      const g = state.grade, key = GRADE_ZH[g - 1] + state.term, band = STAGES[g <= 2 ? 0 : g <= 4 ? 1 : 2];
+      const list = UNIQ.filter(x => x.u.terms.includes(key)).sort((a, b) => a.u.level - b.u.level || db.indexOf(a.p) - db.indexOf(b.p));
+      let w = 1; const rows = list.map(x => { const n = weeksOf(x.u), from = w; w += n; return { ...x, from, to: from + n - 1 }; }).filter(r => r.from <= 15);
+      const used = Math.min(15, w - 1);
+      body.innerHTML = `<div class="grade-tabs" role="tablist" aria-label="年級">${GRADE_ZH.map((z, k) => `<button role="tab" class="grade-tab" data-g="${k + 1}" aria-selected="${g === k + 1}"><b>${z}年級</b><i>${STAGES[k < 2 ? 0 : k < 4 ? 1 : 2].lvl}</i></button>`).join('')}</div>
+        <div class="term-tabs" role="tablist" aria-label="學期">${[['上', 'Level One', '上學期'], ['下', 'Level Two', '下學期・進階']].map(([k, en, zh]) => `<button role="tab" class="term-tab" data-t="${k}" aria-selected="${state.term === k}"><b>${en}</b><i>${zh}</i></button>`).join('')}</div>
+        <article class="sem">
+          <div class="sem-side"><p class="sem-k">Grade ${g}・${state.term === '上' ? 'Level One' : 'Level Two'}</p><h3>${GRADE_ZH[g - 1]}年級${state.term}學期</h3>
+            <span class="age">${band.lvl}・${band.age}</span>
+            <div class="sem-stat"><span><b>15</b>週</span><span><b>${list.length}</b>個單元</span><span><b>${used}</b>週已排</span></div>
+            <p class="sdesc">${esc(band.desc)}</p><p class="sem-note">單元依實作難易度由淺到深排序；每 90 分鐘算一週。</p></div>
+          <ol class="weeks">${rows.map(r => `<li><button type="button" class="wk" data-unit="${r.p.id}.${r.i}">
+              <span class="wn">${r.from === r.to ? `W${r.from}` : `W${r.from}–${r.to}`}<small>${r.from === r.to ? '1 週' : (r.to - r.from + 1) + ' 週'}</small></span>
+              <img src="${unitPhoto(r.u, r.i)}" alt="" loading="lazy">
+              <span class="wb"><strong>${esc(r.u.title)}</strong><span class="wmeta">${r.u.principles.map(x => `<i>${esc(x)}</i>`).join('')}<span class="wlv">${dots(r.u.level)}${LEVEL_NAME[r.u.level] || ''}</span></span></span>
+              <span class="wgo" aria-hidden="true">看內容 →</span></button></li>`).join('')}
+            ${used < 15 ? `<li class="wk-gap"><span class="wn">W${used + 1}–15</span><span>其餘 ${15 - used} 週可依單位需求，從其他主題加入單元，或延伸成作品發表、競賽練習。</span></li>` : ''}</ol>
+        </article>`;
+      body.querySelectorAll('.grade-tab').forEach(b => b.addEventListener('click', () => { state.grade = +b.dataset.g; drawStage(); }));
+      body.querySelectorAll('.term-tab').forEach(b => b.addEventListener('click', () => { state.term = b.dataset.t; drawStage(); }));
+    };
+    drawStage();
   } else {
-    body.innerHTML = `<div class="goal-layout"><aside class="goal-side"><div class="tag-panel" id="tag-panel">
-        <div class="side">
-          <div class="tabs" role="tablist" aria-label="四大學習世界" id="tabs"></div>
-          <label class="search"><span aria-hidden="true">⌕</span><span class="sr">搜尋標籤</span><input id="q" type="search" placeholder="搜尋標籤，例如：磁力" autocomplete="off"></label>
-        </div>
-        <div class="tag-list" id="tag-list" role="tabpanel"></div>
-      </div></aside>
-      <div class="goal-main"><div class="picked" id="picked" hidden></div>
-      <p class="summary" id="summary" aria-live="polite" style="margin-bottom:18px"></p>
-      <div class="units-grid" id="results"></div></div></div>`;
-    bindGoal(); updateGoal();
+    const names = [...new Set(UNIQ.flatMap(x => x.u.principles))];
+    const order = PRINCIPLES.map(x => x[0]).filter(n => names.includes(n)).concat(names.filter(n => !PRINCIPLES.some(x => x[0] === n)));
+    if (!order.includes(state.principle)) state.principle = order.includes('磁力') ? '磁力' : order[0];
+    const drawGoal = () => {
+      const pr = state.principle, info = (PRINCIPLES.find(x => x[0] === pr) || [pr, ''])[1];
+      const list = UNIQ.filter(x => x.u.principles.includes(pr)).sort((a, b) => a.u.level - b.u.level || weeksOf(a.u) - weeksOf(b.u));
+      body.innerHTML = `<div class="pr-layout"><nav class="pr-list" aria-label="科學原理">${order.map(n => { const c = UNIQ.filter(x => x.u.principles.includes(n)).length; return `<button type="button" class="pr" data-pr="${esc(n)}" aria-pressed="${n === pr}">${esc(n)}<span>${c}</span></button>`; }).join('')}</nav>
+        <section class="ladder" aria-live="polite"><div class="ladder-h"><p class="sem-k">Principle</p><h3>${esc(pr)}</h3><p>${esc(info)}・共 ${list.length} 個單元，由簡單到困難</p></div>
+          <ol class="steps">${list.map((x, k) => `<li><button type="button" class="step" data-unit="${x.p.id}.${x.i}">
+            <span class="sn">${k + 1}</span><span class="photo"><img src="${unitPhoto(x.u, x.i)}" alt="" loading="lazy"><span class="lv">${LEVEL_NAME[x.u.level] || ''}</span></span>
+            <span class="sb"><strong>${esc(x.u.title)}</strong><span class="upkg">${esc(x.p.title)}・${esc(x.p.grades)}</span><span class="wlv">${dots(x.u.level)}<span class="utime">${esc(x.u.duration)}</span></span></span></button></li>`).join('')}</ol>
+          <p class="ladder-foot">難度：入門 → 基礎 → 進階 → 挑戰 → 專案</p></section></div>`;
+      body.querySelectorAll('.pr').forEach(b => b.addEventListener('click', () => { state.principle = b.dataset.pr; drawGoal(); if (innerWidth < 901) body.querySelector('.ladder').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+    };
+    drawGoal();
   }
   try { history.replaceState(null, '', location.pathname + location.search + '#' + mode); } catch (e) {}
   if (fromClick) { const f = document.querySelector('.mtabs'); if (f.getBoundingClientRect().top < 60) f.scrollIntoView({ behavior: 'smooth' }); }
@@ -3810,6 +3950,24 @@ function cartBtn(key, mini) {
   const on = cart.includes(key), pack = key[0] === 'p';
   return `<button type="button" class="addc${mini ? ' mini' : ''}${pack ? ' pack' : ''}" data-ck="${key}" aria-pressed="${on}">${on ? (pack ? '已加入諮詢清單 ✓' : '已加入 ✓') : (pack ? '＋ 加入諮詢清單' : '＋ 加入清單')}</button>`;
 }
+function openUnit(ref) {
+  const [pid, ix] = ref.split('.'), p = db.find(x => x.id === pid), u = p && p.units[+ix]; if (!u) return;
+  let dlg = document.getElementById('udlg');
+  if (!dlg) { dlg = document.createElement('dialog'); dlg.id = 'udlg'; dlg.className = 'udlg'; document.body.appendChild(dlg);
+    dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('.udlg-x')) dlg.close(); });
+    dlg.addEventListener('close', () => { document.documentElement.style.overflow = ''; }); }
+  dlg.innerHTML = `<div class="udlg-in"><button type="button" class="udlg-x" aria-label="關閉">✕</button>
+    <div class="udlg-photo"><img src="${unitPhoto(u, +ix)}" alt=""></div>
+    <div class="udlg-b"><p class="upkg">出自主題：${esc(p.title)}・${esc(p.grades)}</p><h3>${esc(u.title)}</h3>
+      <p class="udlg-meta"><span class="utime">${esc(u.duration)}</span><span class="wlv">${dots(u.level)}${LEVEL_NAME[u.level] || ''}</span>${u.principles.map(x => `<i class="prc">${esc(x)}</i>`).join('')}</p>
+      <p class="udlg-d">${esc(u.desc || '')}</p>
+      <dl>${u.sci_desc ? `<dt>科學知識</dt><dd>${esc(u.sci_desc)}</dd>` : ''}${u.skill_desc ? `<dt>技能訓練</dt><dd>${esc(u.skill_desc)}</dd>` : ''}</dl>
+      <div class="udlg-act">${cartBtn('u:' + u.id)}<a class="udlg-more" href="#${p.id}.${+ix + 1}">看「${esc(p.title)}」整個主題 →</a></div></div></div>`;
+  document.documentElement.style.overflow = 'hidden';
+  dlg.showModal();
+  dlg.querySelector('.udlg-more').addEventListener('click', () => dlg.close());
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-unit]'); if (b) { e.preventDefault(); openUnit(b.dataset.unit); } });
 function cartSync() { document.querySelectorAll('[data-ck]').forEach(b => { const tmp = document.createElement('div'); tmp.innerHTML = cartBtn(b.dataset.ck, b.classList.contains('mini')); const n = tmp.firstChild; b.setAttribute('aria-pressed', n.getAttribute('aria-pressed')); b.textContent = n.textContent; }); }
 function cartItems() { return cart.map(cartFind).filter(Boolean); }
 function cartTotal(items) {

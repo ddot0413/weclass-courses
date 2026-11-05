@@ -20,7 +20,7 @@ const CACHE_KEY = 'courses-json';
 const WORLD_KEYS = ['sci', 'eng', 'tech', 'art'];
 
 const PACK_HEAD = ['方案編號', '上架', '排序', '方案名稱', '類型', '適合年級', '方案介紹', '封面照片', '學習成果', '課程表', '課程需求', '網址代稱', '分齡'];
-const UNIT_HEAD = ['方案編號', '排序', '單元名稱', '上課時間', '單元說明', '科學知識', '技能訓練', '科學標籤', '工程標籤', '科技標籤', '藝術標籤', '單元照片', '分齡'];
+const UNIT_HEAD = ['方案編號', '排序', '單元名稱', '上課時間', '單元說明', '科學知識', '技能訓練', '科學標籤', '工程標籤', '科技標籤', '藝術標籤', '單元照片', '分齡', '課綱原理', '難易度', '分齡學期'];
 
 /* ── 選單 ─────────────────────────────────────────── */
 function onOpen() {
@@ -96,7 +96,8 @@ function readCourses_(includeHidden) {
         .sort((a, b) => (Number(a[1]) || 0) - (Number(b[1]) || 0))
         .map((u, i) => ({
           id: r[0].trim().toLowerCase() + 'u' + (i + 1), title: u[2], duration: u[3] || '90分鐘', desc: u[4], sci_desc: u[5], skill_desc: u[6],
-          sci: tags(u[7]), eng: tags(u[8]), tech: tags(u[9]), art: tags(u[10]), img: u[11], levels: tags(u[12]).filter(x => LV.includes(x))
+          sci: tags(u[7]), eng: tags(u[8]), tech: tags(u[9]), art: tags(u[10]), img: u[11], levels: tags(u[12]).filter(x => LV.includes(x)),
+          principles: tags(u[13]), level: Number(u[14]) || 0, terms: tags(u[15])
         }))
     }))
     .filter(p => includeHidden || (p.published && p.units.length))
@@ -110,7 +111,7 @@ function readLoose_() {
   const ids = new Set(packSh.getDataRange().getDisplayValues().slice(1).map(r => r[0].trim().toLowerCase()).filter(Boolean));
   const tags = s => String(s || '').split(/[、,，]/).map(x => x.trim()).filter(Boolean);
   return unitSh.getDataRange().getDisplayValues().slice(1).filter(u => u[2] && !ids.has(String(u[0]).trim().toLowerCase()))
-    .map(u => ({ title: u[2], duration: u[3] || '90分鐘', desc: u[4], sci_desc: u[5], skill_desc: u[6], sci: tags(u[7]), eng: tags(u[8]), tech: tags(u[9]), art: tags(u[10]), img: u[11], levels: tags(u[12]) }));
+    .map(u => ({ title: u[2], duration: u[3] || '90分鐘', desc: u[4], sci_desc: u[5], skill_desc: u[6], sci: tags(u[7]), eng: tags(u[8]), tech: tags(u[9]), art: tags(u[10]), img: u[11], levels: tags(u[12]), principles: tags(u[13]), level: Number(u[14]) || 0, terms: tags(u[15]) }));
 }
 
 /* 後台讀資料（google.script.run 呼叫） */
@@ -131,10 +132,10 @@ function saveCourses(courses, loose) {
         (p.schedule || []).map(d => d.day + '｜' + (d.items || []).join('；')).join('\n'),
         (p.requirements || []).join('\n'), p.slug || '', join(p.levels)]);
       (p.units || []).forEach((u, ui) => unitRows.push([id, ui + 1, u.title || '', u.duration || '90分鐘', u.desc || '', u.sci_desc || '', u.skill_desc || '',
-        join(u.sci), join(u.eng), join(u.tech), join(u.art), u.img || '', join(u.levels)]));
+        join(u.sci), join(u.eng), join(u.tech), join(u.art), u.img || '', join(u.levels), join(u.principles), u.level || '', join(u.terms)]));
     });
     (loose || []).forEach((u, ui) => { if (u.title) unitRows.push(['', ui + 1, u.title, u.duration || '90分鐘', u.desc || '', u.sci_desc || '', u.skill_desc || '',
-      join(u.sci), join(u.eng), join(u.tech), join(u.art), u.img || '', join(u.levels)]); });
+      join(u.sci), join(u.eng), join(u.tech), join(u.art), u.img || '', join(u.levels), join(u.principles), u.level || '', join(u.terms)]); });
     writeTable_(ss.getSheetByName(SHEET_PACKS), packRows);
     writeTable_(ss.getSheetByName(SHEET_UNITS), unitRows);
     styleSheet_(ss.getSheetByName(SHEET_PACKS), []);
