@@ -540,6 +540,11 @@ a { color: inherit; }
 .udlg dd { margin: 0; }
 .udlg-act { margin-top: auto; padding-top: 12px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
 .udlg-more { font-weight: 900; font-size: 14px; color: var(--teal); }
+.udlg-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px dashed #E3CFB6; }
+.udlg-nav span { font-family: var(--f-en); font-weight: 700; font-size: 13px; color: #5f6f73; }
+.udlg-nav button { font: inherit; cursor: pointer; border: 2px solid var(--teal); background: var(--white); color: var(--teal); border-radius: 999px; padding: 7px 16px; font-weight: 900; font-size: 14px; }
+.udlg-nav button:hover:not(:disabled) { background: var(--teal); color: var(--white); }
+.udlg-nav button:disabled { opacity: .3; cursor: default; }
 .udlg-x { position: absolute; z-index: 2; top: 12px; right: 12px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .92); color: var(--teal); font-size: 17px; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, .15); }
 @media (max-width: 900px) {
   .grade-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -3308,14 +3313,19 @@ const PLAN_DEFAULT = {"神奇平衡鳥 / 蝕刻鑰匙圈": [1, ["重心與平衡
 const LEVEL_NAME = ['', '入門', '基礎', '進階', '挑戰', '專案'];
 const PRINCIPLES = [['磁力', '磁鐵的吸引與排斥、看不見的超距力'], ['電路', '通路與斷路，讓電流動起來'], ['馬達與動力', '用馬達讓作品轉動、前進'], ['槓桿與力矩', '用小小的力氣做大大的事'], ['重心與平衡', '找到重心，站得穩又不倒'], ['連桿機構', '連桿、剪叉與四連桿的動作'], ['滑輪與輪軸', '滑輪、輪軸與轉動'], ['摩擦力', '摩擦力的來源與應用'], ['空氣與流體', '氣壓與流體的力量'], ['光學', '折射、色光與視覺暫留'], ['聲音與振動', '聲音怎麼產生、怎麼傳播'], ['化學反應', '電解、氧化還原與溶液'], ['熱與材料', '熱塑性塑膠與 3D 列印'], ['邏輯與數學', '邏輯推理、圓形、機率與密碼'], ['程式設計', 'Arduino 程式與感測器']];
 const GRADE_ZH = ['一', '二', '三', '四', '五', '六'];
-db.forEach(p => p.units.forEach(u => {
-  const d = PLAN_DEFAULT[u.title];
-  if (!Array.isArray(u.principles) || !u.principles.length) u.principles = d ? d[1] : [];
-  if (!(+u.level)) u.level = d ? d[0] : 3; else u.level = +u.level;
-  if (!Array.isArray(u.terms)) u.terms = d ? d[2] : [];
-}));
-/* 同名單元只算一次（例如 3D列印筆:藝術作品 出現在兩個方案） */
-const UNIQ = (() => { const seen = new Set(), out = []; db.forEach(p => p.units.forEach((u, i) => { if (!seen.has(u.title)) { seen.add(u.title); out.push({ p, u, i }); } })); return out; })();
+let UNIQ = [];
+function prepUnits() {
+  db.forEach(p => p.units.forEach(u => {
+    const d = PLAN_DEFAULT[u.title];
+    if (!Array.isArray(u.principles) || !u.principles.length) u.principles = d ? d[1] : [];
+    u.level = +u.level || (d ? d[0] : 3);
+    if (!Array.isArray(u.terms) || !u.terms.length) u.terms = d ? d[2] : [];
+  }));
+  /* 同名單元只算一次（例如 3D列印筆:藝術作品 出現在兩個方案） */
+  const seen = new Set(); UNIQ = [];
+  db.forEach(p => p.units.forEach((u, i) => { if (!seen.has(u.title)) { seen.add(u.title); UNIQ.push({ p, u, i }); } }));
+}
+prepUnits();
 const weeksOf = u => Math.max(1, Math.round((parseInt(u.duration, 10) || 90) / 90));
 const dots = n => `<span class="lvtxt l${n}">難度：${LEVEL_NAME[n] || '—'}</span>`;
 const state = { selected: new Set(), tab: 'sci', query: '', from: 'theme', jumpStage: '', mode: 'theme', stage: 'a6', themeLv: 'all', grade: 1, term: '上', principle: '' };
@@ -3952,24 +3962,37 @@ function cartBtn(key, mini) {
   const on = cart.includes(key), pack = key[0] === 'p';
   return `<button type="button" class="addc${mini ? ' mini' : ''}${pack ? ' pack' : ''}" data-ck="${key}" aria-pressed="${on}">${on ? (pack ? '已加入諮詢清單 ✓' : '已加入 ✓') : (pack ? '＋ 加入諮詢清單' : '＋ 加入清單')}</button>`;
 }
-function openUnit(ref) {
+let dlgList = [], dlgAt = 0;
+function openUnit(ref, list) {
+  if (list) { dlgList = list; dlgAt = Math.max(0, list.indexOf(ref)); }
   const [pid, ix] = ref.split('.'), p = db.find(x => x.id === pid), u = p && p.units[+ix]; if (!u) return;
   let dlg = document.getElementById('udlg');
   if (!dlg) { dlg = document.createElement('dialog'); dlg.id = 'udlg'; dlg.className = 'udlg'; document.body.appendChild(dlg);
-    dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('.udlg-x')) dlg.close(); });
+    dlg.addEventListener('click', e => {
+      if (e.target === dlg || e.target.closest('.udlg-x')) return dlg.close();
+      const nv = e.target.closest('[data-nav]'); if (nv) step(+nv.dataset.nav);
+      if (e.target.closest('.udlg-more')) dlg.close();
+    });
+    dlg.addEventListener('keydown', e => { if (e.key === 'ArrowRight') step(1); if (e.key === 'ArrowLeft') step(-1); });
     dlg.addEventListener('close', () => { document.documentElement.style.overflow = ''; }); }
+  const n = dlgList.length, multi = n > 1;
   dlg.innerHTML = `<div class="udlg-in"><button type="button" class="udlg-x" aria-label="關閉">✕</button>
     <div class="udlg-photo"><img src="${unitPhoto(u, +ix)}" alt=""></div>
     <div class="udlg-b"><p class="upkg">出自主題：${esc(p.title)}・${esc(p.grades)}</p><h3>${esc(u.title)}</h3>
-      <p class="udlg-meta"><span class="utime">${esc(u.duration)}</span><span class="wlv">${dots(u.level)}</span>${u.principles.map(x => `<i class="prc">${esc(x)}</i>`).join('')}</p>
+      <p class="udlg-meta"><span class="utime">${esc(u.duration)}</span>${dots(u.level)}${u.principles.map(x => `<i class="prc">${esc(x)}</i>`).join('')}</p>
       <p class="udlg-d">${esc(u.desc || '')}</p>
       <dl>${u.sci_desc ? `<dt>科學知識</dt><dd>${esc(u.sci_desc)}</dd>` : ''}${u.skill_desc ? `<dt>技能訓練</dt><dd>${esc(u.skill_desc)}</dd>` : ''}</dl>
-      <div class="udlg-act">${cartBtn('u:' + u.id)}<a class="udlg-more" href="#${p.id}.${+ix + 1}">看「${esc(p.title)}」整個主題 →</a></div></div></div>`;
-  document.documentElement.style.overflow = 'hidden';
-  dlg.showModal();
-  dlg.querySelector('.udlg-more').addEventListener('click', () => dlg.close());
+      <div class="udlg-act">${cartBtn('u:' + u.id)}<a class="udlg-more" href="#${p.id}.${+ix + 1}">看完整課程資訊 →</a></div>
+      ${multi ? `<div class="udlg-nav"><button type="button" data-nav="-1" ${dlgAt ? '' : 'disabled'} aria-label="上一個單元">← 上一個</button><span>${dlgAt + 1} / ${n}</span><button type="button" data-nav="1" ${dlgAt < n - 1 ? '' : 'disabled'} aria-label="下一個單元">下一個 →</button></div>` : ''}</div></div>`;
+  if (!dlg.open) { document.documentElement.style.overflow = 'hidden'; dlg.showModal(); }
+  function step(d) { const k = dlgAt + d; if (k < 0 || k >= dlgList.length) return; dlgAt = k; openUnit(dlgList[k]); }
 }
-document.addEventListener('click', e => { const b = e.target.closest('[data-unit]'); if (b) { e.preventDefault(); openUnit(b.dataset.unit); } });
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-unit]'); if (!b || b.closest('.udlg')) return;
+  e.preventDefault();
+  const box = b.closest('.weeks, .steps'), list = box ? [...box.querySelectorAll('[data-unit]')].map(x => x.dataset.unit) : [b.dataset.unit];
+  openUnit(b.dataset.unit, list);
+});
 function cartSync() { document.querySelectorAll('[data-ck]').forEach(b => { const tmp = document.createElement('div'); tmp.innerHTML = cartBtn(b.dataset.ck, b.classList.contains('mini')); const n = tmp.firstChild; b.setAttribute('aria-pressed', n.getAttribute('aria-pressed')); b.textContent = n.textContent; }); }
 function cartItems() { return cart.map(cartFind).filter(Boolean); }
 function cartTotal(items) {
@@ -4047,7 +4070,7 @@ const DATA_URL = '';
 if (DATA_URL) fetch(DATA_URL).then(r => r.json()).then(j => {
   if (!j || !Array.isArray(j.courses) || !j.courses.length) return;
   db.splice(0, db.length, ...j.courses);
-  buildTags(); totalUnits = db.reduce((a, p) => a + p.units.length, 0); renderNavDrop(); renderCart();
+  prepUnits(); buildTags(); totalUnits = db.reduce((a, p) => a + p.units.length, 0); renderNavDrop(); renderCart();
   route();
 }).catch(() => {});
 
