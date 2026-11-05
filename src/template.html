@@ -527,10 +527,17 @@ a { color: inherit; }
 .sb .utime { margin: 0; }
 .ladder-foot { margin: 18px 0 0; font-size: 13px; font-weight: 700; color: #5f6f73; letter-spacing: .06em; }
 
-.udlg { border: 0; padding: 0; border-radius: 26px; width: min(880px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); background: var(--white); color: var(--teal); box-shadow: 0 30px 60px rgba(0, 0, 0, .3); }
+.udlg { border: 0; padding: 0 64px; background: transparent; overflow: visible; max-width: none; max-height: none; color: var(--teal); }
+.udlg[open] { display: flex; align-items: center; gap: 14px; }
+.udlg-in { position: relative; display: grid; grid-template-columns: 420px 460px; width: 880px; height: 500px; max-width: calc(100vw - 160px); max-height: calc(100dvh - 80px); background: var(--white); border-radius: 26px; overflow: hidden; box-shadow: 0 30px 60px rgba(0, 0, 0, .3); }
+.udlg-arw { flex: none; width: 54px; height: 54px; border-radius: 50%; border: 0; background: var(--white); color: var(--teal); font-size: 22px; font-weight: 900; cursor: pointer; box-shadow: 0 8px 20px rgba(0, 0, 0, .25); transition: transform .15s, background .15s; }
+.udlg-arw:hover:not(:disabled) { background: var(--orange); color: var(--white); transform: scale(1.06); }
+.udlg-arw:disabled { opacity: .35; cursor: default; }
+.udlg-count { position: fixed; left: 50%; bottom: calc(50% - 270px); transform: translateX(-50%); font-family: var(--f-en); font-weight: 700; font-size: 14px; color: var(--white); letter-spacing: .1em; }
+.udlg-b { overflow-y: auto; }
 .udlg::backdrop { background: rgba(18, 52, 61, .55); backdrop-filter: blur(3px); }
-.udlg-in { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
-.udlg-photo img { width: 100%; height: 100%; min-height: 300px; object-fit: cover; display: block; }
+.udlg-photo { min-height: 0; }
+.udlg-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .udlg-b { padding: 30px 30px 26px; display: flex; flex-direction: column; gap: 10px; }
 .udlg-b h3 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: .04em; }
 .udlg-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0; }
@@ -540,23 +547,19 @@ a { color: inherit; }
 .udlg dt { font-weight: 900; color: var(--orange); }
 .udlg dd { margin: 0; }
 .udlg-act { margin-top: auto; padding-top: 12px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
-.udlg-more { font-weight: 900; font-size: 14px; color: var(--teal); }
+.udlg-more { display: inline-flex; align-items: center; background: var(--orange); color: var(--white); text-decoration: none; font-weight: 900; font-size: 14.5px; letter-spacing: .06em; border-radius: 999px; padding: 9px 20px; box-shadow: 0 4px 0 #C96A0E; }
+.udlg-more:hover { background: #E27510; }
 .noimg { display: grid; place-items: center; width: 100%; height: 100%; min-height: 58px; border-radius: inherit; background: #DCE7E6; color: #7C9294; font-size: 13px; font-weight: 700; letter-spacing: .1em; }
 .noimg::after { content: "無照片"; }
 .wk .noimg { font-size: 11px; letter-spacing: .04em; min-height: 0; }
 .wk .noimg { width: 76px; height: 58px; border-radius: 12px; }
 .step .photo .noimg { position: absolute; inset: 0; }
-.udlg-photo .noimg.big { min-height: 300px; border-radius: 0; font-size: 16px; }
+.udlg-photo .noimg.big { height: 100%; border-radius: 0; font-size: 16px; }
 .sem-empty { background: var(--white); border-radius: 20px; padding: 30px 26px; text-align: center; color: var(--teal); }
 .sem-empty b { font-size: 19px; font-weight: 900; }
 .sem-empty p { margin: 10px 0 18px; font-size: 14.5px; line-height: 1.7; }
 .btn-line { font: inherit; cursor: pointer; border: 2px solid var(--teal); background: var(--white); color: var(--teal); border-radius: 999px; padding: 9px 20px; font-weight: 900; }
 .wk-gap.evt { border-style: solid; border-color: var(--orange); background: rgba(255, 255, 255, .7); }
-.udlg-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px dashed #E3CFB6; }
-.udlg-nav span { font-family: var(--f-en); font-weight: 700; font-size: 13px; color: #5f6f73; }
-.udlg-nav button { font: inherit; cursor: pointer; border: 2px solid var(--teal); background: var(--white); color: var(--teal); border-radius: 999px; padding: 7px 16px; font-weight: 900; font-size: 14px; }
-.udlg-nav button:hover:not(:disabled) { background: var(--teal); color: var(--white); }
-.udlg-nav button:disabled { opacity: .3; cursor: default; }
 .udlg-x { position: absolute; z-index: 2; top: 12px; right: 12px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .92); color: var(--teal); font-size: 17px; cursor: pointer; box-shadow: 0 2px 8px rgba(0, 0, 0, .15); }
 @media (max-width: 900px) {
   .grade-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -578,7 +581,13 @@ a { color: inherit; }
   .ladder-h h3 { font-size: 24px; }
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; }
   .sb strong { font-size: 14.5px; }
-  .udlg-in { grid-template-columns: 1fr; }
+  .udlg { padding: 0 12px; }
+  .udlg[open] { display: block; }
+  .udlg-in { grid-template-columns: 1fr; grid-template-rows: 220px minmax(0, 1fr); width: calc(100vw - 24px); max-width: none; height: min(640px, calc(100dvh - 110px)); }
+  .udlg-arw { position: fixed; bottom: 18px; width: 50px; height: 50px; }
+  .udlg-arw.prev { left: calc(50% - 90px); }
+  .udlg-arw.next { right: calc(50% - 90px); }
+  .udlg-count { bottom: 32px; }
   /* 手機：分齡、課綱只留最重要的資訊 */
   .mode-tip { font-size: 13px; line-height: 1.6; }
   .stage-ctl { position: sticky; top: calc(66px + env(safe-area-inset-top, 0px)); z-index: 6; margin: 0 -24px 12px; padding: 10px 24px; background: rgba(135, 204, 200, .96); backdrop-filter: blur(6px); box-shadow: 0 8px 12px -10px rgba(0, 0, 0, .25); }
@@ -619,7 +628,6 @@ a { color: inherit; }
   .wk-gap { grid-template-columns: 48px minmax(0, 1fr); padding: 10px 10px 10px 4px; }
   .ladder-h p:last-child { margin-bottom: 14px; font-size: 13px; }
   .sb strong { margin-bottom: 6px; }
-  .udlg-photo img { min-height: 0; aspect-ratio: 16 / 10; }
   .udlg-b { padding: 20px 18px 20px; }
   .udlg-b h3 { font-size: 22px; }
 }
@@ -4035,14 +4043,14 @@ function openUnit(k, list) {
     dlg.addEventListener('keydown', e => { if (e.key === 'ArrowRight') step(1); if (e.key === 'ArrowLeft') step(-1); });
     dlg.addEventListener('close', () => { document.documentElement.style.overflow = ''; }); }
   const n = dlgList.length, desc = (u && u.desc) || c.desc, sci = (u && u.sci_desc) || c.sci.join('、'), skill = (u && u.skill_desc) || c.eng.join('、');
-  dlg.innerHTML = `<div class="udlg-in"><button type="button" class="udlg-x" aria-label="關閉">✕</button>
+  dlg.innerHTML = `${n > 1 ? `<button type="button" class="udlg-arw prev" data-nav="-1" ${dlgAt ? '' : 'disabled'} aria-label="上一個單元">←</button>` : ''}<div class="udlg-in"><button type="button" class="udlg-x" aria-label="關閉">✕</button>
     <div class="udlg-photo">${u ? `<img src="${unitPhoto(u, c.ui)}" alt="">` : '<span class="noimg big" aria-hidden="true"></span>'}</div>
     <div class="udlg-b"><p class="upkg">${p ? `出自主題：${esc(p.title)}・${esc(p.grades)}` : `單元課程${c.age ? '・適合 ' + esc(c.age) + ' 歲' : ''}`}</p><h3>${esc(c.name)}</h3>
       <p class="udlg-meta">${catMins(c) ? `<span class="utime">${catMins(c)} 分鐘</span>` : ''}${lvTag(c.level)}${c.principle ? `<i class="prc">${esc(c.principle)}</i>` : ''}</p>
       ${desc ? `<p class="udlg-d">${esc(desc)}</p>` : ''}
       <dl>${sci ? `<dt>科學知識</dt><dd>${esc(sci)}</dd>` : ''}${skill ? `<dt>技能訓練</dt><dd>${esc(skill)}</dd>` : ''}${!u && c.tech.length ? `<dt>科技應用</dt><dd>${esc(c.tech.join('、'))}</dd>` : ''}</dl>
-      <div class="udlg-act">${cartBtn(u ? 'u:' + u.id : 'c:' + c.name)}${p ? `<a class="udlg-more" href="#${p.id}.${c.ui + 1}">看完整課程資訊 →</a>` : ''}</div>
-      ${n > 1 ? `<div class="udlg-nav"><button type="button" data-nav="-1" ${dlgAt ? '' : 'disabled'} aria-label="上一個單元">← 上一個</button><span>${dlgAt + 1} / ${n}</span><button type="button" data-nav="1" ${dlgAt < n - 1 ? '' : 'disabled'} aria-label="下一個單元">下一個 →</button></div>` : ''}</div></div>`;
+      <div class="udlg-act">${cartBtn(u ? 'u:' + u.id : 'c:' + c.name)}${p ? `<a class="udlg-more" href="#${p.id}.${c.ui + 1}">看完整單元資訊 →</a>` : ''}</div></div>
+      ${n > 1 ? `<span class="udlg-count">${dlgAt + 1} / ${n}</span>` : ''}</div>${n > 1 ? `<button type="button" class="udlg-arw next" data-nav="1" ${dlgAt < n - 1 ? '' : 'disabled'} aria-label="下一個單元">→</button>` : ''}`;
   if (!dlg.open) { document.documentElement.style.overflow = 'hidden'; dlg.showModal(); }
   function step(d) { const j = dlgAt + d; if (j < 0 || j >= dlgList.length) return; dlgAt = j; openUnit(dlgList[j]); }
 }
