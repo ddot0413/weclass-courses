@@ -128,7 +128,9 @@ details.more summary { cursor: pointer; font-size: 13px; font-weight: 700; color
 .day-h .no { font-family: var(--f-en); font-weight: 900; font-size: 12px; color: var(--orange); flex: none; }
 .day-h input { flex: 1; min-width: 0; border: 0; background: transparent; font-weight: 900; font-size: 15px; color: var(--teal); padding: 4px 2px; border-bottom: 1.5px dashed transparent; }
 .day-h input:hover, .day-h input:focus { border-bottom-color: var(--line); outline: none; }
-.slot { display: grid; grid-template-columns: 62px minmax(0, 1fr) 26px; gap: 5px; align-items: center; }
+.slot .hrs { display: flex; align-items: center; gap: 3px; }
+.slot .hrs i { font-style: normal; font-size: 12px; font-weight: 700; color: var(--muted, #6b7b80); white-space: nowrap; }
+.slot { display: grid; grid-template-columns: 76px minmax(0, 1fr) 26px; gap: 5px; align-items: center; }
 .slot input { width: 100%; border: 1.5px solid var(--line); background: #fff; border-radius: 8px; padding: 6px 7px; font-size: 13.5px; font-weight: 700; min-width: 0; }
 .slot input:focus { border-color: var(--teal); outline: none; }
 .slot .ic { width: 26px; height: 26px; font-size: 12px; background: transparent; }
@@ -236,11 +238,21 @@ const gradeText = lv => { const g = LEVELS.filter(l => lv.includes(l.k)).flatMap
 const slotCount = p => (p.schedule || []).reduce((a, d) => a + d.items.length, 0);
 const needsSchedule = p => p.published !== false && slotCount(p) === 0;
 const allTags = k => { const m = new Map(); [...data.flatMap(p => p.units), ...loose].forEach(u => u[k].forEach(t => m.set(t, (m.get(t) || 0) + 1))); return [...m].sort((a, b) => b[1] - a[1]); };
-// 課表一節存成「09:00 單元名稱」，沒有時間就只有內容
-const parseSlot = s => { const m = String(s).match(/^(\d{1,2}:\d{2})\s+(.*)$/); return m ? { time: m[1].padStart(5, '0'), text: m[2] } : { time: '', text: String(s) }; };
-const normTime = t => { t = String(t).trim().replace(/[：.]/g, ':'); let m = t.match(/^(\d{1,2}):(\d{2})$/) || t.match(/^(\d{1,2})(\d{2})$/); return m && +m[1] < 24 && +m[2] < 60 ? pad(+m[1]) + ':' + m[2] : ''; };
-const joinSlot = (time, text) => (normTime(time) ? normTime(time) + ' ' : '') + text.trim();
-const addMin = (t, m) => { const [h, mm] = t.split(':').map(Number), x = h * 60 + mm + m; return pad(Math.floor(x / 60) % 24) + ':' + pad(x % 60); };
+// 課表一節存成「1.5小時 單元名稱」，沒填時數就只有內容（舊資料「09:00 單元名稱」開機時會換算成時數）
+const parseSlot = s => { const m = String(s).match(/^(\d+(?:\.\d+)?)\s*小時\s+(.*)$/); return m ? { hrs: m[1], text: m[2] } : { hrs: '', text: String(s).replace(/^\d{1,2}:\d{2}\s+/, '') }; };
+const normHrs = h => { const n = parseFloat(String(h).replace(/[^\d.]/g, '')); return n > 0 && n <= 12 ? String(Math.round(n * 2) / 2) : ''; };
+const joinSlot = (hrs, text) => (normHrs(hrs) ? normHrs(hrs) + '小時 ' : '') + text.trim();
+const hrsOf = u => normHrs((mins(u) || 90) / 60) || '1.5';
+const toMin = s => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+function legacyDay(items) {
+  const ts = items.map(s => (String(s).match(/^(\d{1,2}:\d{2})\s+/) || [])[1]);
+  if (!ts.some(Boolean)) return items;
+  return items.map((s, i) => {
+    if (!ts[i]) return s;
+    const nx = ts[i + 1], len = nx ? toMin(nx) - toMin(ts[i]) - 10 : (i ? toMin(ts[i]) - toMin(ts[i - 1]) - 10 : 90);
+    return joinSlot(len / 60, String(s).replace(/^\d{1,2}:\d{2}\s+/, ''));
+  });
+}
 
 function touch(msg) { dirty++; renderState(); renderList(); if (msg) toast(msg); }
 function renderState() {
@@ -310,10 +322,10 @@ function themeHtml(p) {
       ${others.length ? `<select id="t-copy" aria-label="從其他主題複製單元"><option value="">從其他主題複製一個單元…</option>${others.map((o, k) => `<option value="${k}">${esc(o.u.title)}（${esc(o.x.title)}）</option>`).join('')}</select>` : ''}</div>
   </fieldset>
   <fieldset><legend>課表 <span class="req">必填</span><span class="hint">每一欄是一天，每一列是一節</span></legend>
-    <div class="auto">自動排課：每天 <input type="number" id="a-per" min="1" max="8" value="2" aria-label="每天幾節"> 節，從 <input id="a-start" value="09:00" maxlength="5" inputmode="numeric" aria-label="開始時間"> 開始，節與節之間休息 <input type="number" id="a-gap" min="0" max="120" step="5" value="10" aria-label="休息分鐘"> 分<button class="btn soft small" type="button" id="a-run">依單元順序排好</button></div>
+    <div class="auto">自動排課：每天排 <input type="number" id="a-per" min="1" max="8" value="2" aria-label="每天幾個單元"> 個單元，時數依各單元的上課時間<button class="btn soft small" type="button" id="a-run">依單元順序排好</button></div>
     <div class="days" id="days">${(p.schedule || []).map((d, di) => `<div class="day" data-d="${di}">
       <div class="day-h"><span class="no">Day ${di + 1}</span><input data-dt value="${esc(d.day)}" placeholder="例如：星期三" aria-label="第 ${di + 1} 天名稱"></div>
-      ${d.items.map((s, si) => { const x = parseSlot(s); return `<div class="slot" data-s="${si}"><input data-st value="${x.time}" placeholder="09:00" maxlength="5" inputmode="numeric" aria-label="開始時間"><input data-sx value="${esc(x.text)}" list="unit-names" placeholder="單元或活動" aria-label="內容"><button class="ic" type="button" data-act="rmslot" aria-label="刪除這一節">✕</button></div>`; }).join('')}
+      ${d.items.map((s, si) => { const x = parseSlot(s); return `<div class="slot" data-s="${si}"><label class="hrs"><input data-st value="${x.hrs}" placeholder="1.5" inputmode="decimal" aria-label="上課時數（小時）"><i>小時</i></label><input data-sx value="${esc(x.text)}" list="unit-names" placeholder="單元或活動" aria-label="內容"><button class="ic" type="button" data-act="rmslot" aria-label="刪除這一節">✕</button></div>`; }).join('')}
       <button class="dash" type="button" data-act="addslot">＋ 加一節</button>
       <button class="day-del" type="button" data-act="rmday">刪除這天</button></div>`).join('')}
       <button class="dash add-day" type="button" id="addday">＋ 加一天</button></div>
@@ -470,7 +482,7 @@ $('#editor').addEventListener('click', e => {
   const day = t.closest('.day'), act = t.closest('[data-act]')?.dataset.act;
   if (day && act) {
     const di = +day.dataset.d, d = p.schedule[di];
-    if (act === 'addslot') { const last = d.items.length ? parseSlot(d.items[d.items.length - 1]) : null; d.items.push(last && last.time ? addMin(last.time, 100) + ' ' : ''); touch(); renderEditor(true); document.querySelector(`.day[data-d="${di}"] .slot:last-of-type [data-sx]`)?.focus(); return; }
+    if (act === 'addslot') { const last = d.items.length ? parseSlot(d.items[d.items.length - 1]) : null; d.items.push(last && last.hrs ? last.hrs + '小時 ' : '1.5小時 '); touch(); renderEditor(true); document.querySelector(`.day[data-d="${di}"] .slot:last-of-type [data-sx]`)?.focus(); return; }
     if (act === 'rmslot') { d.items.splice(+t.closest('.slot').dataset.s, 1); touch(); renderEditor(true); return; }
     if (act === 'rmday') { p.schedule.splice(di, 1); touch(); renderEditor(true); return; }
   }
@@ -483,20 +495,19 @@ $('#editor').addEventListener('click', e => {
   }
 });
 
-function buildSchedule(p, per, start, gap) {
+function buildSchedule(p, per) {
   const us = p.units.filter(u => u.title), days = [];
   for (let i = 0; i < us.length; i += per) {
-    let t = start;
-    days.push({ day: `第 ${days.length + 1} 天`, items: us.slice(i, i + per).map(u => { const s = t + ' ' + u.title; t = addMin(t, (mins(u) || 90) + gap); return s; }) });
+    days.push({ day: `第 ${days.length + 1} 天`, items: us.slice(i, i + per).map(u => hrsOf(u) + '小時 ' + u.title) });
   }
   return days;
 }
 function autoSchedule(p) {
-  const per = Math.max(1, +$('#a-per').value || 2), start = normTime($('#a-start').value) || '09:00', gap = Math.max(0, +$('#a-gap').value || 0);
+  const per = Math.max(1, +$('#a-per').value || 2);
   const us = p.units.filter(u => u.title); if (!us.length) return toast('先新增單元再自動排課', true);
   const btn = $('#a-run');
   if (slotCount(p) && !btn.dataset.armed) { btn.dataset.armed = '1'; btn.textContent = '會覆蓋目前課表，再按一次'; return; }
-  const days = buildSchedule(p, per, start, gap);
+  const days = buildSchedule(p, per);
   p.schedule = days; touch(`已排成 ${days.length} 天，可以再手動調整`); renderEditor(true);
 }
 
@@ -546,7 +557,7 @@ $('#publish').addEventListener('click', () => {
     triedPublish = true; tab = 'theme'; view = { kind: 'theme', pack: bad[0] }; renderAll();
     return toast(`還有 ${bad.length} 個主題課程缺年級或課表（清單裡紅字標示），補好再發布`, true);
   }
-  data.forEach(p => { p.schedule = (p.schedule || []).map(d => ({ day: d.day.trim() || '未命名', items: d.items.map(s => s.trim()).filter(s => parseSlot(s).text.trim() && !/^\d{1,2}:\d{2}$/.test(s)) })).filter(d => d.items.length); });
+  data.forEach(p => { p.schedule = (p.schedule || []).map(d => ({ day: d.day.trim() || '未命名', items: d.items.map(s => s.trim()).filter(s => parseSlot(s).text.trim() && !/^\d+(\.\d+)?小時$/.test(s)) })).filter(d => d.items.length); });
   const btn = $('#publish'); btn.disabled = true; btn.textContent = '發布中…';
   const done = res => { dirty = 0; triedPublish = false; btn.textContent = '發布到網站'; renderAll(true); toast(res && res.units !== undefined ? `已發布：${res.packs} 個主題課程、${res.units} 個單元，網站約 5 分鐘內更新` : '已發布（預覽模式，資料不會寫到任何地方）'); };
   if (!IS_GAS) return setTimeout(done, 700);
@@ -561,6 +572,7 @@ function boot(res) {
   data = list.map(p => {
     const q = Object.assign({ published: true, outcomes: [], schedule: [], requirements: [], intro_image: '', slug: '', levels: [] }, p);
     if (!q.levels.length) q.levels = OLD_GRADES[q.grades] ? [...OLD_GRADES[q.grades]] : [];
+    q.schedule = (q.schedule || []).map(d => ({ ...d, items: legacyDay(d.items || []) }));
     q.units = (q.units || []).map(u => { const x = Object.assign(newUnit(), u); if (!x.levels.length) x.levels = [...q.levels]; return x; });
     return q;
   });

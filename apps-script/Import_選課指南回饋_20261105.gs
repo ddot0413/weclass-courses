@@ -36,7 +36,7 @@ function 套用選課指南回饋_20261105() {
   const pv = packs.getDataRange().getValues(), sc = pv[0].indexOf('課程表');
   for (let r = 1; r < pv.length; r++) {
     const s = String(pv[r][sc]);
-    if (s.includes(OLD)) { packs.getRange(r + 1, sc + 1).setValue(s.replace('09:00 ' + OLD + '；10:40 ' + OLD, '09:00 神奇平衡鳥；10:40 蝕刻鑰匙圈').split(OLD).join('神奇平衡鳥')); log.push(pv[r][0] + ' 課表'); }
+    if (s.includes(OLD)) { packs.getRange(r + 1, sc + 1).setValue(s.replace('09:00 ' + OLD + '；10:40 ' + OLD, '1.5小時 神奇平衡鳥；1.5小時 蝕刻鑰匙圈').split(OLD).join('神奇平衡鳥')); log.push(pv[r][0] + ' 課表'); }
   }
 
   // ── 新分頁：單元總表、分齡課表
