@@ -464,6 +464,8 @@ a { color: inherit; }
 .theme-lv { margin-bottom: 14px; }
 .theme-lv-note { margin: 0 0 30px; max-width: 760px; font-size: 14.5px; line-height: 1.75; letter-spacing: .05em; background: rgba(255, 255, 255, .55); border-radius: 16px; padding: 12px 18px; }
 .theme-lv-note b { font-weight: 900; color: var(--teal); margin-right: 10px; }
+.lvtxt { display: inline-block; font-size: 12px; font-weight: 900; letter-spacing: .04em; border-radius: 999px; padding: 2px 10px; background: #FFE7CF; color: #8A4A0B; }
+.lvtxt.l4, .lvtxt.l5 { background: var(--orange); color: var(--white); }
 .lvdots { display: inline-flex; gap: 3px; vertical-align: 1px; margin-right: 6px; }
 .lvdots i { width: 8px; height: 8px; border-radius: 50%; background: #D9E4E4; }
 .lvdots i.on { background: var(--orange); }
@@ -3315,7 +3317,7 @@ db.forEach(p => p.units.forEach(u => {
 /* 同名單元只算一次（例如 3D列印筆:藝術作品 出現在兩個方案） */
 const UNIQ = (() => { const seen = new Set(), out = []; db.forEach(p => p.units.forEach((u, i) => { if (!seen.has(u.title)) { seen.add(u.title); out.push({ p, u, i }); } })); return out; })();
 const weeksOf = u => Math.max(1, Math.round((parseInt(u.duration, 10) || 90) / 90));
-const dots = n => `<span class="lvdots" aria-label="難易度 ${n}／5">${[1, 2, 3, 4, 5].map(k => `<i class="${k <= n ? 'on' : ''}"></i>`).join('')}</span>`;
+const dots = n => `<span class="lvtxt l${n}">難度：${LEVEL_NAME[n] || '—'}</span>`;
 const state = { selected: new Set(), tab: 'sci', query: '', from: 'theme', jumpStage: '', mode: 'theme', stage: 'a6', themeLv: 'all', grade: 1, term: '上', principle: '' };
 try { const m0 = sessionStorage.getItem('weclass-mode'); if (['theme', 'stage', 'goal'].includes(m0)) state.mode = m0; } catch (e) {}   // 記住上次用的選課方式，課程頁的路徑才對   // selected 內容為 "sci|熱塑性塑膠"
 function matchUnits() {
@@ -3435,7 +3437,7 @@ function showMode(mode, fromClick) {
           <ol class="weeks">${rows.map(r => `<li><button type="button" class="wk" data-unit="${r.p.id}.${r.i}">
               <span class="wn">${r.from === r.to ? `W${r.from}` : `W${r.from}–${r.to}`}<small>${r.from === r.to ? '1 週' : (r.to - r.from + 1) + ' 週'}</small></span>
               <img src="${unitPhoto(r.u, r.i)}" alt="" loading="lazy">
-              <span class="wb"><strong>${esc(r.u.title)}</strong><span class="wmeta">${r.u.principles.map(x => `<i>${esc(x)}</i>`).join('')}<span class="wlv">${dots(r.u.level)}${LEVEL_NAME[r.u.level] || ''}</span></span></span>
+              <span class="wb"><strong>${esc(r.u.title)}</strong><span class="wmeta">${r.u.principles.map(x => `<i>${esc(x)}</i>`).join('')}<span class="wlv">${dots(r.u.level)}</span></span></span>
               <span class="wgo" aria-hidden="true">看內容 →</span></button></li>`).join('')}
             ${used < 15 ? `<li class="wk-gap"><span class="wn">W${used + 1}–15</span><span>其餘 ${15 - used} 週可依單位需求，從其他主題加入單元，或延伸成作品發表、競賽練習。</span></li>` : ''}</ol>
         </article>`;
@@ -3453,7 +3455,7 @@ function showMode(mode, fromClick) {
       body.innerHTML = `<div class="pr-layout"><nav class="pr-list" aria-label="科學原理">${order.map(n => { const c = UNIQ.filter(x => x.u.principles.includes(n)).length; return `<button type="button" class="pr" data-pr="${esc(n)}" aria-pressed="${n === pr}">${esc(n)}<span>${c}</span></button>`; }).join('')}</nav>
         <section class="ladder" aria-live="polite"><div class="ladder-h"><p class="sem-k">Principle</p><h3>${esc(pr)}</h3><p>${esc(info)}・共 ${list.length} 個單元，由簡單到困難</p></div>
           <ol class="steps">${list.map((x, k) => `<li><button type="button" class="step" data-unit="${x.p.id}.${x.i}">
-            <span class="sn">${k + 1}</span><span class="photo"><img src="${unitPhoto(x.u, x.i)}" alt="" loading="lazy"><span class="lv">${LEVEL_NAME[x.u.level] || ''}</span></span>
+            <span class="sn">${k + 1}</span><span class="photo"><img src="${unitPhoto(x.u, x.i)}" alt="" loading="lazy"></span>
             <span class="sb"><strong>${esc(x.u.title)}</strong><span class="upkg">${esc(x.p.title)}・${esc(x.p.grades)}</span><span class="wlv">${dots(x.u.level)}<span class="utime">${esc(x.u.duration)}</span></span></span></button></li>`).join('')}</ol>
           <p class="ladder-foot">難度：入門 → 基礎 → 進階 → 挑戰 → 專案</p></section></div>`;
       body.querySelectorAll('.pr').forEach(b => b.addEventListener('click', () => { state.principle = b.dataset.pr; drawGoal(); if (innerWidth < 901) body.querySelector('.ladder').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
@@ -3959,7 +3961,7 @@ function openUnit(ref) {
   dlg.innerHTML = `<div class="udlg-in"><button type="button" class="udlg-x" aria-label="關閉">✕</button>
     <div class="udlg-photo"><img src="${unitPhoto(u, +ix)}" alt=""></div>
     <div class="udlg-b"><p class="upkg">出自主題：${esc(p.title)}・${esc(p.grades)}</p><h3>${esc(u.title)}</h3>
-      <p class="udlg-meta"><span class="utime">${esc(u.duration)}</span><span class="wlv">${dots(u.level)}${LEVEL_NAME[u.level] || ''}</span>${u.principles.map(x => `<i class="prc">${esc(x)}</i>`).join('')}</p>
+      <p class="udlg-meta"><span class="utime">${esc(u.duration)}</span><span class="wlv">${dots(u.level)}</span>${u.principles.map(x => `<i class="prc">${esc(x)}</i>`).join('')}</p>
       <p class="udlg-d">${esc(u.desc || '')}</p>
       <dl>${u.sci_desc ? `<dt>科學知識</dt><dd>${esc(u.sci_desc)}</dd>` : ''}${u.skill_desc ? `<dt>技能訓練</dt><dd>${esc(u.skill_desc)}</dd>` : ''}</dl>
       <div class="udlg-act">${cartBtn('u:' + u.id)}<a class="udlg-more" href="#${p.id}.${+ix + 1}">看「${esc(p.title)}」整個主題 →</a></div></div></div>`;
