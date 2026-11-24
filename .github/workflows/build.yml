@@ -1,7 +1,7 @@
 # 自動產生課程網站並發布到 GitHub Pages
 # 每天台灣時間凌晨 3 點從試算表讀最新課程重新產生；也可以在 Actions 頁面按「Run workflow」立即更新。
-# 目前是給客戶看的預覽網址 https://ddot0413.github.io/weclass-courses/（不讓搜尋引擎收錄）。
-# 之後接上 courses.weclass.tw：SITE_ORIGIN 改成 https://courses.weclass.tw、SITE_BASE 改成 /、刪掉 --noindex。
+# 正式網址 https://courses.weclass.tw/（GitHub › Settings › Pages 的 Custom domain 要填 courses.weclass.tw，
+# GoDaddy 的 DNS 要有一筆 CNAME：courses → ddot0413.github.io）。舊的 ddot0413.github.io/weclass-courses/ 會自動轉過來。
 name: Build course site
 on:
   workflow_dispatch:
@@ -28,14 +28,12 @@ jobs:
       - name: Build
         env:
           DATA_URL: https://script.google.com/macros/s/AKfycbwsQRRy-7l0NSfUNeplodcIuVzs3QbhbsmuY5Win1jBUnvCp8h_K8jPLLPzFG4pRr0X/exec
-          SITE_ORIGIN: https://ddot0413.github.io
-          SITE_BASE: /weclass-courses/
-        run: python build.py --origin "$SITE_ORIGIN" --base "$SITE_BASE" --data-url "$DATA_URL" --live-data --noindex
+          SITE_ORIGIN: https://courses.weclass.tw
+          SITE_BASE: /
+        run: python build.py --origin "$SITE_ORIGIN" --base "$SITE_BASE" --data-url "$DATA_URL" --live-data
       - uses: actions/upload-pages-artifact@v3
         with:
-          # 預覽網址本身就在 /weclass-courses/ 底下，所以上傳產生出來的 weclass-courses 資料夾內容
-          # （改用 courses.weclass.tw、SITE_BASE 為 / 時，這裡改回 dist）
-          path: dist/weclass-courses
+          path: dist
   deploy:
     needs: build
     runs-on: ubuntu-latest

@@ -265,7 +265,9 @@ for p in courses:
     m = minutes(p)
     llms.append(f"- [{p['title']}]({url(slug(p) + '/')})：{p['grades']}，{str(len(p.get('schedule') or []) or 5) + ' 天跨日專案' if p['type'] == '進階' else str(len(p['units'])) + ' 個單元、共 ' + str(m) + ' 分鐘'}。{p['desc']}\n")
 (SITE / 'llms.txt').write_text(''.join(llms), 'utf-8')
-(SITE / '404.html').write_text(page('<title>找不到這個頁面｜WeClass 維課教育</title><meta name="robots" content="noindex">',
+# 從 GitHub Pages 預覽網址（/weclass-courses/…）搬到子網域後，舊連結會帶著 /weclass-courses/ 前綴進來：去掉前綴轉到新位置
+OLD_PREFIX = '<script>if(location.pathname.indexOf("/weclass-courses/")===0)location.replace(location.pathname.slice(16)+location.search+location.hash)</script>' if BASE == '/' else ''
+(SITE / '404.html').write_text(page('<title>找不到這個頁面｜WeClass 維課教育</title><meta name="robots" content="noindex">' + OLD_PREFIX,
                                     f'<section class="hero" style="padding:80px 0"><div class="wrap"><div class="hero-copy"><h1>找不到這個頁面</h1><p class="d">這個課程可能已經改名或下架。</p><a class="btn orange" href="{BASE}">回選課指南</a></div></div></section>'), 'utf-8')
 
 # 舊網址轉址：已移除的「全部課程方案」頁與三種方式的舊分頁，導回選課指南對應的切換鈕
